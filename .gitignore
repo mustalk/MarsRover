@@ -1,6 +1,9 @@
 *.iml
 .gradle
 .idea/
+# IDE Configuration - Keep Code Quality Tool Settings
+!.idea/detekt.xml
+!.idea/ktlint.xml
 .DS_Store
 /local.properties
 /build
