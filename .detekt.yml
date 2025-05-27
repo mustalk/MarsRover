@@ -1,0 +1,9 @@
+# IDE Detekt Plugin Configuration
+# This file configures the Detekt IDE plugin to use our custom configuration
+# Place this file in the project root to sync IDE with Gradle configuration
+
+detekt:
+  config: config/detekt/detekt.yml
+  baseline: config/detekt/baseline.xml
+  parallel: true
+  buildUponDefaultConfig: true

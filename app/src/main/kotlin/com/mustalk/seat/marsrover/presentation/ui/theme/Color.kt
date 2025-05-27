@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.ui.theme
+package com.mustalk.seat.marsrover.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

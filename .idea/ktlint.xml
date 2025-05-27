@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+    <component name="KtlintProjectConfiguration">
+        <enableKtlint>true</enableKtlint>
+        <disabledRules>
+            <option value="standard:function-naming" />
+            <option value="standard:no-wildcard-imports" />
+            <option value="standard:backing-property-naming" />
+        </disabledRules>
+        <treatAsErrors>false</treatAsErrors>
+        <enableExperimentalRules>false</enableExperimentalRules>
+        <editorConfigPath>$PROJECT_DIR$/.editorconfig</editorConfigPath>
+    </component>
+</project>
