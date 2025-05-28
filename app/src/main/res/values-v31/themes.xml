@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.MarsRover" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Splash Screen Theming for Android 12+ (API 31+) -->
+        <item name="android:windowSplashScreenBackground">@color/mars_surface</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@android:drawable/sym_def_app_icon</item>
+        <item name="android:windowSplashScreenAnimationDuration">300</item>
+
+        <!-- Status bar theming -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
