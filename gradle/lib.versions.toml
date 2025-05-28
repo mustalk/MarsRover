@@ -1,7 +1,8 @@
 [versions]
 # Build tools
-agp = "8.8.2"
-kotlin = "2.0.0"
+agp = "8.10.0"
+kotlin = "2.1.21"
+ksp = "2.1.21-2.0.1"
 
 # UI and Core AndroidX
 coreKtx = "1.16.0"
@@ -31,6 +32,7 @@ ktlint-plugin = "12.3.0"
 spotless-plugin = "7.0.3"
 
 [libraries]
+# UI and Core AndroidX
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -72,6 +74,7 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 
 # Dependency Injection
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 # Code analysis tools
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt-plugin" }
