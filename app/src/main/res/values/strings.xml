@@ -1,3 +1,49 @@
 <resources>
     <string name="app_name">MarsRover</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_title">🚀 Mars Rover Mission Control</string>
+    <string name="welcome_subtitle">Theme System Initialized</string>
+    <string name="welcome_message">Ready for mission deployment…</string>
+
+    <!-- Common Actions -->
+    <string name="action_start">Start</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_execute">Execute</string>
+    <string name="action_retry">Retry</string>
+
+    <!-- Mission Related -->
+    <string name="mission_new">New Mission</string>
+    <string name="mission_result">Mission Result</string>
+    <string name="mission_status">Mission Status</string>
+    <string name="mission_loading">Processing mission…</string>
+
+    <!-- Rover Related -->
+    <string name="rover_position">Rover Position</string>
+    <string name="rover_direction">Rover Direction</string>
+    <string name="rover_movements">Rover Movements</string>
+    <string name="rover_final_position">Final Position: %1$s</string>
+
+    <!-- Plateau Related -->
+    <string name="plateau_size">Plateau Size</string>
+    <string name="plateau_width">Width</string>
+    <string name="plateau_height">Height</string>
+
+    <!-- Input Types -->
+    <string name="input_mode_json">JSON Input</string>
+    <string name="input_mode_individual">Individual Inputs</string>
+    <string name="input_json_hint">Enter JSON mission data</string>
+
+    <!-- Error Messages -->
+    <string name="error_invalid_json">Invalid JSON format</string>
+    <string name="error_invalid_position">Invalid rover position</string>
+    <string name="error_invalid_direction">Invalid rover direction</string>
+    <string name="error_invalid_movements">Invalid movement commands</string>
+    <string name="error_mission_failed">Mission execution failed</string>
+    <string name="error_unknown">An unexpected error occurred</string>
+
+    <!-- Content Descriptions for Accessibility -->
+    <string name="cd_rover_icon">Mars rover icon</string>
+    <string name="cd_mission_fab">Start new mission</string>
+    <string name="cd_loading">Loading animation</string>
 </resources>
