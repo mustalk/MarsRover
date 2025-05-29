@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +21,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,7 +71,15 @@ fun MarsTextField(
                     value = value,
                     onValueChange = onValueChange,
                     label = { Text(text = label) },
-                    placeholder = placeholder?.let { { Text(text = it) } },
+                    placeholder =
+                        placeholder?.let {
+                            {
+                                Text(
+                                    text = it,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
+                            }
+                        },
                     isError = isError,
                     enabled = enabled,
                     readOnly = readOnly,
@@ -76,6 +87,11 @@ fun MarsTextField(
                     maxLines = maxLines,
                     keyboardOptions = keyboardOptions,
                     visualTransformation = visualTransformation,
+                    colors =
+                        TextFieldDefaults.colors(
+                            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        ),
                     modifier =
                         Modifier
                             .fillMaxWidth()
@@ -87,7 +103,15 @@ fun MarsTextField(
                     value = value,
                     onValueChange = onValueChange,
                     label = { Text(text = label) },
-                    placeholder = placeholder?.let { { Text(text = it) } },
+                    placeholder =
+                        placeholder?.let {
+                            {
+                                Text(
+                                    text = it,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
+                            }
+                        },
                     isError = isError,
                     enabled = enabled,
                     readOnly = readOnly,
@@ -95,6 +119,128 @@ fun MarsTextField(
                     maxLines = maxLines,
                     keyboardOptions = keyboardOptions,
                     visualTransformation = visualTransformation,
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        ),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .then(focusModifier)
+                )
+            }
+        }
+
+        // Error message display
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+            )
+        }
+    }
+}
+
+/**
+ * Mars-themed text field component with TextFieldValue for cursor control.
+ */
+@Composable
+fun MarsTextField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    placeholder: String? = null,
+    errorMessage: String? = null,
+    isError: Boolean = errorMessage != null,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    singleLine: Boolean = true,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    variant: MarsTextFieldVariant = MarsTextFieldVariant.Outlined,
+    contentDescription: String? = null,
+    onFocusChanged: ((FocusState) -> Unit)? = null,
+) {
+    val semanticsModifier =
+        if (contentDescription != null) {
+            modifier.semantics { this.contentDescription = contentDescription }
+        } else {
+            modifier
+        }
+
+    val focusModifier =
+        if (onFocusChanged != null) {
+            Modifier.onFocusChanged(onFocusChanged)
+        } else {
+            Modifier
+        }
+
+    Column(modifier = semanticsModifier) {
+        when (variant) {
+            MarsTextFieldVariant.Filled -> {
+                TextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    label = { Text(text = label) },
+                    placeholder =
+                        placeholder?.let {
+                            {
+                                Text(
+                                    text = it,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
+                            }
+                        },
+                    isError = isError,
+                    enabled = enabled,
+                    readOnly = readOnly,
+                    singleLine = singleLine,
+                    maxLines = maxLines,
+                    keyboardOptions = keyboardOptions,
+                    visualTransformation = visualTransformation,
+                    colors =
+                        TextFieldDefaults.colors(
+                            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        ),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .then(focusModifier)
+                )
+            }
+
+            MarsTextFieldVariant.Outlined -> {
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    label = { Text(text = label) },
+                    placeholder =
+                        placeholder?.let {
+                            {
+                                Text(
+                                    text = it,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
+                            }
+                        },
+                    isError = isError,
+                    enabled = enabled,
+                    readOnly = readOnly,
+                    singleLine = singleLine,
+                    maxLines = maxLines,
+                    keyboardOptions = keyboardOptions,
+                    visualTransformation = visualTransformation,
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        ),
                     modifier =
                         Modifier
                             .fillMaxWidth()

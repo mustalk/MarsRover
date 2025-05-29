@@ -1,9 +1,6 @@
 package com.mustalk.seat.marsrover.presentation.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -19,18 +16,13 @@ import com.mustalk.seat.marsrover.presentation.ui.mission.NewMissionScreen
  * Splash experience is handled by SplashScreen API with Lottie exit animation.
  *
  * @param navController Navigation controller for managing navigation state
- * @param contentPadding Padding values from the parent Scaffold
  */
 @Composable
-fun MarsRoverNavigation(
-    navController: NavHostController,
-    contentPadding: PaddingValues = PaddingValues(),
-) {
+fun MarsRoverNavigation(navController: NavHostController) {
     NavHost(
         navController = navController,
         // Start directly at Dashboard - splash is handled by SplashScreen API
-        startDestination = Screen.Dashboard.route,
-        modifier = Modifier.padding(contentPadding)
+        startDestination = Screen.Dashboard.route
     ) {
         // Dashboard Screen - Main screen showing mission results and controls
         composable(Screen.Dashboard.route) {

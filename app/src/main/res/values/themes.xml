@@ -5,7 +5,7 @@
         <!-- Status bar theming -->
         <item name="android:statusBarColor">@android:color/transparent</item>
 
-        <!-- Background color for pre-API 31 -->
-        <item name="android:windowBackground">@color/mars_surface</item>
+        <!-- Background color for splash screen - space blue for contrast with Mars logo -->
+        <item name="android:windowBackground">@color/space_blue</item>
     </style>
 </resources>

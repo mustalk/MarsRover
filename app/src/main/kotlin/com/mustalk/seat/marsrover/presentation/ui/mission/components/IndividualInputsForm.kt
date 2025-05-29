@@ -14,15 +14,24 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mustalk.seat.marsrover.R
+import com.mustalk.seat.marsrover.presentation.ui.components.MarsButton
+import com.mustalk.seat.marsrover.presentation.ui.components.MarsButtonVariant
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsCard
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsTextField
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsTextFieldVariant
@@ -51,7 +60,7 @@ fun IndividualInputsForm(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // Plateau Configuration
         PlateauConfigSection(
@@ -107,16 +116,16 @@ private fun PlateauConfigSection(
         modifier = modifier
     ) {
         Text(
-            text = "Define the exploration area dimensions",
+            text = stringResource(R.string.plateau_configuration_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             MarsTextField(
                 value = width,
@@ -167,22 +176,22 @@ private fun RoverPositionSection(
         modifier = modifier
     ) {
         Text(
-            text = "Set the rover's starting position and orientation",
+            text = stringResource(R.string.rover_start_position_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
         // Position coordinates
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             MarsTextField(
                 value = startX,
                 onValueChange = onStartXChange,
-                label = "Start X",
+                label = stringResource(R.string.rover_start_x),
                 errorMessage = startXError,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 variant = MarsTextFieldVariant.Outlined,
@@ -195,7 +204,7 @@ private fun RoverPositionSection(
             MarsTextField(
                 value = startY,
                 onValueChange = onStartYChange,
-                label = "Start Y",
+                label = stringResource(R.string.rover_start_y),
                 errorMessage = startYError,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 variant = MarsTextFieldVariant.Outlined,
@@ -206,7 +215,7 @@ private fun RoverPositionSection(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         // Direction selection
         Text(
@@ -214,8 +223,6 @@ private fun RoverPositionSection(
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Medium
         )
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         DirectionSelector(
             selectedDirection = direction,
@@ -236,7 +243,7 @@ private fun DirectionSelector(
         // First row: North and East
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             listOf("N", "E").forEach { direction ->
                 Row(
@@ -253,12 +260,12 @@ private fun DirectionSelector(
                         selected = selectedDirection == direction,
                         onClick = { onDirectionSelected(direction) }
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
                     Text(
                         text =
                             when (direction) {
-                                "N" -> "North"
-                                "E" -> "East"
+                                "N" -> stringResource(R.string.direction_north)
+                                "E" -> stringResource(R.string.direction_east)
                                 else -> direction
                             },
                         style = MaterialTheme.typography.bodyMedium
@@ -267,12 +274,12 @@ private fun DirectionSelector(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(2.dp))
 
         // Second row: South and West
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             listOf("S", "W").forEach { direction ->
                 Row(
@@ -289,12 +296,12 @@ private fun DirectionSelector(
                         selected = selectedDirection == direction,
                         onClick = { onDirectionSelected(direction) }
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
                     Text(
                         text =
                             when (direction) {
-                                "S" -> "South"
-                                "W" -> "West"
+                                "S" -> stringResource(R.string.direction_south)
+                                "W" -> stringResource(R.string.direction_west)
                                 else -> direction
                             },
                         style = MaterialTheme.typography.bodyMedium
@@ -323,28 +330,85 @@ private fun MovementCommandsSection(
     onCommandsFocusLost: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    val focusManager = LocalFocusManager.current
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(commands)) }
+
+    // Sync TextFieldValue with commands when commands change externally
+    if (textFieldValue.text != commands) {
+        textFieldValue =
+            TextFieldValue(
+                text = commands,
+                selection = TextRange(commands.length)
+            )
+    }
+
     MarsCard(
         title = stringResource(R.string.rover_movements),
         modifier = modifier
     ) {
         Text(
-            text = "Enter movement commands (L = Left, R = Right, M = Move)",
+            text = stringResource(R.string.movement_commands_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            listOf(
+                Triple("L", stringResource(R.string.action_turn_left), stringResource(R.string.cd_add_left_turn)),
+                Triple("R", stringResource(R.string.action_turn_right), stringResource(R.string.cd_add_right_turn)),
+                Triple("M", stringResource(R.string.action_move_forward), stringResource(R.string.cd_add_move_forward))
+            ).forEach { (command, label, contentDesc) ->
+                MarsButton(
+                    text = command,
+                    onClick = {
+                        val newCommands = commands + command
+                        textFieldValue =
+                            TextFieldValue(
+                                text = newCommands,
+                                selection = TextRange(newCommands.length)
+                            )
+                        onCommandsChange(newCommands)
+                        focusManager.clearFocus()
+                    },
+                    variant = MarsButtonVariant.Primary,
+                    contentDescription = contentDesc,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(2.dp))
 
         MarsTextField(
-            value = commands,
-            onValueChange = onCommandsChange,
-            label = "Movement Commands",
-            placeholder = "LMLMLMLMM",
+            value = textFieldValue,
+            onValueChange = {
+                textFieldValue = it
+                onCommandsChange(it.text)
+            },
+            label = stringResource(R.string.movement_commands_label),
+            placeholder = stringResource(R.string.movement_commands_placeholder),
             errorMessage = commandsError,
             variant = MarsTextFieldVariant.Outlined,
             onFocusChanged = { focusState ->
                 if (!focusState.isFocused) onCommandsFocusLost()
             },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(2.dp))
+
+        MarsButton(
+            text = stringResource(R.string.action_clear),
+            onClick = {
+                textFieldValue = TextFieldValue("")
+                onCommandsChange("")
+                focusManager.clearFocus()
+            },
+            variant = MarsButtonVariant.Secondary,
+            contentDescription = stringResource(R.string.cd_clear_commands),
             modifier = Modifier.fillMaxWidth()
         )
     }

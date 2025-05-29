@@ -7,6 +7,6 @@
         <item name="android:windowLightStatusBar">false</item>
 
         <!-- Background color for pre-API 31 -->
-        <item name="android:windowBackground">@color/mars_surface</item>
+        <item name="android:windowBackground">@color/space_blue</item>
     </style>
 </resources>

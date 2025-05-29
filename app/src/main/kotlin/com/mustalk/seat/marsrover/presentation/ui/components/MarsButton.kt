@@ -41,7 +41,13 @@ fun MarsButton(
     val buttonColors =
         when (variant) {
             MarsButtonVariant.Primary -> ButtonDefaults.buttonColors()
-            MarsButtonVariant.Secondary -> ButtonDefaults.outlinedButtonColors()
+            MarsButtonVariant.Secondary ->
+                ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                )
             MarsButtonVariant.Text -> ButtonDefaults.textButtonColors()
         }
 

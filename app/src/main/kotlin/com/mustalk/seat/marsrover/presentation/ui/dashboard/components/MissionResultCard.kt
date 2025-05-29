@@ -2,6 +2,7 @@
 
 package com.mustalk.seat.marsrover.presentation.ui.dashboard.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,15 +14,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mustalk.seat.marsrover.R
@@ -38,8 +48,9 @@ private const val EXAMPLE_MISSION_INPUT =
 
 /**
  * Card component that displays the result of a completed rover mission.
- * Shows final position, success status, and timestamp.
+ * Shows final position, success status, and timestamp with expandable original input.
  */
+@Suppress("CyclomaticComplexMethod")
 @Composable
 fun MissionResultCard(
     missionResult: MissionResult,
@@ -47,6 +58,7 @@ fun MissionResultCard(
 ) {
     val dateFormatter = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
     val formattedDate = dateFormatter.format(Date(missionResult.timestamp))
+    var isInputExpanded by remember { mutableStateOf(false) }
 
     MarsCard(
         title = stringResource(R.string.mission_result),
@@ -80,7 +92,7 @@ fun MissionResultCard(
                 modifier = Modifier.size(24.dp)
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Text(
                 text =
@@ -100,7 +112,7 @@ fun MissionResultCard(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         // Final position
         Column(
@@ -112,23 +124,67 @@ fun MissionResultCard(
                 fontWeight = FontWeight.Medium
             )
 
-            Text(
-                text = "Completed on $formattedDate",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
             // Show original input if available
             missionResult.originalInput?.let { input ->
                 Spacer(modifier = Modifier.height(8.dp))
-                val truncatedInput = input.take(MAX_INPUT_PREVIEW_LENGTH)
-                val suffix = if (input.length > MAX_INPUT_PREVIEW_LENGTH) "..." else ""
+
+                // Input label with expand/collapse button
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Mission Instructions:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    if (input.length > MAX_INPUT_PREVIEW_LENGTH) {
+                        IconButton(
+                            onClick = { isInputExpanded = !isInputExpanded },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isInputExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                contentDescription = if (isInputExpanded) "Collapse input" else "Expand input",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+
+                // Input text - expandable
                 Text(
-                    text = "Input: $truncatedInput$suffix",
+                    text =
+                        if (isInputExpanded || input.length <= MAX_INPUT_PREVIEW_LENGTH) {
+                            input
+                        } else {
+                            input.take(MAX_INPUT_PREVIEW_LENGTH) + "..."
+                        },
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = if (isInputExpanded) Int.MAX_VALUE else 2,
+                    overflow = if (isInputExpanded) TextOverflow.Visible else TextOverflow.Ellipsis,
+                    modifier =
+                        if (input.length > MAX_INPUT_PREVIEW_LENGTH) {
+                            Modifier.clickable { isInputExpanded = !isInputExpanded }
+                        } else {
+                            Modifier
+                        }
                 )
             }
+
+            // Completed timestamp - right aligned, placed after mission instructions
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Completed on $formattedDate",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.End
+            )
         }
     }
 }

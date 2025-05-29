@@ -295,10 +295,15 @@ class DashboardScreenTest {
             }
         }
 
-        // Then - Should display truncated input (first 50 characters + "...")
+        // Then - Should display Mission Instructions label
+        composeTestRule
+            .onNodeWithText("Mission Instructions:")
+            .assertIsDisplayed()
+
+        // And should display truncated input (first 50 characters + "...")
         val expectedTruncated = longInput.take(50) + "..."
         composeTestRule
-            .onNodeWithText("Input: $expectedTruncated")
+            .onNodeWithText(expectedTruncated)
             .assertIsDisplayed()
     }
 }

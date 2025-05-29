@@ -83,8 +83,25 @@ fun MarsRoverTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            // Use Mars-themed colors for status bar that blend with background
+            val statusBarColor =
+                if (darkTheme) {
+                    MarsStatusBarDark.toArgb()
+                } else {
+                    MarsStatusBarLight.toArgb()
+                }
+
+            val navigationBarColor =
+                if (darkTheme) {
+                    MarsNavigationBarDark.toArgb()
+                } else {
+                    MarsNavigationBarLight.toArgb()
+                }
+
+            window.statusBarColor = statusBarColor
+            window.navigationBarColor = navigationBarColor
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = false
         }
     }
 
