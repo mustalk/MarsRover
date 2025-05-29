@@ -42,7 +42,7 @@ class NewMissionScreenTest {
                     onRoverDirectionChange = {},
                     onMovementCommandsChange = {},
                     onExecuteMission = {},
-                    onClearMessages = {}
+                    onNavigateBack = {}
                 )
             }
         }
@@ -50,7 +50,7 @@ class NewMissionScreenTest {
         // Then
         composeTestRule.onNodeWithText("Choose input method").assertIsDisplayed()
         composeTestRule.onNodeWithText("JSON").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Individual").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Builder").assertIsDisplayed()
         composeTestRule.onNodeWithText("Mission JSON Configuration").assertIsDisplayed()
         composeTestRule.onNodeWithText("Execute").assertIsDisplayed()
         composeTestRule.onNodeWithText("Cancel").assertIsDisplayed()
@@ -72,7 +72,7 @@ class NewMissionScreenTest {
                     onRoverDirectionChange = {},
                     onMovementCommandsChange = {},
                     onExecuteMission = {},
-                    onClearMessages = {}
+                    onNavigateBack = {}
                 )
             }
         }
@@ -108,7 +108,7 @@ class NewMissionScreenTest {
                     onRoverDirectionChange = {},
                     onMovementCommandsChange = {},
                     onExecuteMission = {},
-                    onClearMessages = {}
+                    onNavigateBack = {}
                 )
             }
         }
@@ -136,7 +136,7 @@ class NewMissionScreenTest {
                     onRoverDirectionChange = {},
                     onMovementCommandsChange = {},
                     onExecuteMission = {},
-                    onClearMessages = {}
+                    onNavigateBack = {}
                 )
             }
         }
@@ -161,7 +161,7 @@ class NewMissionScreenTest {
                     onRoverDirectionChange = {},
                     onMovementCommandsChange = {},
                     onExecuteMission = {},
-                    onClearMessages = {}
+                    onNavigateBack = {}
                 )
             }
         }
@@ -188,7 +188,7 @@ class NewMissionScreenTest {
                     onRoverDirectionChange = {},
                     onMovementCommandsChange = {},
                     onExecuteMission = {},
-                    onClearMessages = {}
+                    onNavigateBack = {}
                 )
             }
         }
@@ -197,7 +197,7 @@ class NewMissionScreenTest {
         composeTestRule.onNodeWithText("Mission JSON Configuration").assertIsDisplayed()
 
         // When clicking Individual button
-        composeTestRule.onNodeWithText("Individual").performClick()
+        composeTestRule.onNodeWithText("Builder").performClick()
 
         // Then should show individual inputs
         composeTestRule.onNodeWithText("Plateau Size").assertIsDisplayed()

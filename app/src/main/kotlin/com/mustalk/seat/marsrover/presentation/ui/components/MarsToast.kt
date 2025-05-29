@@ -1,5 +1,6 @@
 package com.mustalk.seat.marsrover.presentation.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,6 +39,7 @@ fun MarsToast(
     title: String? = null,
     type: MarsToastType = MarsToastType.Error,
     contentDescription: String? = null,
+    onClick: (() -> Unit)? = null,
 ) {
     val (backgroundColor, contentColor, icon) =
         when (type) {
@@ -70,8 +72,15 @@ fun MarsToast(
             modifier
         }
 
+    val clickableModifier =
+        if (onClick != null) {
+            semanticsModifier.clickable { onClick() }
+        } else {
+            semanticsModifier
+        }
+
     Card(
-        modifier = semanticsModifier.fillMaxWidth(),
+        modifier = clickableModifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors =
             CardDefaults.cardColors(

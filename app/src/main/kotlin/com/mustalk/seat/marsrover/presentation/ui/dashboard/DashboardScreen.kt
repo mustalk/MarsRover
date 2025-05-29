@@ -2,13 +2,18 @@
 
 package com.mustalk.seat.marsrover.presentation.ui.dashboard
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -18,6 +23,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mustalk.seat.marsrover.R
+import com.mustalk.seat.marsrover.presentation.ui.components.MarsCard
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsFullScreenLoader
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsToast
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsToastType
@@ -33,6 +42,8 @@ import com.mustalk.seat.marsrover.presentation.ui.dashboard.components.NewMissio
 import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
 
 private const val DASHBOARD_ERROR_DISPLAY_DURATION_MS = 5000L
+private const val LANDSCAPE_CARD_WIDTH_FRACTION = 0.7f
+private const val FAB_BOTTOM_PADDING_DP = 80
 
 /**
  * Main Dashboard screen that displays mission results and provides access to create new missions.
@@ -84,6 +95,14 @@ internal fun DashboardContent(
                     .fillMaxSize()
                     .padding(paddingValues)
         ) {
+            // Add Mars background image
+            Image(
+                painter = painterResource(id = R.drawable.mars_background),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+
             when {
                 uiState.isLoading -> {
                     MarsFullScreenLoader(
@@ -96,7 +115,8 @@ internal fun DashboardContent(
                         modifier =
                             Modifier
                                 .fillMaxSize()
-                                .padding(16.dp),
+                                .padding(16.dp)
+                                .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         // Welcome header
@@ -107,15 +127,22 @@ internal fun DashboardContent(
                             missionResult = uiState.lastMissionResult,
                             modifier = Modifier.fillMaxWidth()
                         )
+
+                        // Add bottom padding to avoid FAB overlap
+                        Spacer(modifier = Modifier.height(FAB_BOTTOM_PADDING_DP.dp))
                     }
                 }
 
                 else -> {
                     // Empty state - no missions yet
-                    EmptyDashboardState(
-                        onNewMissionClick = onNewMissionClick,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        EmptyDashboardState(
+                            onNewMissionClick = onNewMissionClick
+                        )
+                    }
                 }
             }
 
@@ -132,6 +159,7 @@ internal fun DashboardContent(
                         title = stringResource(R.string.toast_mission_failed),
                         message = error,
                         type = MarsToastType.Error,
+                        onClick = onErrorDismiss,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -161,7 +189,7 @@ private fun WelcomeHeader(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = "Mission Control Dashboard",
+            text = stringResource(R.string.dashboard_mission_control),
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -175,45 +203,62 @@ private fun EmptyDashboardState(
     onNewMissionClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
+
     Column(
-        modifier =
-            modifier
-                .padding(32.dp)
-                .clickable { onNewMissionClick() },
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = stringResource(R.string.welcome_title),
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.primary
-        )
+        MarsCard(
+            modifier =
+                Modifier
+                    .padding(horizontal = 24.dp)
+                    .then(
+                        if (isLandscape) {
+                            Modifier.fillMaxWidth(LANDSCAPE_CARD_WIDTH_FRACTION)
+                        } else {
+                            Modifier.fillMaxWidth()
+                        }
+                    ).clickable { onNewMissionClick() },
+            contentDescription = "Welcome screen - tap to start new mission"
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.welcome_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
+                )
 
-        Text(
-            text = "Mission Control Dashboard",
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 8.dp)
-        )
+                Text(
+                    text = stringResource(R.string.dashboard_mission_control),
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold
+                )
 
-        Text(
-            text = "Ready to deploy your first Mars rover mission?",
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(top = 24.dp)
-        )
+                Text(
+                    text = stringResource(R.string.dashboard_empty_title),
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
 
-        Text(
-            text = "Tap the + button to get started",
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 8.dp)
-        )
+                Text(
+                    text = stringResource(R.string.dashboard_empty_subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }
 

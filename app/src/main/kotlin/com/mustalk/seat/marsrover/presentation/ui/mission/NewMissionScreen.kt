@@ -2,6 +2,8 @@
 
 package com.mustalk.seat.marsrover.presentation.ui.mission
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +34,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mustalk.seat.marsrover.R
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsButton
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsButtonVariant
+import com.mustalk.seat.marsrover.presentation.ui.components.MarsCard
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsFullScreenLoader
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsTextField
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsTextFieldVariant
@@ -47,9 +53,13 @@ import com.mustalk.seat.marsrover.presentation.ui.components.MarsToast
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsToastType
 import com.mustalk.seat.marsrover.presentation.ui.mission.components.IndividualInputsForm
 import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
+import com.mustalk.seat.marsrover.presentation.ui.theme.MarsTopAppBarDark
+import com.mustalk.seat.marsrover.presentation.ui.theme.MarsTopAppBarLight
 
 private const val SUCCESS_MESSAGE_DURATION_MS = 5000L
 private const val ERROR_MESSAGE_DURATION_MS = 7000L
+private const val ALPHA_HALF = 0.5f
+private const val ALPHA_INACTIVE_TEXT = 0.7f
 
 /**
  * New Mission screen for creating and executing rover missions.
@@ -106,14 +116,20 @@ fun NewMissionScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Navigate back"
+                            contentDescription = stringResource(R.string.cd_navigate_back)
                         )
                     }
                 },
                 colors =
                     TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface
+                        containerColor =
+                            if (isSystemInDarkTheme()) {
+                                MarsTopAppBarDark
+                            } else {
+                                MarsTopAppBarLight
+                            },
+                        titleContentColor = Color.White,
+                        navigationIconContentColor = Color.White
                     )
             )
         }
@@ -124,6 +140,14 @@ fun NewMissionScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
         ) {
+            // Mars background image
+            Image(
+                painter = painterResource(id = R.drawable.mars_background),
+                contentDescription = stringResource(R.string.cd_mars_background),
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+
             when {
                 uiState.isLoading -> {
                     MarsFullScreenLoader(
@@ -143,7 +167,6 @@ fun NewMissionScreen(
                         onRoverDirectionChange = viewModel::updateRoverStartDirection,
                         onMovementCommandsChange = viewModel::updateMovementCommands,
                         onExecuteMission = viewModel::executeMission,
-                        onClearMessages = viewModel::clearMessages,
                         onNavigateBack = onNavigateBack,
                         onPlateauWidthFocusLost = viewModel::validatePlateauWidth,
                         onPlateauHeightFocusLost = viewModel::validatePlateauHeight,
@@ -208,7 +231,6 @@ internal fun NewMissionContent(
     onRoverDirectionChange: (String) -> Unit,
     onMovementCommandsChange: (String) -> Unit,
     onExecuteMission: () -> Unit,
-    onClearMessages: () -> Unit,
     onNavigateBack: () -> Unit,
     onPlateauWidthFocusLost: () -> Unit = {},
     onPlateauHeightFocusLost: () -> Unit = {},
@@ -229,7 +251,8 @@ internal fun NewMissionContent(
         Text(
             text = stringResource(R.string.input_mode_selector_title),
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         SingleChoiceSegmentedButtonRow(
@@ -238,7 +261,14 @@ internal fun NewMissionContent(
             SegmentedButton(
                 selected = uiState.inputMode == InputMode.JSON,
                 onClick = { onInputModeChange(InputMode.JSON) },
-                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
+                shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                colors =
+                    SegmentedButtonDefaults.colors(
+                        activeContainerColor = MaterialTheme.colorScheme.surface,
+                        activeContentColor = MaterialTheme.colorScheme.onSurface,
+                        inactiveContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = ALPHA_HALF),
+                        inactiveContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ALPHA_INACTIVE_TEXT)
+                    )
             ) {
                 Text(stringResource(R.string.input_mode_json_short))
             }
@@ -246,7 +276,14 @@ internal fun NewMissionContent(
             SegmentedButton(
                 selected = uiState.inputMode == InputMode.INDIVIDUAL,
                 onClick = { onInputModeChange(InputMode.INDIVIDUAL) },
-                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
+                shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                colors =
+                    SegmentedButtonDefaults.colors(
+                        activeContainerColor = MaterialTheme.colorScheme.surface,
+                        activeContentColor = MaterialTheme.colorScheme.onSurface,
+                        inactiveContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = ALPHA_HALF),
+                        inactiveContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ALPHA_INACTIVE_TEXT)
+                    )
             ) {
                 Text(stringResource(R.string.input_mode_individual_short))
             }
@@ -293,7 +330,7 @@ internal fun NewMissionContent(
                 variant = MarsButtonVariant.Primary,
                 isLoading = uiState.isLoading,
                 modifier = Modifier.weight(1f),
-                contentDescription = "Execute mission with current parameters"
+                contentDescription = stringResource(R.string.cd_execute_mission)
             )
 
             MarsButton(
@@ -301,7 +338,7 @@ internal fun NewMissionContent(
                 onClick = onNavigateBack,
                 variant = MarsButtonVariant.Secondary,
                 enabled = !uiState.isLoading,
-                contentDescription = "Cancel and return to previous screen"
+                contentDescription = stringResource(R.string.cd_cancel_mission)
             )
         }
     }
@@ -314,21 +351,17 @@ private fun JsonInputSection(
     onJsonInputChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+    MarsCard(
+        title = stringResource(R.string.json_configuration_title),
+        modifier = modifier
     ) {
-        Text(
-            text = stringResource(R.string.json_configuration_title),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-
         Text(
             text = stringResource(R.string.json_configuration_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         MarsTextField(
             value = jsonInput,
@@ -358,7 +391,6 @@ private fun NewMissionJsonPreview() {
             onRoverDirectionChange = { },
             onMovementCommandsChange = { },
             onExecuteMission = { },
-            onClearMessages = { },
             onNavigateBack = {},
             onPlateauWidthFocusLost = {},
             onPlateauHeightFocusLost = {},
@@ -384,7 +416,6 @@ private fun NewMissionIndividualPreview() {
             onRoverDirectionChange = { },
             onMovementCommandsChange = { },
             onExecuteMission = { },
-            onClearMessages = { },
             onNavigateBack = {},
             onPlateauWidthFocusLost = {},
             onPlateauHeightFocusLost = {},
@@ -420,7 +451,6 @@ fun NewMissionScreenPreview() {
             onRoverDirectionChange = {},
             onMovementCommandsChange = {},
             onExecuteMission = {},
-            onClearMessages = {},
             onNavigateBack = {},
             onPlateauWidthFocusLost = {},
             onPlateauHeightFocusLost = {},
@@ -465,7 +495,6 @@ fun NewMissionJsonScreenPreview() {
             onRoverDirectionChange = {},
             onMovementCommandsChange = {},
             onExecuteMission = {},
-            onClearMessages = {},
             onNavigateBack = {},
             onPlateauWidthFocusLost = {},
             onPlateauHeightFocusLost = {},

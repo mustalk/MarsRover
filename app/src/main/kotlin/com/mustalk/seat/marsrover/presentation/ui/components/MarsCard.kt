@@ -31,7 +31,7 @@ fun MarsCard(
     title: String? = null,
     containerColor: Color = MaterialTheme.colorScheme.surface,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    elevation: Dp = 4.dp,
+    elevation: Dp = 0.dp,
     contentDescription: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -91,7 +91,7 @@ fun MarsPrimaryCard(
         title = title,
         containerColor = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        elevation = 6.dp,
+        elevation = 10.dp,
         contentDescription = contentDescription,
         content = content
     )
@@ -112,7 +112,7 @@ fun MarsSecondaryCard(
         title = title,
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        elevation = 2.dp,
+        elevation = 6.dp,
         contentDescription = contentDescription,
         content = content
     )
