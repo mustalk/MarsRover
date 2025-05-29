@@ -4,6 +4,8 @@ package com.mustalk.seat.marsrover.presentation.ui.mission
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mustalk.seat.marsrover.domain.error.RoverError
+import com.mustalk.seat.marsrover.domain.usecase.ExecuteRoverMissionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +21,9 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions")
 class NewMissionViewModel
     @Inject
-    constructor() : ViewModel() {
+    constructor(
+        private val executeRoverMissionUseCase: ExecuteRoverMissionUseCase,
+    ) : ViewModel() {
         private val _uiState = MutableStateFlow(NewMissionUiState())
         val uiState: StateFlow<NewMissionUiState> = _uiState.asStateFlow()
 
@@ -121,8 +125,7 @@ class NewMissionViewModel
         }
 
         /**
-         * Executes the mission based on current input mode.
-         * In Commit 7, this will integrate with the UseCase.
+         * Executes the mission based on current input mode using the real UseCase.
          */
         @Suppress("TooGenericExceptionCaught")
         fun executeMission() {
@@ -130,23 +133,58 @@ class NewMissionViewModel
                 _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
                 try {
-                    // Will integrate with ExecuteRoverMissionUseCase in Commit 7
-                    when (_uiState.value.inputMode) {
-                        InputMode.JSON -> {
-                            val result = mockExecuteJsonMission(_uiState.value.jsonInput)
-                            handleMissionResult(result)
+                    val jsonInput =
+                        when (_uiState.value.inputMode) {
+                            InputMode.JSON -> _uiState.value.jsonInput
+                            InputMode.INDIVIDUAL -> buildJsonFromFields()
                         }
-                        InputMode.INDIVIDUAL -> {
-                            val jsonFromFields = buildJsonFromFields()
-                            val result = mockExecuteJsonMission(jsonFromFields)
-                            handleMissionResult(result)
+
+                    // Execute mission using the real UseCase
+                    val result = executeRoverMissionUseCase(jsonInput)
+
+                    result.fold(
+                        onSuccess = { finalPosition ->
+                            _uiState.value =
+                                _uiState.value.copy(
+                                    isLoading = false,
+                                    successMessage = "Mission completed! Final position: $finalPosition",
+                                    errorMessage = null
+                                )
+                        },
+                        onFailure = { error ->
+                            val errorMessage =
+                                when (error) {
+                                    is RoverError.InvalidInputFormat ->
+                                        "Invalid JSON format: ${error.details}"
+
+                                    is RoverError.InvalidInitialPosition ->
+                                        "Rover initial position (${error.x}, ${error.y}) is outside plateau bounds " +
+                                            "(0,0) to (${error.plateauMaxX}, ${error.plateauMaxY})"
+
+                                    is RoverError.InvalidDirectionChar ->
+                                        "Invalid direction '${error.char}'. Must be N, E, S, or W"
+
+                                    is RoverError.InvalidPlateauDimensions ->
+                                        "Invalid plateau dimensions (${error.x}, ${error.y}). Both must be non-negative"
+
+                                    else ->
+                                        "Mission execution failed: ${error.message}"
+                                }
+
+                            _uiState.value =
+                                _uiState.value.copy(
+                                    isLoading = false,
+                                    errorMessage = errorMessage,
+                                    successMessage = null
+                                )
                         }
-                    }
+                    )
                 } catch (e: Exception) {
                     _uiState.value =
                         _uiState.value.copy(
                             isLoading = false,
-                            errorMessage = "Mission execution failed: ${e.message}"
+                            errorMessage = "Unexpected error occurred: ${e.message}",
+                            successMessage = null
                         )
                 }
             }
@@ -166,52 +204,6 @@ class NewMissionViewModel
                 }
                 """.trimIndent()
         }
-
-        /**
-         * Handles the mission execution result
-         */
-        private fun handleMissionResult(result: MissionExecutionResult) {
-            _uiState.value =
-                _uiState.value.copy(
-                    isLoading = false,
-                    successMessage =
-                        if (result.isSuccess) {
-                            "Mission completed! Final position: ${result.finalPosition}"
-                        } else {
-                            null
-                        },
-                    errorMessage = if (!result.isSuccess) result.finalPosition else null
-                )
-        }
-
-        /**
-         * Mock implementation for mission execution (to be replaced in Commit 7)
-         */
-        private fun mockExecuteJsonMission(jsonInput: String): MissionExecutionResult {
-            // Simple mock that validates the example JSON
-            return if (isValidMissionJson(jsonInput)) {
-                MissionExecutionResult(
-                    finalPosition = "1 3 N",
-                    isSuccess = true,
-                    originalInput = jsonInput
-                )
-            } else {
-                MissionExecutionResult(
-                    finalPosition = "Invalid JSON format",
-                    isSuccess = false,
-                    originalInput = jsonInput
-                )
-            }
-        }
-
-        /**
-         * Validates if JSON contains required mission fields
-         */
-        private fun isValidMissionJson(jsonInput: String): Boolean =
-            jsonInput.contains("topRightCorner") &&
-                jsonInput.contains("roverPosition") &&
-                jsonInput.contains("roverDirection") &&
-                jsonInput.contains("movements")
 
         /**
          * Validates plateau width on focus out

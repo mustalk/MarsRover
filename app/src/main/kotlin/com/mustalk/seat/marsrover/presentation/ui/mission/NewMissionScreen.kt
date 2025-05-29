@@ -71,7 +71,22 @@ fun NewMissionScreen(
             // Extract result and notify parent but don't auto-navigate
             if (uiState.successMessage!!.contains("Final position:")) {
                 val position = uiState.successMessage!!.substringAfter("Final position: ")
-                onMissionCompleted(position, true, uiState.jsonInput)
+                val originalInput =
+                    when (uiState.inputMode) {
+                        InputMode.JSON -> uiState.jsonInput
+                        InputMode.INDIVIDUAL -> {
+                            // Build JSON from individual fields
+                            """
+                            {
+                                "topRightCorner": {"x": ${uiState.plateauWidth}, "y": ${uiState.plateauHeight}},
+                                "roverPosition": {"x": ${uiState.roverStartX}, "y": ${uiState.roverStartY}},
+                                "roverDirection": "${uiState.roverStartDirection}",
+                                "movements": "${uiState.movementCommands}"
+                            }
+                            """.trimIndent()
+                        }
+                    }
+                onMissionCompleted(position, true, originalInput)
                 // Removed auto-navigation - let user see the result and manually navigate
             }
         }
@@ -129,6 +144,7 @@ fun NewMissionScreen(
                         onMovementCommandsChange = viewModel::updateMovementCommands,
                         onExecuteMission = viewModel::executeMission,
                         onClearMessages = viewModel::clearMessages,
+                        onNavigateBack = onNavigateBack,
                         onPlateauWidthFocusLost = viewModel::validatePlateauWidth,
                         onPlateauHeightFocusLost = viewModel::validatePlateauHeight,
                         onRoverStartXFocusLost = viewModel::validateRoverStartX,
@@ -161,6 +177,7 @@ fun NewMissionScreen(
                             } else {
                                 MarsToastType.Error
                             },
+                        onClick = viewModel::clearMessages,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -178,6 +195,7 @@ fun NewMissionScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun NewMissionContent(
     uiState: NewMissionUiState,
@@ -191,6 +209,7 @@ internal fun NewMissionContent(
     onMovementCommandsChange: (String) -> Unit,
     onExecuteMission: () -> Unit,
     onClearMessages: () -> Unit,
+    onNavigateBack: () -> Unit,
     onPlateauWidthFocusLost: () -> Unit = {},
     onPlateauHeightFocusLost: () -> Unit = {},
     onRoverStartXFocusLost: () -> Unit = {},
@@ -279,10 +298,10 @@ internal fun NewMissionContent(
 
             MarsButton(
                 text = stringResource(R.string.action_cancel),
-                onClick = onClearMessages,
+                onClick = onNavigateBack,
                 variant = MarsButtonVariant.Secondary,
                 enabled = !uiState.isLoading,
-                contentDescription = "Clear current messages"
+                contentDescription = "Cancel and return to previous screen"
             )
         }
     }
@@ -340,6 +359,7 @@ private fun NewMissionJsonPreview() {
             onMovementCommandsChange = { },
             onExecuteMission = { },
             onClearMessages = { },
+            onNavigateBack = {},
             onPlateauWidthFocusLost = {},
             onPlateauHeightFocusLost = {},
             onRoverStartXFocusLost = {},
@@ -365,6 +385,7 @@ private fun NewMissionIndividualPreview() {
             onMovementCommandsChange = { },
             onExecuteMission = { },
             onClearMessages = { },
+            onNavigateBack = {},
             onPlateauWidthFocusLost = {},
             onPlateauHeightFocusLost = {},
             onRoverStartXFocusLost = {},
@@ -400,6 +421,7 @@ fun NewMissionScreenPreview() {
             onMovementCommandsChange = {},
             onExecuteMission = {},
             onClearMessages = {},
+            onNavigateBack = {},
             onPlateauWidthFocusLost = {},
             onPlateauHeightFocusLost = {},
             onRoverStartXFocusLost = {},
@@ -444,6 +466,7 @@ fun NewMissionJsonScreenPreview() {
             onMovementCommandsChange = {},
             onExecuteMission = {},
             onClearMessages = {},
+            onNavigateBack = {},
             onPlateauWidthFocusLost = {},
             onPlateauHeightFocusLost = {},
             onRoverStartXFocusLost = {},
