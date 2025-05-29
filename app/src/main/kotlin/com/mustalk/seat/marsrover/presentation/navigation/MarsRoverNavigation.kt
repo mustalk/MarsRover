@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.mustalk.seat.marsrover.presentation.ui.dashboard.DashboardScreen
 
 /**
  * Main navigation graph for the Mars Rover app.
@@ -29,8 +30,11 @@ fun MarsRoverNavigation(
     ) {
         // Dashboard Screen - Main screen showing mission results and controls
         composable(Screen.Dashboard.route) {
-            // Placeholder implementation - Dashboard coming in next commit
-            androidx.compose.material3.Text("Dashboard Screen - Coming Soon")
+            DashboardScreen(
+                onNavigateToNewMission = {
+                    navController.navigate(Screen.NewMission.route)
+                }
+            )
         }
 
         // New Mission Screen - Dialog/screen for creating new rover missions

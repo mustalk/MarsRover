@@ -63,4 +63,12 @@
     <string name="toast_boundary_warning">Boundary Warning</string>
     <string name="toast_mission_success">Mission Success</string>
     <string name="toast_connection_error">Connection Error</string>
+
+    <!-- Dashboard Screen -->
+    <string name="dashboard_welcome">Welcome to Mission Control</string>
+    <string name="dashboard_subtitle">Mars Rover Mission Dashboard</string>
+    <string name="dashboard_empty_title">Ready to deploy your first Mars rover mission?</string>
+    <string name="dashboard_empty_subtitle">Tap the + button to get started</string>
+    <string name="mission_completed_on">Completed on %1$s</string>
+    <string name="mission_input_preview">Input: %1$s</string>
 </resources>
