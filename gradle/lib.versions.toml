@@ -29,6 +29,7 @@ espressoCore = "3.6.1"
 mockk = "1.13.10"
 truth = "1.4.4"
 coroutinesTest = "1.8.0"
+turbine = "1.1.0"
 
 # Code analysis tools
 detekt-plugin = "1.23.8"
