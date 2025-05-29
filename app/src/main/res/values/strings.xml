@@ -71,4 +71,20 @@
     <string name="dashboard_empty_subtitle">Tap the + button to get started</string>
     <string name="mission_completed_on">Completed on %1$s</string>
     <string name="mission_input_preview">Input: %1$s</string>
+
+    <!-- New Mission Screen -->
+    <string name="input_mode_selector_title">Choose input method</string>
+    <string name="input_mode_json_short">JSON</string>
+    <string name="input_mode_individual_short">Individual</string>
+    <string name="json_configuration_title">Mission JSON Configuration</string>
+    <string name="json_configuration_description">Enter mission parameters in JSON format or modify the example below</string>
+    <string name="input_json_label">Enter mission JSON</string>
+    <string name="plateau_configuration_title">Plateau Configuration</string>
+    <string name="rover_start_position_title">Rover Start Position</string>
+    <string name="movement_commands_title">Movement Commands</string>
+    <string name="rover_start_x">Start X</string>
+    <string name="rover_start_y">Start Y</string>
+    <string name="rover_start_direction_title">Direction</string>
+    <string name="movement_commands_label">Movement Commands</string>
+    <string name="movement_commands_hint">Enter L, R, M commands</string>
 </resources>

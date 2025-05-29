@@ -14,6 +14,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
@@ -43,12 +45,20 @@ fun MarsTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     variant: MarsTextFieldVariant = MarsTextFieldVariant.Outlined,
     contentDescription: String? = null,
+    onFocusChanged: ((FocusState) -> Unit)? = null,
 ) {
     val semanticsModifier =
         if (contentDescription != null) {
             modifier.semantics { this.contentDescription = contentDescription }
         } else {
             modifier
+        }
+
+    val focusModifier =
+        if (onFocusChanged != null) {
+            Modifier.onFocusChanged(onFocusChanged)
+        } else {
+            Modifier
         }
 
     Column(modifier = semanticsModifier) {
@@ -66,7 +76,10 @@ fun MarsTextField(
                     maxLines = maxLines,
                     keyboardOptions = keyboardOptions,
                     visualTransformation = visualTransformation,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .then(focusModifier)
                 )
             }
             MarsTextFieldVariant.Outlined -> {
@@ -82,7 +95,10 @@ fun MarsTextField(
                     maxLines = maxLines,
                     keyboardOptions = keyboardOptions,
                     visualTransformation = visualTransformation,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .then(focusModifier)
                 )
             }
         }
