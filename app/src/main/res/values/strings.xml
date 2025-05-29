@@ -46,4 +46,21 @@
     <string name="cd_rover_icon">Mars rover icon</string>
     <string name="cd_mission_fab">Start new mission</string>
     <string name="cd_loading">Loading animation</string>
+    <string name="cd_error_toast">Error notification</string>
+    <string name="cd_warning_toast">Warning notification</string>
+    <string name="cd_info_toast">Information notification</string>
+    <string name="cd_mission_card">Mission result card</string>
+    <string name="cd_mission_button">Mission control button</string>
+
+    <!-- Loading and Status Messages -->
+    <string name="loading_mission_data">Processing mission data…</string>
+    <string name="loading_rover_commands">Executing rover commands…</string>
+    <string name="loading_validation">Validating plateau bounds…</string>
+    <string name="loading_connection">Establishing Mars connection…</string>
+
+    <!-- Toast Messages -->
+    <string name="toast_mission_failed">Mission Failed</string>
+    <string name="toast_boundary_warning">Boundary Warning</string>
+    <string name="toast_mission_success">Mission Success</string>
+    <string name="toast_connection_error">Connection Error</string>
 </resources>
