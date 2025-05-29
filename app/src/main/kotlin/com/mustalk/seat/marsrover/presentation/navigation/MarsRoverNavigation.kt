@@ -4,10 +4,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.mustalk.seat.marsrover.presentation.ui.dashboard.DashboardScreen
+import com.mustalk.seat.marsrover.presentation.ui.dashboard.DashboardViewModel
+import com.mustalk.seat.marsrover.presentation.ui.dashboard.MissionResult
 import com.mustalk.seat.marsrover.presentation.ui.mission.NewMissionScreen
 
 /**
@@ -31,21 +34,37 @@ fun MarsRoverNavigation(
     ) {
         // Dashboard Screen - Main screen showing mission results and controls
         composable(Screen.Dashboard.route) {
+            val dashboardViewModel: DashboardViewModel = hiltViewModel()
+
             DashboardScreen(
                 onNavigateToNewMission = {
                     navController.navigate(Screen.NewMission.route)
-                }
+                },
+                viewModel = dashboardViewModel
             )
         }
 
         // New Mission Screen - Dialog/screen for creating new rover missions
         composable(Screen.NewMission.route) {
+            // Get the Dashboard ViewModel from the parent entry to share state
+            val dashboardViewModel: DashboardViewModel =
+                hiltViewModel(
+                    navController.previousBackStackEntry ?: navController.currentBackStackEntry!!
+                )
+
             NewMissionScreen(
                 onNavigateBack = {
                     navController.popBackStack()
                 },
                 onMissionCompleted = { finalPosition, isSuccess, originalInput ->
-                    // Will integrate with mission result handling in Commit 7
+                    // Update Dashboard with mission result
+                    val missionResult =
+                        MissionResult(
+                            finalPosition = finalPosition,
+                            isSuccess = isSuccess,
+                            originalInput = originalInput
+                        )
+                    dashboardViewModel.updateMissionResult(missionResult)
                     navController.popBackStack()
                 }
             )

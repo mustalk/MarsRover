@@ -38,14 +38,9 @@ enum class InputMode {
     INDIVIDUAL, // Individual form fields
 }
 
-/**
- * Mission execution result
- */
-data class MissionExecutionResult(
-    val finalPosition: String,
-    val isSuccess: Boolean,
-    val originalInput: String,
-)
-
-private const val EXAMPLE_JSON =
-    """{"topRightCorner": {"x": 5, "y": 5}, "roverPosition": {"x": 1, "y": 2}, "roverDirection": "N", "movements": "LMLMLMLMM"}"""
+private const val EXAMPLE_JSON = """{
+    "topRightCorner": {"x": 5, "y": 5},
+    "roverPosition": {"x": 1, "y": 2},
+    "roverDirection": "N",
+    "movements": "LMLMLMLMM"
+}"""
