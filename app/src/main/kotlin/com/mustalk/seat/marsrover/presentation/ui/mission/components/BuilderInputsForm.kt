@@ -39,11 +39,11 @@ import com.mustalk.seat.marsrover.presentation.ui.mission.NewMissionUiState
 import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
 
 /**
- * Form component for individual mission parameter inputs.
+ * Form component for builder mission parameter inputs.
  * Organizes inputs by logical groups: plateau, rover position, and commands.
  */
 @Composable
-fun IndividualInputsForm(
+fun BuilderInputsForm(
     uiState: NewMissionUiState,
     onPlateauWidthChange: (String) -> Unit,
     onPlateauHeightChange: (String) -> Unit,
@@ -414,11 +414,11 @@ private fun MovementCommandsSection(
     }
 }
 
-@Preview(name = "Individual Inputs Form", showBackground = true)
+@Preview(name = "Builder Inputs Form", showBackground = true)
 @Composable
-private fun IndividualInputsFormPreview() {
+private fun BuilderInputsFormPreview() {
     MarsRoverTheme {
-        IndividualInputsForm(
+        BuilderInputsForm(
             uiState = NewMissionUiState(),
             onPlateauWidthChange = { },
             onPlateauHeightChange = { },

@@ -32,7 +32,7 @@
 
     <!-- Input Types -->
     <string name="input_mode_json">JSON Input</string>
-    <string name="input_mode_individual">Individual Inputs</string>
+    <string name="input_mode_builder">Builder Inputs</string>
     <string name="input_json_hint">Enter JSON mission data</string>
 
     <!-- Error Messages -->
@@ -66,6 +66,8 @@
     <string name="loading_rover_commands">Executing rover commands…</string>
     <string name="loading_validation">Validating plateau bounds…</string>
     <string name="loading_connection">Establishing Mars connection…</string>
+    <string name="loading_mission_execution">Executing mission…</string>
+    <string name="loading_please_wait">Please wait while we process your request</string>
 
     <!-- Toast Messages -->
     <string name="toast_mission_failed">Mission Failed</string>
@@ -113,4 +115,13 @@
     <string name="action_turn_left">Turn Left</string>
     <string name="action_turn_right">Turn Right</string>
     <string name="action_move_forward">Move Forward</string>
+
+    <!-- Mission Result Card -->
+    <string name="mission_completed_successfully">Mission Completed Successfully</string>
+    <string name="mission_failed">Mission Failed</string>
+    <string name="mission_instructions">Mission Instructions:</string>
+    <string name="completed_on">Completed on %1$s</string>
+    <string name="create_new_mission">Create new mission</string>
+    <string name="cancel_mission_creation">Cancel mission creation</string>
+    <string name="welcome_screen_tap">Welcome screen - tap to start new mission</string>
 </resources>

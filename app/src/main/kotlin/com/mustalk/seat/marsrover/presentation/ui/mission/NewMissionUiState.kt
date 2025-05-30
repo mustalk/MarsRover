@@ -2,32 +2,36 @@
 
 package com.mustalk.seat.marsrover.presentation.ui.mission
 
+import com.mustalk.seat.marsrover.core.utils.Constants
+
 /**
  * UI state for the New Mission screen.
- * Supports both JSON input mode and individual input fields mode.
+ * Supports both JSON input mode and builder input fields mode.
  */
 data class NewMissionUiState(
+    // Input mode state
     val inputMode: InputMode = InputMode.JSON,
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    val successMessage: String? = null,
-    // JSON Input Mode
-    val jsonInput: String = EXAMPLE_JSON,
+    // JSON input state
+    val jsonInput: String = Constants.Examples.JSON_INPUT,
     val jsonError: String? = null,
-    // Individual Input Mode
+    // Builder input state
     val plateauWidth: String = "5",
     val plateauHeight: String = "5",
     val roverStartX: String = "1",
     val roverStartY: String = "2",
     val roverStartDirection: String = "N",
     val movementCommands: String = "LMLMLMLMM",
-    // Individual field errors
+    // Validation errors for builder inputs
     val plateauWidthError: String? = null,
     val plateauHeightError: String? = null,
     val roverStartXError: String? = null,
     val roverStartYError: String? = null,
     val roverStartDirectionError: String? = null,
     val movementCommandsError: String? = null,
+    // Mission execution state
+    val isLoading: Boolean = false,
+    val successMessage: String? = null,
+    val errorMessage: String? = null,
 )
 
 /**
@@ -35,12 +39,5 @@ data class NewMissionUiState(
  */
 enum class InputMode {
     JSON, // JSON string input
-    INDIVIDUAL, // Individual form fields
+    BUILDER, // Builder form fields
 }
-
-private const val EXAMPLE_JSON = """{
-    "topRightCorner": {"x": 5, "y": 5},
-    "roverPosition": {"x": 1, "y": 2},
-    "roverDirection": "N",
-    "movements": "LMLMLMLMM"
-}"""

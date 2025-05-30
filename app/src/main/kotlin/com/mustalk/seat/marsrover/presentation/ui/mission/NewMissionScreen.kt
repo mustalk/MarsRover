@@ -1,5 +1,3 @@
-@file:Suppress("TopLevelPropertyNaming")
-
 package com.mustalk.seat.marsrover.presentation.ui.mission
 
 import androidx.compose.foundation.Image
@@ -16,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,23 +41,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mustalk.seat.marsrover.R
+import com.mustalk.seat.marsrover.core.utils.Constants
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsButton
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsButtonVariant
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsCard
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsFullScreenLoader
+import com.mustalk.seat.marsrover.presentation.ui.components.MarsLottieLoader
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsTextField
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsTextFieldVariant
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsToast
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsToastType
-import com.mustalk.seat.marsrover.presentation.ui.mission.components.IndividualInputsForm
+import com.mustalk.seat.marsrover.presentation.ui.mission.components.BuilderInputsForm
 import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
 import com.mustalk.seat.marsrover.presentation.ui.theme.MarsTopAppBarDark
 import com.mustalk.seat.marsrover.presentation.ui.theme.MarsTopAppBarLight
-
-private const val SUCCESS_MESSAGE_DURATION_MS = 5000L
-private const val ERROR_MESSAGE_DURATION_MS = 7000L
-private const val ALPHA_HALF = 0.5f
-private const val ALPHA_INACTIVE_TEXT = 0.7f
+import kotlinx.coroutines.delay
 
 /**
  * New Mission screen for creating and executing rover missions.
@@ -75,30 +70,36 @@ fun NewMissionScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Handle mission completion navigation - don't auto-navigate, let user see the result
+    // Handle mission completion navigation
     LaunchedEffect(uiState.successMessage) {
-        uiState.successMessage?.let {
-            // Extract result and notify parent but don't auto-navigate
-            if (uiState.successMessage!!.contains("Final position:")) {
-                val position = uiState.successMessage!!.substringAfter("Final position: ")
-                val originalInput =
-                    when (uiState.inputMode) {
-                        InputMode.JSON -> uiState.jsonInput
-                        InputMode.INDIVIDUAL -> {
-                            // Build JSON from individual fields
-                            """
-                            {
-                                "topRightCorner": {"x": ${uiState.plateauWidth}, "y": ${uiState.plateauHeight}},
-                                "roverPosition": {"x": ${uiState.roverStartX}, "y": ${uiState.roverStartY}},
-                                "roverDirection": "${uiState.roverStartDirection}",
-                                "movements": "${uiState.movementCommands}"
-                            }
-                            """.trimIndent()
+        if (uiState.successMessage != null && !uiState.isLoading) {
+            // Extract final position from success message
+            val finalPosition =
+                uiState.successMessage
+                    ?.substringAfter("Final position: ")
+                    ?.substringBefore(",") ?: ""
+
+            val originalInput =
+                when (uiState.inputMode) {
+                    InputMode.JSON -> uiState.jsonInput
+                    InputMode.BUILDER ->
+                        """
+                        {
+                            "topRightCorner": {
+                                "x": ${uiState.plateauWidth},
+                                "y": ${uiState.plateauHeight}
+                            },
+                            "roverPosition": {
+                                "x": ${uiState.roverStartX},
+                                "y": ${uiState.roverStartY}
+                            },
+                            "roverDirection": "${uiState.roverStartDirection}",
+                            "movements": "${uiState.movementCommands}"
                         }
-                    }
-                onMissionCompleted(position, true, originalInput)
-                // Removed auto-navigation - let user see the result and manually navigate
-            }
+                        """.trimIndent()
+                }
+
+            onMissionCompleted(finalPosition, true, originalInput)
         }
     }
 
@@ -115,7 +116,7 @@ fun NewMissionScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_navigate_back)
                         )
                     }
@@ -150,7 +151,7 @@ fun NewMissionScreen(
 
             when {
                 uiState.isLoading -> {
-                    MarsFullScreenLoader(
+                    MarsLottieLoader(
                         message = stringResource(R.string.loading_rover_commands)
                     )
                 }
@@ -177,8 +178,8 @@ fun NewMissionScreen(
                 }
             }
 
-            // Success/Error toast overlay
-            (uiState.successMessage ?: uiState.errorMessage)?.let { message ->
+            // Error toast overlay (only show error messages)
+            uiState.errorMessage?.let { message ->
                 Box(
                     modifier =
                         Modifier
@@ -187,29 +188,17 @@ fun NewMissionScreen(
                             .align(Alignment.TopCenter)
                 ) {
                     MarsToast(
-                        title =
-                            if (uiState.successMessage != null) {
-                                stringResource(R.string.toast_mission_success)
-                            } else {
-                                stringResource(R.string.toast_mission_failed)
-                            },
+                        title = stringResource(R.string.toast_mission_failed),
                         message = message,
-                        type =
-                            if (uiState.successMessage != null) {
-                                MarsToastType.Info
-                            } else {
-                                MarsToastType.Error
-                            },
+                        type = MarsToastType.Error,
                         onClick = viewModel::clearMessages,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
 
-                // Auto-dismiss messages
+                // Auto-dismiss error messages
                 LaunchedEffect(message) {
-                    kotlinx.coroutines.delay(
-                        if (uiState.successMessage != null) SUCCESS_MESSAGE_DURATION_MS else ERROR_MESSAGE_DURATION_MS
-                    )
+                    delay(Constants.UI.ERROR_MESSAGE_DURATION_MS)
                     viewModel.clearMessages()
                 }
             }
@@ -266,23 +255,23 @@ internal fun NewMissionContent(
                     SegmentedButtonDefaults.colors(
                         activeContainerColor = MaterialTheme.colorScheme.surface,
                         activeContentColor = MaterialTheme.colorScheme.onSurface,
-                        inactiveContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = ALPHA_HALF),
-                        inactiveContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ALPHA_INACTIVE_TEXT)
+                        inactiveContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = Constants.UI.ALPHA_HALF),
+                        inactiveContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = Constants.UI.ALPHA_INACTIVE_TEXT)
                     )
             ) {
                 Text(stringResource(R.string.input_mode_json_short))
             }
 
             SegmentedButton(
-                selected = uiState.inputMode == InputMode.INDIVIDUAL,
-                onClick = { onInputModeChange(InputMode.INDIVIDUAL) },
+                selected = uiState.inputMode == InputMode.BUILDER,
+                onClick = { onInputModeChange(InputMode.BUILDER) },
                 shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
                 colors =
                     SegmentedButtonDefaults.colors(
                         activeContainerColor = MaterialTheme.colorScheme.surface,
                         activeContentColor = MaterialTheme.colorScheme.onSurface,
-                        inactiveContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = ALPHA_HALF),
-                        inactiveContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = ALPHA_INACTIVE_TEXT)
+                        inactiveContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = Constants.UI.ALPHA_HALF),
+                        inactiveContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = Constants.UI.ALPHA_INACTIVE_TEXT)
                     )
             ) {
                 Text(stringResource(R.string.input_mode_individual_short))
@@ -299,8 +288,8 @@ internal fun NewMissionContent(
                 )
             }
 
-            InputMode.INDIVIDUAL -> {
-                IndividualInputsForm(
+            InputMode.BUILDER -> {
+                BuilderInputsForm(
                     uiState = uiState,
                     onPlateauWidthChange = onPlateauWidthChange,
                     onPlateauHeightChange = onPlateauHeightChange,
@@ -406,7 +395,7 @@ private fun NewMissionJsonPreview() {
 private fun NewMissionIndividualPreview() {
     MarsRoverTheme {
         NewMissionContent(
-            uiState = NewMissionUiState(inputMode = InputMode.INDIVIDUAL),
+            uiState = NewMissionUiState(inputMode = InputMode.BUILDER),
             onInputModeChange = { },
             onJsonInputChange = { },
             onPlateauWidthChange = { },
@@ -433,7 +422,7 @@ fun NewMissionScreenPreview() {
         NewMissionContent(
             uiState =
                 NewMissionUiState(
-                    inputMode = InputMode.INDIVIDUAL,
+                    inputMode = InputMode.BUILDER,
                     plateauWidth = "5",
                     plateauHeight = "5",
                     roverStartX = "1",

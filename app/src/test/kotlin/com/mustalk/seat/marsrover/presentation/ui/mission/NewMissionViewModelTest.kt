@@ -1,13 +1,18 @@
 package com.mustalk.seat.marsrover.presentation.ui.mission
 
 import com.google.common.truth.Truth.assertThat
+import com.mustalk.seat.marsrover.core.utils.NetworkResult
 import com.mustalk.seat.marsrover.domain.error.RoverError
+import com.mustalk.seat.marsrover.domain.usecase.ExecuteNetworkMissionUseCase
 import com.mustalk.seat.marsrover.domain.usecase.ExecuteRoverMissionUseCase
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -25,13 +30,19 @@ import org.junit.Test
 class NewMissionViewModelTest {
     private lateinit var viewModel: NewMissionViewModel
     private lateinit var mockExecuteRoverMissionUseCase: ExecuteRoverMissionUseCase
+    private lateinit var mockExecuteNetworkMissionUseCase: ExecuteNetworkMissionUseCase
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         mockExecuteRoverMissionUseCase = mockk()
-        viewModel = NewMissionViewModel(mockExecuteRoverMissionUseCase)
+        mockExecuteNetworkMissionUseCase = mockk(relaxed = true)
+        viewModel =
+            NewMissionViewModel(
+                executeRoverMissionUseCase = mockExecuteRoverMissionUseCase,
+                executeNetworkMissionUseCase = mockExecuteNetworkMissionUseCase
+            )
     }
 
     @After
@@ -56,11 +67,11 @@ class NewMissionViewModelTest {
         viewModel.updateJsonInput("invalid")
 
         // When
-        viewModel.switchInputMode(InputMode.INDIVIDUAL)
+        viewModel.switchInputMode(InputMode.BUILDER)
 
         // Then
         val state = viewModel.uiState.value
-        assertThat(state.inputMode).isEqualTo(InputMode.INDIVIDUAL)
+        assertThat(state.inputMode).isEqualTo(InputMode.BUILDER)
         assertThat(state.errorMessage).isNull()
         assertThat(state.successMessage).isNull()
         assertThat(state.jsonError).isNull()
@@ -251,13 +262,22 @@ class NewMissionViewModelTest {
         }
 
     @Test
-    fun `executeMission with individual inputs should build JSON and execute`() =
+    fun `executeMission with individual inputs should use network execution`() =
         runTest {
             // Given
-            val expectedResult = "2 4 E"
-            every { mockExecuteRoverMissionUseCase(any()) } returns Result.success(expectedResult)
 
-            viewModel.switchInputMode(InputMode.INDIVIDUAL)
+            coEvery {
+                mockExecuteNetworkMissionUseCase.executeFromBuilderInputs(
+                    plateauWidth = 5,
+                    plateauHeight = 5,
+                    roverStartX = 1,
+                    roverStartY = 2,
+                    roverDirection = "N",
+                    movements = "LMLMLMLMM"
+                )
+            } returns flowOf(NetworkResult.Success("1 3 N"))
+
+            viewModel.switchInputMode(InputMode.BUILDER)
             viewModel.updatePlateauWidth("5")
             viewModel.updatePlateauHeight("5")
             viewModel.updateRoverStartX("1")
@@ -272,11 +292,20 @@ class NewMissionViewModelTest {
             // Then
             val state = viewModel.uiState.value
             assertThat(state.isLoading).isFalse()
-            assertThat(state.successMessage).contains("Mission completed!")
-            assertThat(state.successMessage).contains(expectedResult)
+            assertThat(state.successMessage).contains("Network mission completed!")
+            assertThat(state.successMessage).contains("1 3 N")
             assertThat(state.errorMessage).isNull()
 
-            verify { mockExecuteRoverMissionUseCase(any()) }
+            coVerify {
+                mockExecuteNetworkMissionUseCase.executeFromBuilderInputs(
+                    plateauWidth = 5,
+                    plateauHeight = 5,
+                    roverStartX = 1,
+                    roverStartY = 2,
+                    roverDirection = "N",
+                    movements = "LMLMLMLMM"
+                )
+            }
         }
 
     @Test
@@ -300,7 +329,7 @@ class NewMissionViewModelTest {
     fun `executeMission with unexpected exception should show generic error`() =
         runTest {
             // Given
-            every { mockExecuteRoverMissionUseCase(any()) } throws RuntimeException("Unexpected error")
+            every { mockExecuteRoverMissionUseCase(any()) } throws IllegalArgumentException("Unexpected error")
 
             // When
             viewModel.executeMission()
@@ -309,7 +338,7 @@ class NewMissionViewModelTest {
             // Then
             val state = viewModel.uiState.value
             assertThat(state.isLoading).isFalse()
-            assertThat(state.errorMessage).contains("Unexpected error occurred")
+            assertThat(state.errorMessage).contains("Invalid input parameters")
             assertThat(state.errorMessage).contains("Unexpected error")
             assertThat(state.successMessage).isNull()
         }

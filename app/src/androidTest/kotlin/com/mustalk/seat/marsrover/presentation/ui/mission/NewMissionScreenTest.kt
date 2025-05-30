@@ -18,7 +18,7 @@ import org.junit.runner.RunWith
 
 /**
  * UI tests for NewMissionScreen.
- * Tests both JSON and individual input modes with comprehensive user interactions.
+ * Tests both JSON and builder input modes with comprehensive user interactions.
  * Uses NewMissionContent directly to avoid Hilt dependency issues.
  */
 @RunWith(AndroidJUnit4::class)
@@ -57,12 +57,12 @@ class NewMissionScreenTest {
     }
 
     @Test
-    fun newMissionContent_switchToIndividualMode_showsIndividualInputs() {
+    fun newMissionContent_switchToBuilderMode_showsBuilderInputs() {
         // Given
         composeTestRule.setContent {
             MarsRoverTheme {
                 NewMissionContent(
-                    uiState = NewMissionUiState(inputMode = InputMode.INDIVIDUAL),
+                    uiState = NewMissionUiState(inputMode = InputMode.BUILDER),
                     onInputModeChange = {},
                     onJsonInputChange = {},
                     onPlateauWidthChange = {},
@@ -196,10 +196,10 @@ class NewMissionScreenTest {
         // Initially should show JSON mode
         composeTestRule.onNodeWithText("Mission JSON Configuration").assertIsDisplayed()
 
-        // When clicking Individual button
+        // When clicking Builder button
         composeTestRule.onNodeWithText("Builder").performClick()
 
-        // Then should show individual inputs
+        // Then should show builder inputs
         composeTestRule.onNodeWithText("Plateau Size").assertIsDisplayed()
         composeTestRule.onNodeWithText("Rover Position").assertIsDisplayed()
         composeTestRule.onNodeWithText("Rover Movements").assertIsDisplayed()

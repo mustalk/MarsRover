@@ -1,21 +1,31 @@
-@file:Suppress("TopLevelPropertyNaming")
-
 package com.mustalk.seat.marsrover.presentation.ui.mission
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mustalk.seat.marsrover.core.utils.Constants
+import com.mustalk.seat.marsrover.core.utils.NetworkResult
+import com.mustalk.seat.marsrover.core.utils.exceptions.JsonParsingException
+import com.mustalk.seat.marsrover.core.utils.exceptions.MissionExecutionException
+import com.mustalk.seat.marsrover.core.utils.exceptions.NetworkException
 import com.mustalk.seat.marsrover.domain.error.RoverError
+import com.mustalk.seat.marsrover.domain.usecase.ExecuteNetworkMissionUseCase
 import com.mustalk.seat.marsrover.domain.usecase.ExecuteRoverMissionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
  * ViewModel for the New Mission screen.
- * Manages state for both JSON input and individual field input modes.
+ * Manages state for both JSON input and builder field input modes.
+ *
+ * Execution strategy:
+ * - JSON input mode: Uses local execution (ExecuteRoverMissionUseCase)
+ * - Builder input mode: Uses network API execution (ExecuteNetworkMissionUseCase)
  */
 @HiltViewModel
 @Suppress("TooManyFunctions")
@@ -23,12 +33,13 @@ class NewMissionViewModel
     @Inject
     constructor(
         private val executeRoverMissionUseCase: ExecuteRoverMissionUseCase,
+        private val executeNetworkMissionUseCase: ExecuteNetworkMissionUseCase,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(NewMissionUiState())
         val uiState: StateFlow<NewMissionUiState> = _uiState.asStateFlow()
 
         /**
-         * Switches between JSON and Individual input modes
+         * Switches between JSON and Builder input modes
          */
         fun switchInputMode(mode: InputMode) {
             _uiState.value =
@@ -125,85 +136,143 @@ class NewMissionViewModel
         }
 
         /**
-         * Executes the mission based on current input mode using the real UseCase.
+         * Executes the mission based on input mode:
+         * - JSON mode: Local execution
+         * - Builder mode: Network API execution
          */
-        @Suppress("TooGenericExceptionCaught")
         fun executeMission() {
             viewModelScope.launch {
-                _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+                setLoadingState()
 
                 try {
-                    val jsonInput =
-                        when (_uiState.value.inputMode) {
-                            InputMode.JSON -> _uiState.value.jsonInput
-                            InputMode.INDIVIDUAL -> buildJsonFromFields()
-                        }
-
-                    // Execute mission using the real UseCase
-                    val result = executeRoverMissionUseCase(jsonInput)
-
-                    result.fold(
-                        onSuccess = { finalPosition ->
-                            _uiState.value =
-                                _uiState.value.copy(
-                                    isLoading = false,
-                                    successMessage = "Mission completed! Final position: $finalPosition",
-                                    errorMessage = null
-                                )
-                        },
-                        onFailure = { error ->
-                            val errorMessage =
-                                when (error) {
-                                    is RoverError.InvalidInputFormat ->
-                                        "Invalid JSON format: ${error.details}"
-
-                                    is RoverError.InvalidInitialPosition ->
-                                        "Rover initial position (${error.x}, ${error.y}) is outside plateau bounds " +
-                                            "(0,0) to (${error.plateauMaxX}, ${error.plateauMaxY})"
-
-                                    is RoverError.InvalidDirectionChar ->
-                                        "Invalid direction '${error.char}'. Must be N, E, S, or W"
-
-                                    is RoverError.InvalidPlateauDimensions ->
-                                        "Invalid plateau dimensions (${error.x}, ${error.y}). Both must be non-negative"
-
-                                    else ->
-                                        "Mission execution failed: ${error.message}"
-                                }
-
-                            _uiState.value =
-                                _uiState.value.copy(
-                                    isLoading = false,
-                                    errorMessage = errorMessage,
-                                    successMessage = null
-                                )
-                        }
-                    )
-                } catch (e: Exception) {
-                    _uiState.value =
-                        _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = "Unexpected error occurred: ${e.message}",
-                            successMessage = null
-                        )
+                    when (_uiState.value.inputMode) {
+                        InputMode.JSON -> executeJsonMission()
+                        InputMode.BUILDER -> executeBuilderMission()
+                    }
+                } catch (e: JsonParsingException) {
+                    setErrorState("JSON parsing error: ${e.message}")
+                } catch (e: MissionExecutionException) {
+                    setErrorState("Mission execution error: ${e.message}")
+                } catch (e: NetworkException) {
+                    setErrorState("Network error: ${e.message}")
+                } catch (e: NumberFormatException) {
+                    setErrorState("Invalid number format in input fields")
+                } catch (e: IllegalArgumentException) {
+                    setErrorState("Invalid input parameters: ${e.message}")
                 }
             }
         }
 
         /**
-         * Builds JSON string from individual input fields
+         * Executes mission using JSON input mode (local execution).
          */
-        private fun buildJsonFromFields(): String {
-            val state = _uiState.value
-            return """
-                {
-                    "topRightCorner": {"x": ${state.plateauWidth}, "y": ${state.plateauHeight}},
-                    "roverPosition": {"x": ${state.roverStartX}, "y": ${state.roverStartY}},
-                    "roverDirection": "${state.roverStartDirection}",
-                    "movements": "${state.movementCommands}"
+        private suspend fun executeJsonMission() {
+            val result = executeRoverMissionUseCase(_uiState.value.jsonInput)
+
+            result.fold(
+                onSuccess = { finalPosition ->
+                    setSuccessState("Mission completed! Final position: $finalPosition")
+                },
+                onFailure = { error ->
+                    val errorMessage = mapRoverErrorToMessage(error)
+                    setErrorState(errorMessage)
                 }
-                """.trimIndent()
+            )
         }
+
+        /**
+         * Executes mission using builder input mode (network API execution).
+         */
+        private suspend fun executeBuilderMission() {
+            val state = _uiState.value
+
+            executeNetworkMissionUseCase
+                .executeFromBuilderInputs(
+                    plateauWidth = state.plateauWidth.toIntOrNull() ?: 0,
+                    plateauHeight = state.plateauHeight.toIntOrNull() ?: 0,
+                    roverStartX = state.roverStartX.toIntOrNull() ?: 0,
+                    roverStartY = state.roverStartY.toIntOrNull() ?: 0,
+                    roverDirection = state.roverStartDirection,
+                    movements = state.movementCommands
+                ).onEach { networkResult ->
+                    handleNetworkResult(networkResult)
+                }.launchIn(viewModelScope)
+        }
+
+        /**
+         * Handles network result from builder mission execution.
+         */
+        private fun handleNetworkResult(networkResult: NetworkResult<String>) {
+            when (networkResult) {
+                is NetworkResult.Success -> {
+                    setSuccessState("Network mission completed! Final position: ${networkResult.data}")
+                }
+                is NetworkResult.Error -> {
+                    setErrorState("Network error: ${networkResult.message}")
+                }
+                is NetworkResult.Loading -> {
+                    setLoadingState()
+                }
+            }
+        }
+
+        /**
+         * Sets the UI to loading state.
+         */
+        private fun setLoadingState() {
+            _uiState.value =
+                _uiState.value.copy(
+                    isLoading = true,
+                    errorMessage = null,
+                    successMessage = null
+                )
+        }
+
+        /**
+         * Sets the UI to success state with message.
+         */
+        private fun setSuccessState(message: String) {
+            _uiState.value =
+                _uiState.value.copy(
+                    isLoading = false,
+                    successMessage = message,
+                    errorMessage = null
+                )
+        }
+
+        /**
+         * Sets the UI to error state with message.
+         */
+        private fun setErrorState(message: String) {
+            _uiState.value =
+                _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = message,
+                    successMessage = null
+                )
+        }
+
+        /**
+         * Maps RoverError to user-friendly error message.
+         */
+        private fun mapRoverErrorToMessage(error: Throwable): String =
+            when (error) {
+                is RoverError.InvalidInputFormat ->
+                    "Invalid JSON format: ${error.details}"
+
+                is RoverError.InvalidInitialPosition ->
+                    "Rover initial position (${error.x}, ${error.y}) is outside plateau bounds " +
+                        "(0,0) to (${error.plateauMaxX}, ${error.plateauMaxY})"
+
+                is RoverError.InvalidDirectionChar ->
+                    "Invalid direction '${error.char}'. Must be N, E, S, or W"
+
+                is RoverError.InvalidPlateauDimensions ->
+                    "Invalid plateau dimensions (${error.x}, ${error.y}). Both must be non-negative and within limits"
+
+                else ->
+                    "Mission execution failed: ${error.message}"
+            }
 
         /**
          * Validates plateau width on focus out
@@ -275,7 +344,7 @@ class NewMissionViewModel
         fun validateMovementCommands() {
             val commands = _uiState.value.movementCommands
             if (commands.isNotBlank()) {
-                if (commands.any { it !in listOf('L', 'R', 'M') }) {
+                if (commands.any { it !in Constants.Validation.VALID_MOVEMENT_CHARS }) {
                     _uiState.value =
                         _uiState.value.copy(
                             movementCommandsError = "Must contain only L, R, M characters"

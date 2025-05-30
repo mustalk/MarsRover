@@ -33,17 +33,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mustalk.seat.marsrover.R
+import com.mustalk.seat.marsrover.core.utils.Constants
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsCard
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsFullScreenLoader
+import com.mustalk.seat.marsrover.presentation.ui.components.MarsLottieLoader
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsToast
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsToastType
 import com.mustalk.seat.marsrover.presentation.ui.dashboard.components.MissionResultCard
 import com.mustalk.seat.marsrover.presentation.ui.dashboard.components.NewMissionFab
 import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
-
-private const val DASHBOARD_ERROR_DISPLAY_DURATION_MS = 5000L
-private const val LANDSCAPE_CARD_WIDTH_FRACTION = 0.7f
-private const val FAB_BOTTOM_PADDING_DP = 80
 
 /**
  * Main Dashboard screen that displays mission results and provides access to create new missions.
@@ -105,8 +102,10 @@ internal fun DashboardContent(
 
             when {
                 uiState.isLoading -> {
-                    MarsFullScreenLoader(
-                        message = stringResource(R.string.loading_mission_data)
+                    MarsLottieLoader(
+                        message = stringResource(R.string.loading_mission_data),
+                        isVisible = true,
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
 
@@ -129,7 +128,7 @@ internal fun DashboardContent(
                         )
 
                         // Add bottom padding to avoid FAB overlap
-                        Spacer(modifier = Modifier.height(FAB_BOTTOM_PADDING_DP.dp))
+                        Spacer(modifier = Modifier.height(Constants.UI.FAB_BOTTOM_PADDING_DP.dp))
                     }
                 }
 
@@ -166,7 +165,7 @@ internal fun DashboardContent(
 
                 // Auto-dismiss error after showing
                 LaunchedEffect(error) {
-                    kotlinx.coroutines.delay(DASHBOARD_ERROR_DISPLAY_DURATION_MS)
+                    kotlinx.coroutines.delay(Constants.UI.ERROR_MESSAGE_DURATION_MS)
                     onErrorDismiss()
                 }
             }
@@ -217,7 +216,7 @@ private fun EmptyDashboardState(
                     .padding(horizontal = 24.dp)
                     .then(
                         if (isLandscape) {
-                            Modifier.fillMaxWidth(LANDSCAPE_CARD_WIDTH_FRACTION)
+                            Modifier.fillMaxWidth(Constants.UI.LANDSCAPE_CARD_WIDTH_FRACTION)
                         } else {
                             Modifier.fillMaxWidth()
                         }

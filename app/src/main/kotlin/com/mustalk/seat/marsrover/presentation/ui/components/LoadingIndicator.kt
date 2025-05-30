@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mustalk.seat.marsrover.R
+import com.mustalk.seat.marsrover.core.utils.Constants
 import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
 
 /**
@@ -52,7 +53,7 @@ fun MarsLoadingIndicator(
         targetValue = 360f,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(durationMillis = 1000)
+                animation = tween(durationMillis = Constants.UI.LOADING_ANIMATION_DURATION_MS.toInt())
             ),
         label = "rotation_animation"
     )
