@@ -22,6 +22,15 @@ hiltNavigationCompose = "1.2.0"
 # Serialization
 kotlinxSerialization = "1.8.1"
 
+# Network
+okhttp = "4.14.0"
+retrofit = "2.12.1"
+retrofitKotlinxSerialization = "1.0.0"
+loggingInterceptor = "4.14.0"
+
+# Animation
+lottie = "6.6.3"
+
 # Testing
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -30,6 +39,7 @@ mockk = "1.13.10"
 truth = "1.4.4"
 coroutinesTest = "1.8.0"
 turbine = "1.1.0"
+mockWebServer = "4.14.0"
 
 # Code analysis tools
 detekt-plugin = "1.23.8"
@@ -66,6 +76,15 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 # Serialization
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 
+# Network
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-kotlinx-serialization = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version.ref = "retrofitKotlinxSerialization" }
+logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingInterceptor" }
+
+# Animation
+lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottie" }
+
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -73,6 +92,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockWebServer" }
 
 [plugins]
 # Build tools

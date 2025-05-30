@@ -4,6 +4,7 @@ import com.mustalk.seat.marsrover.data.parser.JsonParserImpl
 import com.mustalk.seat.marsrover.domain.parser.JsonParser
 import com.mustalk.seat.marsrover.domain.service.RoverMovementService
 import com.mustalk.seat.marsrover.domain.service.RoverMovementServiceImpl
+import com.mustalk.seat.marsrover.domain.usecase.ExecuteRoverMissionUseCase
 import com.mustalk.seat.marsrover.domain.validator.InputValidator
 import com.mustalk.seat.marsrover.domain.validator.InputValidatorImpl
 import dagger.Binds
@@ -24,6 +25,7 @@ import javax.inject.Singleton
  */
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("UnnecessaryAbstractClass")
 abstract class AppModule {
     /**
      * @Binds tells Hilt: "When someone asks for JsonParser interface, provide JsonParserImpl instance"
@@ -61,5 +63,22 @@ abstract class AppModule {
                 prettyPrint = true // Format JSON nicely for debugging
                 isLenient = true // Allow relaxed JSON parsing
             }
+
+        /**
+         * Provides ExecuteRoverMissionUseCase for injection.
+         * This allows the use case to be injected in other components like interceptors.
+         */
+        @Provides
+        @Singleton
+        fun provideExecuteRoverMissionUseCase(
+            jsonParser: JsonParser,
+            inputValidator: InputValidator,
+            roverMovementService: RoverMovementService,
+        ): ExecuteRoverMissionUseCase =
+            ExecuteRoverMissionUseCase(
+                jsonParser = jsonParser,
+                inputValidator = inputValidator,
+                roverMovementService = roverMovementService
+            )
     }
 }

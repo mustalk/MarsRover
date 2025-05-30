@@ -35,16 +35,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mustalk.seat.marsrover.R
+import com.mustalk.seat.marsrover.core.utils.Constants
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsCard
 import com.mustalk.seat.marsrover.presentation.ui.dashboard.MissionResult
 import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
-private const val MAX_INPUT_PREVIEW_LENGTH = 50
-private const val EXAMPLE_MISSION_INPUT =
-    """{"topRightCorner": {"x": 5, "y": 5}, "roverPosition": {"x": 1, "y": 2}, "roverDirection": "N", "movements": "LMLMLMLMM"}"""
 
 /**
  * Card component that displays the result of a completed rover mission.
@@ -97,9 +94,9 @@ fun MissionResultCard(
             Text(
                 text =
                     if (missionResult.isSuccess) {
-                        "Mission Completed Successfully"
+                        stringResource(R.string.mission_completed_successfully)
                     } else {
-                        "Mission Failed"
+                        stringResource(R.string.mission_failed)
                     },
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
@@ -135,13 +132,13 @@ fun MissionResultCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Mission Instructions:",
+                        text = stringResource(R.string.mission_instructions),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    if (input.length > MAX_INPUT_PREVIEW_LENGTH) {
+                    if (input.length > Constants.UI.MAX_INPUT_PREVIEW_LENGTH) {
                         IconButton(
                             onClick = { isInputExpanded = !isInputExpanded },
                             modifier = Modifier.size(24.dp)
@@ -158,17 +155,17 @@ fun MissionResultCard(
                 // Input text - expandable
                 Text(
                     text =
-                        if (isInputExpanded || input.length <= MAX_INPUT_PREVIEW_LENGTH) {
+                        if (isInputExpanded || input.length <= Constants.UI.MAX_INPUT_PREVIEW_LENGTH) {
                             input
                         } else {
-                            input.take(MAX_INPUT_PREVIEW_LENGTH) + "..."
+                            input.take(Constants.UI.MAX_INPUT_PREVIEW_LENGTH) + "..."
                         },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = if (isInputExpanded) Int.MAX_VALUE else 2,
                     overflow = if (isInputExpanded) TextOverflow.Visible else TextOverflow.Ellipsis,
                     modifier =
-                        if (input.length > MAX_INPUT_PREVIEW_LENGTH) {
+                        if (input.length > Constants.UI.MAX_INPUT_PREVIEW_LENGTH) {
                             Modifier.clickable { isInputExpanded = !isInputExpanded }
                         } else {
                             Modifier
@@ -179,7 +176,7 @@ fun MissionResultCard(
             // Completed timestamp - right aligned, placed after mission instructions
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Completed on $formattedDate",
+                text = stringResource(R.string.completed_on, formattedDate),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth(),
@@ -198,7 +195,7 @@ private fun MissionResultCardSuccessPreview() {
                 MissionResult(
                     finalPosition = "1 3 N",
                     isSuccess = true,
-                    originalInput = EXAMPLE_MISSION_INPUT
+                    originalInput = Constants.Examples.JSON_INPUT
                 ),
             modifier = Modifier.padding(16.dp)
         )
