@@ -274,7 +274,7 @@ internal fun NewMissionContent(
                         inactiveContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = Constants.UI.ALPHA_INACTIVE_TEXT)
                     )
             ) {
-                Text(stringResource(R.string.input_mode_individual_short))
+                Text(stringResource(R.string.input_mode_builder_short))
             }
         }
 

@@ -1,7 +1,7 @@
 package com.mustalk.seat.marsrover.presentation.navigation
 
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -29,8 +29,8 @@ fun MarsRoverNavigation(navController: NavHostController) {
         // Dashboard Screen - Main screen showing mission results and controls
         composable(
             route = Screen.Dashboard.route,
-            enterTransition = { fadeIn() },
-            exitTransition = { fadeOut() }
+            enterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
+            exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) }
         ) {
             val dashboardViewModel: DashboardViewModel = hiltViewModel()
 
@@ -45,8 +45,8 @@ fun MarsRoverNavigation(navController: NavHostController) {
         // New Mission Screen - Dialog/screen for creating new rover missions
         composable(
             route = Screen.NewMission.route,
-            enterTransition = { fadeIn() },
-            exitTransition = { fadeOut() }
+            enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
+            exitTransition = { slideOutHorizontally(targetOffsetX = { it }) }
         ) {
             // Get the Dashboard ViewModel from the parent entry to share state
             val dashboardViewModel: DashboardViewModel =

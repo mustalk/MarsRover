@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -69,7 +70,13 @@ fun MarsToast(
         if (contentDescription != null) {
             modifier.semantics { this.contentDescription = contentDescription }
         } else {
-            modifier
+            val defaultContentDescription =
+                when (type) {
+                    MarsToastType.Error -> stringResource(com.mustalk.seat.marsrover.R.string.cd_error_toast)
+                    MarsToastType.Warning -> stringResource(com.mustalk.seat.marsrover.R.string.cd_warning_toast)
+                    MarsToastType.Info -> stringResource(com.mustalk.seat.marsrover.R.string.cd_info_toast)
+                }
+            modifier.semantics { this.contentDescription = defaultContentDescription }
         }
 
     val clickableModifier =
@@ -102,9 +109,9 @@ fun MarsToast(
                 imageVector = icon,
                 contentDescription =
                     when (type) {
-                        MarsToastType.Error -> "Error"
-                        MarsToastType.Warning -> "Warning"
-                        MarsToastType.Info -> "Information"
+                        MarsToastType.Error -> stringResource(com.mustalk.seat.marsrover.R.string.cd_error_icon)
+                        MarsToastType.Warning -> stringResource(com.mustalk.seat.marsrover.R.string.cd_warning_icon)
+                        MarsToastType.Info -> stringResource(com.mustalk.seat.marsrover.R.string.cd_info_icon)
                     },
                 tint = contentColor,
                 modifier = Modifier.size(24.dp)

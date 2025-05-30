@@ -9,7 +9,7 @@ object Constants {
      */
     object Network {
         const val BASE_URL = "http://localhost:8080/"
-        const val SIMULATION_DELAY_MS = 2000L
+        const val SIMULATION_DELAY_MS = 2500L
         const val TIMEOUT_SECONDS = 30L
         const val API_ENDPOINT = "api/v1/mars-rover/execute"
     }
@@ -31,8 +31,7 @@ object Constants {
      * UI constants
      */
     object UI {
-        const val SUCCESS_MESSAGE_DURATION_MS = 5000L
-        const val ERROR_MESSAGE_DURATION_MS = 7000L
+        const val ERROR_MESSAGE_DURATION_MS = 5000L
         const val LOTTIE_ANIMATION_SIZE_DP = 120
         const val LOTTIE_ANIMATION_SIZE_COMPACT_DP = 80
         const val LOADING_ANIMATION_DURATION_MS = 1000L
