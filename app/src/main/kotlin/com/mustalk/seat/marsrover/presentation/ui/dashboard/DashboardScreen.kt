@@ -221,7 +221,7 @@ private fun EmptyDashboardState(
                             Modifier.fillMaxWidth()
                         }
                     ).clickable { onNewMissionClick() },
-            contentDescription = "Welcome screen - tap to start new mission"
+            contentDescription = stringResource(R.string.welcome_screen_tap)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,

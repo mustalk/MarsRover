@@ -76,9 +76,9 @@ fun MissionResultCard(
                     },
                 contentDescription =
                     if (missionResult.isSuccess) {
-                        "Mission successful"
+                        stringResource(R.string.cd_mission_success)
                     } else {
-                        "Mission failed"
+                        stringResource(R.string.cd_mission_failed)
                     },
                 tint =
                     if (missionResult.isSuccess) {
@@ -145,7 +145,14 @@ fun MissionResultCard(
                         ) {
                             Icon(
                                 imageVector = if (isInputExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                contentDescription = if (isInputExpanded) "Collapse input" else "Expand input",
+                                contentDescription =
+                                    if (isInputExpanded) {
+                                        stringResource(
+                                            R.string.cd_collapse_input
+                                        )
+                                    } else {
+                                        stringResource(R.string.cd_expand_input)
+                                    },
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }

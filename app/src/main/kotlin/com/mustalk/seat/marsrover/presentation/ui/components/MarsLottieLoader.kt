@@ -72,7 +72,7 @@ fun MarsLottieLoader(
                 Modifier
                     .fillMaxSize()
                     .background(
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
                     ),
             contentAlignment = Alignment.Center
         ) {
