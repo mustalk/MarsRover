@@ -1,0 +1,224 @@
+name: 'Android GitHub Release'
+description: 'Deploy Android Debug APK to GitHub Releases for testing and demo purposes.'
+
+inputs:
+  github-token:
+    description: 'GitHub token with repository permissions.'
+    required: true
+  debug-apk-artifact-name:
+    description: 'Name of the artifact containing the debug APK.'
+    required: true
+    default: 'debug-apk'
+  apk-filename:
+    description: 'Desired filename for the APK in the release.'
+    required: true
+    default: 'app-debug.apk'
+
+runs:
+  using: 'composite'
+  steps:
+    # Extract version information from build.gradle.kts
+    - name: Extract version from build.gradle.kts
+      id: version
+      run: |
+        # Extract versionName from defaultConfig
+        VERSION_NAME=$(grep -A 10 "defaultConfig {" app/build.gradle.kts | grep 'versionName' | sed 's/.*versionName = "\(.*\)".*/\1/')
+        # Extract versionCode from defaultConfig
+        VERSION_CODE=$(grep -A 10 "defaultConfig {" app/build.gradle.kts | grep 'versionCode' | sed 's/.*versionCode = \(.*\)/\1/')
+
+        echo "version_name=${VERSION_NAME}" >> $GITHUB_OUTPUT
+        echo "version_code=${VERSION_CODE}" >> $GITHUB_OUTPUT
+        echo "Extracted version: ${VERSION_NAME} (${VERSION_CODE})"
+      shell: bash
+
+    # Download debug APK from CI workflow
+    - name: Download Debug APK
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.debug-apk-artifact-name }}
+        path: ./debug-apk/
+
+    # Create or update Git tag
+    - name: Create or Update Release Tag
+      id: create_tag
+      run: |
+        TAG_NAME="v${{ steps.version.outputs.version_name }}"
+        echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
+
+        # Configure git for tagging
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Check if tag already exists
+        if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+          echo "Tag $TAG_NAME already exists, updating it"
+          git tag -d "$TAG_NAME" || true
+          git push origin --delete "$TAG_NAME" || true
+          echo "tag_exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "tag_exists=false" >> $GITHUB_OUTPUT
+        fi
+
+        # Create and push the tag (new or updated)
+        git tag -a "$TAG_NAME" -m "Release version ${{ steps.version.outputs.version_name }} (build ${{ steps.version.outputs.version_code }})"
+        git push origin "$TAG_NAME"
+        echo "Created/updated and pushed tag: $TAG_NAME"
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+
+    # Check if GitHub release exists
+    - name: Check Existing Release
+      id: check_release
+      run: |
+        TAG_NAME="v${{ steps.version.outputs.version_name }}"
+        RELEASE_ID=$(gh release view "$TAG_NAME" --json id --jq '.id' 2>/dev/null || echo "")
+
+        if [ -n "$RELEASE_ID" ]; then
+          echo "release_exists=true" >> $GITHUB_OUTPUT
+          echo "release_id=${RELEASE_ID}" >> $GITHUB_OUTPUT
+          echo "Found existing release with ID: ${RELEASE_ID}"
+        else
+          echo "release_exists=false" >> $GITHUB_OUTPUT
+          echo "No existing release found"
+        fi
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+
+    # Generate release notes
+    - name: Generate Release Notes
+      id: release_notes
+      run: |
+        # Fetches only the number of the last merged PR to main
+        LAST_PR_NUMBER=$(gh pr list --base main --state merged --limit 1 --json number --jq '.[0].number' 2>/dev/null || echo "")
+        COMMIT_SHA_SHORT=$(echo "${{ github.sha }}" | cut -c1-7)
+
+        NOTES="## Release ${{ steps.version.outputs.version_name }} (Build ${{ steps.version.outputs.version_code }})\n\n"
+        NOTES+="This release includes the latest changes from the main branch.\n\n"
+        NOTES+="**Version:** ${{ steps.version.outputs.version_name }} (Build ${{ steps.version.outputs.version_code }})\n"
+        NOTES+="**Commit SHA:** [${COMMIT_SHA_SHORT}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})\n"
+
+        if [ -n "$LAST_PR_NUMBER" ]; then
+          # GitHub will auto-link #<number> to the PR
+          NOTES+="\n**Related PR:** #${LAST_PR_NUMBER}\n"
+        fi
+
+        NOTES+="\n### Download\n\n"
+        NOTES+="📱 **Debug APK**: Download the APK below to test the app on your device.\n\n"
+        NOTES+="> **Note**: This is a debug build for testing and demo purposes. Install unknown sources may need to be enabled on your device."
+
+        # Set the multiline output for the 'body' field of create-release/update-release actions
+        echo "notes<<EOF" >> $GITHUB_OUTPUT
+        echo -e "${NOTES}" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+        echo "Generated Release Notes (for logging):"
+        echo -e "${NOTES}"
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+
+    # Create GitHub release (only if it doesn't exist)
+    - name: Create GitHub Release
+      if: steps.check_release.outputs.release_exists == 'false'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      with:
+        tag_name: ${{ steps.create_tag.outputs.tag_name }}
+        release_name: Release ${{ steps.version.outputs.version_name }}
+        body: ${{ steps.release_notes.outputs.notes }}
+        draft: false
+        prerelease: false
+
+    # Update existing GitHub release (if it exists)
+    - name: Update GitHub Release
+      if: steps.check_release.outputs.release_exists == 'true'
+      run: |
+        gh release edit "v${{ steps.version.outputs.version_name }}" \
+          --title "Release ${{ steps.version.outputs.version_name }}" \
+          --notes "${{ steps.release_notes.outputs.notes }}" \
+          --draft=false
+        echo "Updated and published existing release"
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+
+    # Find downloaded APK file
+    - name: Find Debug APK
+      id: find_apk
+      run: |
+        APK_PATH=$(find ./debug-apk -name "*.apk" | head -1)
+        if [ -n "$APK_PATH" ]; then
+          echo "apk_path=${APK_PATH}" >> $GITHUB_OUTPUT
+          echo "apk_name=${{ inputs.apk-filename }}" >> $GITHUB_OUTPUT
+          echo "Found APK: ${APK_PATH}"
+        else
+          echo "No APK found in downloaded artifacts!"
+          exit 1
+        fi
+      shell: bash
+
+    # Upload APK to GitHub release (works for both new and existing releases)
+    - name: Upload Debug APK to Release
+      run: |
+        ORIGINAL_APK_PATH="${{ steps.find_apk.outputs.apk_path }}"
+        TARGET_APK_NAME="${{ inputs.apk-filename }}"
+        TARGET_APK_DIR="./debug-apk"
+        FINAL_APK_PATH="${TARGET_APK_DIR}/${TARGET_APK_NAME}"
+
+        echo "Original APK path: ${ORIGINAL_APK_PATH}"
+        echo "Target APK name: ${TARGET_APK_NAME}"
+        echo "Target APK directory: ${TARGET_APK_DIR}"
+        echo "Final APK path for upload: ${FINAL_APK_PATH}"
+
+        if [ ! -f "${ORIGINAL_APK_PATH}" ]; then
+          echo "Error: Original APK not found at ${ORIGINAL_APK_PATH}"
+          ls -Ralh "${TARGET_APK_DIR}" # List contents for debugging
+          exit 1
+        fi
+
+        echo "Renaming '${ORIGINAL_APK_PATH}' to '${FINAL_APK_PATH}'"
+        mv "${ORIGINAL_APK_PATH}" "${FINAL_APK_PATH}"
+
+        if [ ! -f "${FINAL_APK_PATH}" ]; then
+          echo "Error: Renamed APK not found at ${FINAL_APK_PATH} after mv command!"
+          ls -Ralh "${TARGET_APK_DIR}" # List contents for debugging
+          exit 1
+        else
+          echo "Successfully renamed. APK is now at: ${FINAL_APK_PATH}"
+          echo "Contents of ${TARGET_APK_DIR} after rename:"
+          ls -lha "${TARGET_APK_DIR}"
+        fi
+
+        # Remove existing APK assets if they exist (using target name)
+        # Using gh api directly for more control and error checking might be better if issues persist
+        EXISTING_ASSETS=$(gh release view "v${{ steps.version.outputs.version_name }}" --json assets --jq '.assets[] | select(.name == "'"${TARGET_APK_NAME}"'") | .name' 2>/dev/null || echo "")
+        if [ -n "$EXISTING_ASSETS" ]; then
+            echo "Found existing assets matching ${TARGET_APK_NAME}:"
+            echo "$EXISTING_ASSETS"
+            echo "$EXISTING_ASSETS" | while read asset_name; do
+              if [ -n "$asset_name" ]; then # Ensure asset_name is not empty
+                echo "Attempting to remove existing APK asset: $asset_name"
+                gh release delete-asset "v${{ steps.version.outputs.version_name }}" "$asset_name" --yes
+              fi
+            done
+        else
+            echo "No existing assets found matching ${TARGET_APK_NAME}."
+        fi
+
+        echo "Attempting to upload '${FINAL_APK_PATH}' to release 'v${{ steps.version.outputs.version_name }}'"
+        gh release upload "v${{ steps.version.outputs.version_name }}" "${FINAL_APK_PATH}" --clobber
+        echo "Uploaded APK to release as ${TARGET_APK_NAME}"
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+
+    # Upload APK as workflow artifact (always available)
+    - name: Upload APK as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-debug-apk-${{ steps.version.outputs.version_name }}
+        path: ./debug-apk/${{ inputs.apk-filename }}
