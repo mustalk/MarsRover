@@ -13,6 +13,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Test
 import retrofit2.HttpException
@@ -77,7 +78,7 @@ class MarsRoverRepositoryImplTest {
             val errorResponse =
                 Response.error<MissionResponse>(
                     400,
-                    okhttp3.ResponseBody.create(null, "Bad Request")
+                    "Bad Request".toResponseBody(null)
                 )
             val httpException = HttpException(errorResponse)
 
@@ -89,7 +90,7 @@ class MarsRoverRepositoryImplTest {
             // Then
             assertThat(result).isInstanceOf(NetworkResult.Error::class.java)
             val errorResult = result as NetworkResult.Error
-            assertThat(errorResult.message).contains("HTTP 400")
+            assertThat(errorResult.message).contains("HTTP error: 400")
         }
 
     @Test
@@ -175,7 +176,7 @@ class MarsRoverRepositoryImplTest {
             val errorResponse =
                 Response.error<MissionResponse>(
                     500,
-                    okhttp3.ResponseBody.create(null, "Internal Server Error")
+                    "Internal Server Error".toResponseBody(null)
                 )
             val httpException = HttpException(errorResponse)
 
@@ -187,7 +188,7 @@ class MarsRoverRepositoryImplTest {
             // Then
             assertThat(result).isInstanceOf(NetworkResult.Error::class.java)
             val errorResult = result as NetworkResult.Error
-            assertThat(errorResult.message).contains("HTTP 500")
+            assertThat(errorResult.message).contains("HTTP error: 500")
         }
 
     @Test
