@@ -136,9 +136,11 @@ private class FieldUpdateHandler(
     }
 
     fun updatePlateauWidth(width: String) {
+        // Filter to allow only digits
+        val filteredWidth = width.filter { it.isDigit() }
         updateState(
             getCurrentState().copy(
-                plateauWidth = width,
+                plateauWidth = filteredWidth,
                 plateauWidthError = null,
                 errorMessage = null
             )
@@ -146,9 +148,11 @@ private class FieldUpdateHandler(
     }
 
     fun updatePlateauHeight(height: String) {
+        // Filter to allow only digits
+        val filteredHeight = height.filter { it.isDigit() }
         updateState(
             getCurrentState().copy(
-                plateauHeight = height,
+                plateauHeight = filteredHeight,
                 plateauHeightError = null,
                 errorMessage = null
             )
@@ -156,9 +160,11 @@ private class FieldUpdateHandler(
     }
 
     fun updateRoverStartX(x: String) {
+        // Filter to allow only digits (no negative sign since we don't allow negative coordinates)
+        val filteredX = x.filter { it.isDigit() }
         updateState(
             getCurrentState().copy(
-                roverStartX = x,
+                roverStartX = filteredX,
                 roverStartXError = null,
                 errorMessage = null
             )
@@ -166,9 +172,11 @@ private class FieldUpdateHandler(
     }
 
     fun updateRoverStartY(y: String) {
+        // Filter to allow only digits (no negative sign since we don't allow negative coordinates)
+        val filteredY = y.filter { it.isDigit() }
         updateState(
             getCurrentState().copy(
-                roverStartY = y,
+                roverStartY = filteredY,
                 roverStartYError = null,
                 errorMessage = null
             )
@@ -198,6 +206,7 @@ private class FieldUpdateHandler(
 
 /**
  * Handles field validation for the New Mission screen.
+ * Validates user input and sets appropriate error messages.
  */
 private class ValidationHandler(
     private val updateState: (NewMissionUiState) -> Unit,
@@ -207,12 +216,22 @@ private class ValidationHandler(
         val width = getCurrentState().plateauWidth
         if (width.isNotBlank()) {
             val widthValue = width.toIntOrNull()
-            if (widthValue == null || widthValue <= 0) {
-                updateState(
-                    getCurrentState().copy(
-                        plateauWidthError = "Must be a positive number"
+            when {
+                widthValue == null -> {
+                    updateState(
+                        getCurrentState().copy(
+                            plateauWidthError = "Must be a valid number"
+                        )
                     )
-                )
+                }
+
+                widthValue <= 0 -> {
+                    updateState(
+                        getCurrentState().copy(
+                            plateauWidthError = "Must be a positive number"
+                        )
+                    )
+                }
             }
         }
     }
@@ -221,12 +240,22 @@ private class ValidationHandler(
         val height = getCurrentState().plateauHeight
         if (height.isNotBlank()) {
             val heightValue = height.toIntOrNull()
-            if (heightValue == null || heightValue <= 0) {
-                updateState(
-                    getCurrentState().copy(
-                        plateauHeightError = "Must be a positive number"
+            when {
+                heightValue == null -> {
+                    updateState(
+                        getCurrentState().copy(
+                            plateauHeightError = "Must be a valid number"
+                        )
                     )
-                )
+                }
+
+                heightValue <= 0 -> {
+                    updateState(
+                        getCurrentState().copy(
+                            plateauHeightError = "Must be a positive number"
+                        )
+                    )
+                }
             }
         }
     }
@@ -235,12 +264,22 @@ private class ValidationHandler(
         val x = getCurrentState().roverStartX
         if (x.isNotBlank()) {
             val xValue = x.toIntOrNull()
-            if (xValue == null || xValue < 0) {
-                updateState(
-                    getCurrentState().copy(
-                        roverStartXError = "Must be a non-negative number"
+            when {
+                xValue == null -> {
+                    updateState(
+                        getCurrentState().copy(
+                            roverStartXError = "Must be a valid number"
+                        )
                     )
-                )
+                }
+
+                xValue < 0 -> {
+                    updateState(
+                        getCurrentState().copy(
+                            roverStartXError = "Must be a non-negative number"
+                        )
+                    )
+                }
             }
         }
     }
@@ -249,12 +288,22 @@ private class ValidationHandler(
         val y = getCurrentState().roverStartY
         if (y.isNotBlank()) {
             val yValue = y.toIntOrNull()
-            if (yValue == null || yValue < 0) {
-                updateState(
-                    getCurrentState().copy(
-                        roverStartYError = "Must be a non-negative number"
+            when {
+                yValue == null -> {
+                    updateState(
+                        getCurrentState().copy(
+                            roverStartYError = "Must be a valid number"
+                        )
                     )
-                )
+                }
+
+                yValue < 0 -> {
+                    updateState(
+                        getCurrentState().copy(
+                            roverStartYError = "Must be a non-negative number"
+                        )
+                    )
+                }
             }
         }
     }

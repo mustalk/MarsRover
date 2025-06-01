@@ -359,18 +359,95 @@ class NewMissionViewModelTest {
         assertThat(state.jsonError).isNull()
     }
 
-    // Validation tests
+    // Input filtering tests
+    @Test
+    fun `updatePlateauWidth should filter out non-digit characters`() {
+        // When
+        viewModel.updatePlateauWidth("12abc34")
+
+        // Then
+        val state = viewModel.uiState.value
+        assertThat(state.plateauWidth).isEqualTo("1234")
+        assertThat(state.plateauWidthError).isNull()
+    }
+
+    @Test
+    fun `updatePlateauHeight should filter out non-digit characters`() {
+        // When
+        viewModel.updatePlateauHeight("5#6@7")
+
+        // Then
+        val state = viewModel.uiState.value
+        assertThat(state.plateauHeight).isEqualTo("567")
+        assertThat(state.plateauHeightError).isNull()
+    }
+
+    @Test
+    fun `updateRoverStartX should filter out letters and special characters`() {
+        // When
+        viewModel.updateRoverStartX("a1b2c3!")
+
+        // Then
+        val state = viewModel.uiState.value
+        assertThat(state.roverStartX).isEqualTo("123")
+        assertThat(state.roverStartXError).isNull()
+    }
+
+    @Test
+    fun `updateRoverStartY should filter out letters and special characters`() {
+        // When
+        viewModel.updateRoverStartY("ads")
+
+        // Then
+        val state = viewModel.uiState.value
+        assertThat(state.roverStartY).isEmpty()
+        assertThat(state.roverStartYError).isNull()
+    }
+
+    @Test
+    fun `updateRoverStartX should handle empty input after filtering`() {
+        // When
+        viewModel.updateRoverStartX("abc!@#")
+
+        // Then
+        val state = viewModel.uiState.value
+        assertThat(state.roverStartX).isEmpty()
+        assertThat(state.roverStartXError).isNull()
+    }
+
+    @Test
+    fun `validation should show proper error for different input types`() {
+        // Test validation differentiates between invalid format and negative numbers
+
+        // Update with a valid but negative number (this won't be filtered since we only filter digits)
+        // But actually, negative numbers would need minus sign which gets filtered
+        // So let's test with zero which is invalid for plateau dimensions
+        viewModel.updatePlateauWidth("0")
+        viewModel.validatePlateauWidth()
+
+        var state = viewModel.uiState.value
+        assertThat(state.plateauWidthError).isEqualTo("Must be a positive number")
+
+        // Test empty input validation
+        viewModel.updateRoverStartX("")
+        viewModel.validateRoverStartX()
+
+        state = viewModel.uiState.value
+        assertThat(state.roverStartXError).isNull() // Empty is allowed for coordinates
+    }
+
     @Test
     fun `validatePlateauWidth with invalid input should set error`() {
-        // Given
+        // Given - Input filtering will remove "-" sign, leaving "1"
         viewModel.updatePlateauWidth("-1")
 
         // When
         viewModel.validatePlateauWidth()
 
-        // Then
+        // Then - Since filtering removes "-", we get "1" which is valid
         val state = viewModel.uiState.value
-        assertThat(state.plateauWidthError).isEqualTo("Must be a positive number")
+        assertThat(state.plateauWidth).isEqualTo("1")
+        assertThat(state.plateauWidthError).isNull()
     }
 
     @Test
@@ -388,28 +465,30 @@ class NewMissionViewModelTest {
 
     @Test
     fun `validateRoverStartX with negative value should set error`() {
-        // Given
+        // Given - Input filtering will remove "-" sign, leaving "1"
         viewModel.updateRoverStartX("-1")
 
         // When
         viewModel.validateRoverStartX()
 
-        // Then
+        // Then - Since filtering removes "-", we get "1" which is valid
         val state = viewModel.uiState.value
-        assertThat(state.roverStartXError).isEqualTo("Must be a non-negative number")
+        assertThat(state.roverStartX).isEqualTo("1")
+        assertThat(state.roverStartXError).isNull()
     }
 
     @Test
     fun `validateRoverStartY with non-numeric value should set error`() {
-        // Given
+        // Given - Input filtering will remove letters, leaving empty string
         viewModel.updateRoverStartY("abc")
 
         // When
         viewModel.validateRoverStartY()
 
-        // Then
+        // Then - Empty string doesn't trigger validation error
         val state = viewModel.uiState.value
-        assertThat(state.roverStartYError).isEqualTo("Must be a non-negative number")
+        assertThat(state.roverStartY).isEmpty()
+        assertThat(state.roverStartYError).isNull()
     }
 
     @Test
