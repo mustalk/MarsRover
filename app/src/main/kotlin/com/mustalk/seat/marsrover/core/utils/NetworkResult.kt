@@ -1,5 +1,7 @@
 package com.mustalk.seat.marsrover.core.utils
 
+import com.mustalk.seat.marsrover.core.utils.exceptions.NetworkException
+
 /**
  * A sealed class representing the result of a network operation.
  * Provides a functional programming approach to handling network results.
@@ -138,7 +140,14 @@ sealed class NetworkResult<out T> {
         suspend inline fun <T> safeCall(crossinline operation: suspend () -> T): NetworkResult<T> =
             try {
                 Success(operation())
+            } catch (e: retrofit2.HttpException) {
+                // Specific to Retrofit/OkHttp HTTP errors
+                Error(NetworkException("HTTP error: ${e.code()} ${e.message()}", e), "HTTP error: ${e.code()} ${e.message()}")
+            } catch (e: java.io.IOException) {
+                // Covers other network IO issues (connectivity, timeout)
+                Error(NetworkException("Network operation failed: ${e.message}", e), e.message ?: "Network error")
             } catch (exception: Throwable) {
+                // Fallback for other unexpected errors
                 Error(exception)
             }
     }
