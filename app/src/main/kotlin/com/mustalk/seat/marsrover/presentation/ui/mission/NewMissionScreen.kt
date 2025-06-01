@@ -207,7 +207,6 @@ fun NewMissionScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun NewMissionContent(
     uiState: NewMissionUiState,
@@ -236,7 +235,55 @@ internal fun NewMissionContent(
                 .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        // Input mode selector
+        InputModeSelector(
+            selectedMode = uiState.inputMode,
+            onModeChange = onInputModeChange
+        )
+
+        InputContentSection(
+            uiState = uiState,
+            onJsonInputChange = onJsonInputChange,
+            onPlateauWidthChange = onPlateauWidthChange,
+            onPlateauHeightChange = onPlateauHeightChange,
+            onRoverStartXChange = onRoverStartXChange,
+            onRoverStartYChange = onRoverStartYChange,
+            onRoverDirectionChange = onRoverDirectionChange,
+            onMovementCommandsChange = onMovementCommandsChange,
+            onPlateauWidthFocusLost = onPlateauWidthFocusLost,
+            onPlateauHeightFocusLost = onPlateauHeightFocusLost,
+            onRoverStartXFocusLost = onRoverStartXFocusLost,
+            onRoverStartYFocusLost = onRoverStartYFocusLost,
+            onMovementCommandsFocusLost = onMovementCommandsFocusLost
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        ActionButtonsSection(
+            uiState = uiState,
+            onExecuteMission = onExecuteMission,
+            onNavigateBack = onNavigateBack
+        )
+    }
+}
+
+/**
+ * Segmented control for switching between JSON input and form builder input modes.
+ *
+ * @param selectedMode Currently selected input mode
+ * @param onModeChange Callback when input mode changes
+ * @param modifier Optional modifier for styling
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InputModeSelector(
+    selectedMode: InputMode,
+    onModeChange: (InputMode) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         Text(
             text = stringResource(R.string.input_mode_selector_title),
             style = MaterialTheme.typography.titleMedium,
@@ -248,8 +295,8 @@ internal fun NewMissionContent(
             modifier = Modifier.fillMaxWidth()
         ) {
             SegmentedButton(
-                selected = uiState.inputMode == InputMode.JSON,
-                onClick = { onInputModeChange(InputMode.JSON) },
+                selected = selectedMode == InputMode.JSON,
+                onClick = { onModeChange(InputMode.JSON) },
                 shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
                 colors =
                     SegmentedButtonDefaults.colors(
@@ -263,8 +310,8 @@ internal fun NewMissionContent(
             }
 
             SegmentedButton(
-                selected = uiState.inputMode == InputMode.BUILDER,
-                onClick = { onInputModeChange(InputMode.BUILDER) },
+                selected = selectedMode == InputMode.BUILDER,
+                onClick = { onModeChange(InputMode.BUILDER) },
                 shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
                 colors =
                     SegmentedButtonDefaults.colors(
@@ -277,59 +324,100 @@ internal fun NewMissionContent(
                 Text(stringResource(R.string.input_mode_builder_short))
             }
         }
+    }
+}
 
-        // Input content based on mode
-        when (uiState.inputMode) {
-            InputMode.JSON -> {
-                JsonInputSection(
-                    jsonInput = uiState.jsonInput,
-                    jsonError = uiState.jsonError,
-                    onJsonInputChange = onJsonInputChange
-                )
-            }
-
-            InputMode.BUILDER -> {
-                BuilderInputsForm(
-                    uiState = uiState,
-                    onPlateauWidthChange = onPlateauWidthChange,
-                    onPlateauHeightChange = onPlateauHeightChange,
-                    onRoverStartXChange = onRoverStartXChange,
-                    onRoverStartYChange = onRoverStartYChange,
-                    onRoverDirectionChange = onRoverDirectionChange,
-                    onMovementCommandsChange = onMovementCommandsChange,
-                    onPlateauWidthFocusLost = onPlateauWidthFocusLost,
-                    onPlateauHeightFocusLost = onPlateauHeightFocusLost,
-                    onRoverStartXFocusLost = onRoverStartXFocusLost,
-                    onRoverStartYFocusLost = onRoverStartYFocusLost,
-                    onMovementCommandsFocusLost = onMovementCommandsFocusLost
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Execute button
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            MarsButton(
-                text = stringResource(R.string.action_execute),
-                onClick = onExecuteMission,
-                variant = MarsButtonVariant.Primary,
-                isLoading = uiState.isLoading,
-                modifier = Modifier.weight(1f),
-                contentDescription = stringResource(R.string.cd_execute_mission)
-            )
-
-            MarsButton(
-                text = stringResource(R.string.action_cancel),
-                onClick = onNavigateBack,
-                variant = MarsButtonVariant.Secondary,
-                enabled = !uiState.isLoading,
-                contentDescription = stringResource(R.string.cd_cancel_mission)
+/**
+ * Renders the appropriate input content based on the selected input mode.
+ * Switches between JSON text input and form builder UI.
+ *
+ * @param uiState Current UI state containing input mode and values
+ * @param onJsonInputChange Callback for JSON text changes
+ * @param modifier Optional modifier for styling
+ */
+@Composable
+private fun InputContentSection(
+    uiState: NewMissionUiState,
+    onJsonInputChange: (String) -> Unit,
+    onPlateauWidthChange: (String) -> Unit,
+    onPlateauHeightChange: (String) -> Unit,
+    onRoverStartXChange: (String) -> Unit,
+    onRoverStartYChange: (String) -> Unit,
+    onRoverDirectionChange: (String) -> Unit,
+    onMovementCommandsChange: (String) -> Unit,
+    onPlateauWidthFocusLost: () -> Unit,
+    onPlateauHeightFocusLost: () -> Unit,
+    onRoverStartXFocusLost: () -> Unit,
+    onRoverStartYFocusLost: () -> Unit,
+    onMovementCommandsFocusLost: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    when (uiState.inputMode) {
+        InputMode.JSON -> {
+            JsonInputSection(
+                jsonInput = uiState.jsonInput,
+                jsonError = uiState.jsonError,
+                onJsonInputChange = onJsonInputChange,
+                modifier = modifier
             )
         }
+
+        InputMode.BUILDER -> {
+            BuilderInputsForm(
+                uiState = uiState,
+                onPlateauWidthChange = onPlateauWidthChange,
+                onPlateauHeightChange = onPlateauHeightChange,
+                onRoverStartXChange = onRoverStartXChange,
+                onRoverStartYChange = onRoverStartYChange,
+                onRoverDirectionChange = onRoverDirectionChange,
+                onMovementCommandsChange = onMovementCommandsChange,
+                onPlateauWidthFocusLost = onPlateauWidthFocusLost,
+                onPlateauHeightFocusLost = onPlateauHeightFocusLost,
+                onRoverStartXFocusLost = onRoverStartXFocusLost,
+                onRoverStartYFocusLost = onRoverStartYFocusLost,
+                onMovementCommandsFocusLost = onMovementCommandsFocusLost,
+                modifier = modifier
+            )
+        }
+    }
+}
+
+/**
+ * Action buttons section with Execute and Cancel buttons.
+ * Execute button shows loading state during mission execution.
+ *
+ * @param uiState Current UI state for loading and button states
+ * @param onExecuteMission Callback to start mission execution
+ * @param onNavigateBack Callback to cancel and navigate back
+ * @param modifier Optional modifier for styling
+ */
+@Composable
+private fun ActionButtonsSection(
+    uiState: NewMissionUiState,
+    onExecuteMission: () -> Unit,
+    onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        MarsButton(
+            text = stringResource(R.string.action_execute),
+            onClick = onExecuteMission,
+            variant = MarsButtonVariant.Primary,
+            isLoading = uiState.isLoading,
+            modifier = Modifier.weight(1f),
+            contentDescription = stringResource(R.string.cd_execute_mission)
+        )
+
+        MarsButton(
+            text = stringResource(R.string.action_cancel),
+            onClick = onNavigateBack,
+            variant = MarsButtonVariant.Secondary,
+            enabled = !uiState.isLoading,
+            contentDescription = stringResource(R.string.cd_cancel_mission)
+        )
     }
 }
 
