@@ -32,6 +32,9 @@ class DashboardScreenTest {
             }
         }
 
+        // Wait for UI to be fully rendered
+        composeTestRule.waitForIdle()
+
         // Then
         composeTestRule
             .onNodeWithText("🚀 Mars Rover Mission Control")
@@ -68,6 +71,9 @@ class DashboardScreenTest {
             }
         }
 
+        // Wait for UI to be fully rendered
+        composeTestRule.waitForIdle()
+
         // Then
         composeTestRule
             .onNodeWithText("Mission Result")
@@ -103,6 +109,9 @@ class DashboardScreenTest {
             }
         }
 
+        // Wait for UI to be fully rendered
+        composeTestRule.waitForIdle()
+
         // Then
         composeTestRule
             .onNodeWithText("Mission Failed")
@@ -129,6 +138,9 @@ class DashboardScreenTest {
             }
         }
 
+        // Wait for UI to be fully rendered
+        composeTestRule.waitForIdle()
+
         // Then
         composeTestRule
             .onNodeWithText("Processing mission data…")
@@ -150,6 +162,9 @@ class DashboardScreenTest {
                 )
             }
         }
+
+        // Wait for UI to be fully rendered
+        composeTestRule.waitForIdle()
 
         // Then
         composeTestRule
@@ -178,6 +193,9 @@ class DashboardScreenTest {
             }
         }
 
+        // Wait for UI to be fully rendered
+        composeTestRule.waitForIdle()
+
         // Then
         composeTestRule
             .onNodeWithContentDescription("Start new mission")
@@ -202,6 +220,9 @@ class DashboardScreenTest {
                 )
             }
         }
+
+        // Wait for UI to be fully rendered
+        composeTestRule.waitForIdle()
 
         // Then - Extended FAB should show text
         composeTestRule
@@ -229,6 +250,9 @@ class DashboardScreenTest {
                 )
             }
         }
+
+        // Wait for UI to be fully rendered
+        composeTestRule.waitForIdle()
 
         // Then - Regular FAB should not show text
         composeTestRule
@@ -262,6 +286,9 @@ class DashboardScreenTest {
             }
         }
 
+        // Wait for UI to be fully rendered
+        composeTestRule.waitForIdle()
+
         // Then
         composeTestRule
             .onNodeWithText("🚀 Mars Rover Mission Control")
@@ -294,6 +321,9 @@ class DashboardScreenTest {
                 )
             }
         }
+
+        // Wait for UI to be fully rendered
+        composeTestRule.waitForIdle()
 
         // Then - Should display Mission Instructions label
         composeTestRule
