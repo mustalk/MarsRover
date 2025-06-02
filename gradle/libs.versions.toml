@@ -43,7 +43,6 @@ mockWebServer = "4.12.0"
 
 # Code analysis tools
 detekt-plugin = "1.23.8"
-ktlint-plugin = "12.3.0"
 spotless-plugin = "7.0.3"
 
 [libraries]
@@ -95,6 +94,13 @@ truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockWebServer" }
 
+# Dependencies of the included build-logic (for convention plugins)
+android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+compose-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
+detekt-gradle-plugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt-plugin" }
+spotless-gradle-plugin = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless-plugin" }
+
 [plugins]
 # Build tools
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -108,5 +114,13 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 # Code analysis tools
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt-plugin" }
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-plugin" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless-plugin" }
+
+# Convention plugins defined by this project
+marsrover-android-application = { id = "marsrover.android.application" }
+marsrover-android-library = { id = "marsrover.android.library" }
+marsrover-jvm-library = { id = "marsrover.jvm.library" }
+marsrover-android-hilt = { id = "marsrover.android.hilt" }
+marsrover-quality-detekt = { id = "marsrover.quality.detekt" }
+marsrover-quality-spotless = { id = "marsrover.quality.spotless" }
+marsrover-quality-gate = { id = "marsrover.quality.gate" }

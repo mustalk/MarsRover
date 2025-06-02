@@ -1,5 +1,4 @@
 pluginManagement {
-    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -13,7 +12,7 @@ pluginManagement {
     }
 }
 
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage") // For RepositoriesMode and VersionCatalogs
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -26,8 +25,12 @@ dependencyResolutionManagement {
         }
         mavenCentral()
     }
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
+    }
 }
 
-rootProject.name = "MarsRover"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-include(":app")
+rootProject.name = "build-logic"
+include(":convention")
