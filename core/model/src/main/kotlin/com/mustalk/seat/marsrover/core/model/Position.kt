@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.domain.model
+package com.mustalk.seat.marsrover.core.model
 
 /**
  * Represents a 2D coordinate position on the plateau.

@@ -1,9 +1,9 @@
 package com.mustalk.seat.marsrover.domain.service
 
-import com.mustalk.seat.marsrover.domain.model.Direction
-import com.mustalk.seat.marsrover.domain.model.Plateau
-import com.mustalk.seat.marsrover.domain.model.Position
-import com.mustalk.seat.marsrover.domain.model.Rover
+import com.mustalk.seat.marsrover.core.model.Direction
+import com.mustalk.seat.marsrover.core.model.Plateau
+import com.mustalk.seat.marsrover.core.model.Position
+import com.mustalk.seat.marsrover.core.model.Rover
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

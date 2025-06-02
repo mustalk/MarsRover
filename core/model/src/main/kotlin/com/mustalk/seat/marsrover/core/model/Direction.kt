@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.domain.model
+package com.mustalk.seat.marsrover.core.model
 
 /**
  * Represents the cardinal compass points for the Rover's orientation.

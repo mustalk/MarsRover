@@ -41,6 +41,9 @@ android {
 }
 
 dependencies {
+    // Core modules
+    implementation(project(":core:model"))
+
     // UI and Core AndroidX - Temporarily hardcoded for Pre-Migration setup
     implementation("androidx.core:core-ktx:1.16.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.0")

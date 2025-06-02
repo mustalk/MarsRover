@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.domain.model
+package com.mustalk.seat.marsrover.core.model
 
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

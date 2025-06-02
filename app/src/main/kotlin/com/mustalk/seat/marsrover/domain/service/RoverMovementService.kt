@@ -1,7 +1,7 @@
 package com.mustalk.seat.marsrover.domain.service
 
-import com.mustalk.seat.marsrover.domain.model.Plateau
-import com.mustalk.seat.marsrover.domain.model.Rover
+import com.mustalk.seat.marsrover.core.model.Plateau
+import com.mustalk.seat.marsrover.core.model.Rover
 
 /**
  * Interface for handling rover movement operations.

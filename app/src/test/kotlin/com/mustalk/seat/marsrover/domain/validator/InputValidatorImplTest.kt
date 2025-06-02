@@ -1,12 +1,12 @@
 package com.mustalk.seat.marsrover.domain.validator
 
+import com.mustalk.seat.marsrover.core.model.Direction
+import com.mustalk.seat.marsrover.core.model.Plateau
+import com.mustalk.seat.marsrover.core.model.Position
 import com.mustalk.seat.marsrover.data.model.input.MarsRoverInput
 import com.mustalk.seat.marsrover.data.model.input.RoverPosition
 import com.mustalk.seat.marsrover.data.model.input.TopRightCorner
 import com.mustalk.seat.marsrover.domain.error.RoverError
-import com.mustalk.seat.marsrover.domain.model.Direction
-import com.mustalk.seat.marsrover.domain.model.Plateau
-import com.mustalk.seat.marsrover.domain.model.Position
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

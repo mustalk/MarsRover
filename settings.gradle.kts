@@ -31,3 +31,4 @@ dependencyResolutionManagement {
 rootProject.name = "MarsRover"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
+include(":core:model")

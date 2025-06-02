@@ -1,9 +1,9 @@
 package com.mustalk.seat.marsrover.domain.validator
 
+import com.mustalk.seat.marsrover.core.model.Direction
+import com.mustalk.seat.marsrover.core.model.Plateau
+import com.mustalk.seat.marsrover.core.model.Position
 import com.mustalk.seat.marsrover.data.model.input.MarsRoverInput
-import com.mustalk.seat.marsrover.domain.model.Direction
-import com.mustalk.seat.marsrover.domain.model.Plateau
-import com.mustalk.seat.marsrover.domain.model.Position
 
 /**
  * Interface for validating Mars Rover input data.
@@ -32,7 +32,7 @@ interface InputValidator {
      *
      * @param position The rover's initial position.
      * @param plateau The plateau to validate against.
-     * @throws RoverError if position is invalid.
+     * @throws RoverError if validation fails.
      */
     fun validateInitialPosition(
         position: Position,

@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.domain.model
+package com.mustalk.seat.marsrover.core.model
 
 /**
  * Represents a Mars rover with its current position and direction.
