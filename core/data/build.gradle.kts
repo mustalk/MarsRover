@@ -11,6 +11,7 @@ android {
 dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:domain"))
+    implementation(project(":core:common"))
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit)

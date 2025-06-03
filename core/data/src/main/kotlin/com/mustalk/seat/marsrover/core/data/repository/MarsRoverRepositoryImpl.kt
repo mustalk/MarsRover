@@ -1,5 +1,6 @@
 package com.mustalk.seat.marsrover.core.data.repository
 
+import com.mustalk.seat.marsrover.core.common.network.NetworkResult
 import com.mustalk.seat.marsrover.core.data.model.input.MarsRoverInput
 import com.mustalk.seat.marsrover.core.data.model.input.RoverPosition
 import com.mustalk.seat.marsrover.core.data.model.input.TopRightCorner
@@ -24,10 +25,10 @@ class MarsRoverRepositoryImpl
          * Maps domain model to DTO for network call, then maps response back to domain.
          *
          * @param instructions The mission instructions as domain model
-         * @return Result containing the mission response as a String or exception
+         * @return NetworkResult containing the mission response as a String
          */
-        override suspend fun executeMission(instructions: RoverMissionInstructions): Result<String> =
-            try {
+        override suspend fun executeMission(instructions: RoverMissionInstructions): NetworkResult<String> =
+            NetworkResult.safeCall {
                 // Map domain model to DTO for network call
                 val marsRoverInput = mapToMarsRoverInput(instructions)
 
@@ -35,9 +36,7 @@ class MarsRoverRepositoryImpl
                 val response = apiService.executeMission(marsRoverInput)
 
                 // Return final position from response
-                Result.success(response.finalPosition)
-            } catch (e: Exception) {
-                Result.failure(e)
+                response.finalPosition
             }
 
         /**
