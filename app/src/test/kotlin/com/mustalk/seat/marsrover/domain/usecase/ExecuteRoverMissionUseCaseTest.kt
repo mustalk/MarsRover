@@ -1,7 +1,7 @@
 package com.mustalk.seat.marsrover.domain.usecase
 
+import com.mustalk.seat.marsrover.core.domain.error.RoverError
 import com.mustalk.seat.marsrover.data.parser.JsonParserImpl
-import com.mustalk.seat.marsrover.domain.error.RoverError
 import com.mustalk.seat.marsrover.domain.service.RoverMovementServiceImpl
 import com.mustalk.seat.marsrover.domain.validator.InputValidatorImpl
 import kotlinx.serialization.json.Json

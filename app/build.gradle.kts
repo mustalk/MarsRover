@@ -43,6 +43,7 @@ android {
 dependencies {
     // Core modules
     implementation(project(":core:model"))
+    implementation(project(":core:domain"))
 
     // UI and Core AndroidX - Temporarily hardcoded for Pre-Migration setup
     implementation("androidx.core:core-ktx:1.16.0")

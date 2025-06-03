@@ -2,12 +2,12 @@ package com.mustalk.seat.marsrover.presentation.ui.mission
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mustalk.seat.marsrover.core.domain.error.RoverError
 import com.mustalk.seat.marsrover.core.utils.Constants
 import com.mustalk.seat.marsrover.core.utils.NetworkResult
 import com.mustalk.seat.marsrover.core.utils.exceptions.JsonParsingException
 import com.mustalk.seat.marsrover.core.utils.exceptions.MissionExecutionException
 import com.mustalk.seat.marsrover.core.utils.exceptions.NetworkException
-import com.mustalk.seat.marsrover.domain.error.RoverError
 import com.mustalk.seat.marsrover.domain.usecase.ExecuteNetworkMissionUseCase
 import com.mustalk.seat.marsrover.domain.usecase.ExecuteRoverMissionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

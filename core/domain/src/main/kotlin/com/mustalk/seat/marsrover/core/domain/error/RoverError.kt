@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.domain.error
+package com.mustalk.seat.marsrover.core.domain.error
 
 /**
  * Sealed class representing all possible errors that can occur during Mars Rover operations.

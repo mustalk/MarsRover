@@ -1,7 +1,7 @@
 package com.mustalk.seat.marsrover.data.parser
 
+import com.mustalk.seat.marsrover.core.domain.error.RoverError
 import com.mustalk.seat.marsrover.data.model.input.MarsRoverInput
-import com.mustalk.seat.marsrover.domain.error.RoverError
 import com.mustalk.seat.marsrover.domain.parser.JsonParser
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json

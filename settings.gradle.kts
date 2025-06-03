@@ -32,3 +32,5 @@ rootProject.name = "MarsRover"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
 include(":core:model")
+include(":core:domain")
+include(":core:data")

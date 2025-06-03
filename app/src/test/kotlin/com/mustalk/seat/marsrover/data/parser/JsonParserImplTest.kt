@@ -1,6 +1,6 @@
 package com.mustalk.seat.marsrover.data.parser
 
-import com.mustalk.seat.marsrover.domain.error.RoverError
+import com.mustalk.seat.marsrover.core.domain.error.RoverError
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Before
