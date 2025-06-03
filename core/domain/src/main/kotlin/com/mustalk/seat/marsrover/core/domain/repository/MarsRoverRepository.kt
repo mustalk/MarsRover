@@ -1,6 +1,7 @@
 package com.mustalk.seat.marsrover.core.domain.repository
 
 import com.mustalk.seat.marsrover.core.common.network.NetworkResult
+import com.mustalk.seat.marsrover.core.model.MissionResult
 import com.mustalk.seat.marsrover.core.model.RoverMissionInstructions
 
 /**
@@ -12,7 +13,7 @@ interface MarsRoverRepository {
      * Execute a rover mission through the network API.
      *
      * @param instructions The mission instructions as domain model
-     * @return NetworkResult containing the mission response as a String
+     * @return NetworkResult containing the mission result as domain model
      */
-    suspend fun executeMission(instructions: RoverMissionInstructions): NetworkResult<String>
+    suspend fun executeMission(instructions: RoverMissionInstructions): NetworkResult<MissionResult>
 }

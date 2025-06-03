@@ -1,7 +1,7 @@
 package com.mustalk.seat.marsrover.data.network.api
 
-import com.mustalk.seat.marsrover.data.model.input.MarsRoverInput
-import com.mustalk.seat.marsrover.data.network.model.MissionResponse
+import com.mustalk.seat.marsrover.core.data.model.input.MarsRoverInput
+import com.mustalk.seat.marsrover.core.data.network.model.MissionResponse
 import retrofit2.http.Body
 import retrofit2.http.POST
 

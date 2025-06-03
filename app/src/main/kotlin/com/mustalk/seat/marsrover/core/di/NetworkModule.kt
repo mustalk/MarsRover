@@ -1,11 +1,11 @@
 package com.mustalk.seat.marsrover.core.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.mustalk.seat.marsrover.core.utils.Constants
-import com.mustalk.seat.marsrover.data.network.api.MarsRoverApiService
+import com.mustalk.seat.marsrover.core.common.constants.Constants
+import com.mustalk.seat.marsrover.core.data.network.api.MarsRoverApiService
+import com.mustalk.seat.marsrover.core.data.repository.MarsRoverRepositoryImpl
+import com.mustalk.seat.marsrover.core.domain.repository.MarsRoverRepository
 import com.mustalk.seat.marsrover.data.network.interceptor.MissionSimulationInterceptor
-import com.mustalk.seat.marsrover.data.repository.MarsRoverRepository
-import com.mustalk.seat.marsrover.data.repository.MarsRoverRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

@@ -1,12 +1,11 @@
 package com.mustalk.seat.marsrover.domain.usecase
 
 import com.mustalk.seat.marsrover.core.domain.error.RoverError
-import com.mustalk.seat.marsrover.core.model.Position
+import com.mustalk.seat.marsrover.core.domain.parser.JsonParser
+import com.mustalk.seat.marsrover.core.domain.service.RoverMovementService
+import com.mustalk.seat.marsrover.core.domain.validator.InputValidator
 import com.mustalk.seat.marsrover.core.model.Rover
-import com.mustalk.seat.marsrover.data.model.input.MarsRoverInput
-import com.mustalk.seat.marsrover.domain.parser.JsonParser
-import com.mustalk.seat.marsrover.domain.service.RoverMovementService
-import com.mustalk.seat.marsrover.domain.validator.InputValidator
+import com.mustalk.seat.marsrover.core.model.RoverMissionInstructions
 import javax.inject.Inject
 
 /**
@@ -40,46 +39,46 @@ class ExecuteRoverMissionUseCase
          */
         operator fun invoke(jsonInput: String): Result<String> =
             try {
-                // Parse JSON input
-                val input = jsonParser.parseInput(jsonInput)
+                // Parse JSON input into domain model
+                val instructions = jsonParser.parseInput(jsonInput)
 
-                // Execute mission using the common logic
-                executeMission(input)
+                // Execute mission using the domain model
+                executeMission(instructions)
             } catch (error: RoverError) {
                 Result.failure(error)
             }
 
         /**
-         * Executes rover mission from MarsRoverInput and returns the final position and direction.
-         * This method is useful for API simulation where we already have parsed input.
+         * Executes rover mission from RoverMissionInstructions and returns the final position and direction.
+         * This method is useful for  API simulation where we already have parsed input.
          *
-         * @param input The MarsRoverInput containing rover mission instructions.
+         * @param instructions The RoverMissionInstructions containing rover mission details.
          * @return Result with final rover position string or RoverError.
          */
-        fun execute(input: MarsRoverInput): Result<String> =
+        fun execute(instructions: RoverMissionInstructions): Result<String> =
             try {
-                executeMission(input)
+                executeMission(instructions)
             } catch (error: RoverError) {
                 Result.failure(error)
             }
 
         /**
-         * Common execution logic for both JSON and MarsRoverInput.
+         * Common execution logic for RoverMissionInstructions.
          */
-        private fun executeMission(input: MarsRoverInput): Result<String> {
+        private fun executeMission(instructions: RoverMissionInstructions): Result<String> {
             // Validate and create plateau
-            val plateau = inputValidator.validateAndCreatePlateau(input)
+            val plateau = inputValidator.validateAndCreatePlateau(instructions)
 
             // Parse and validate rover direction
-            val initialDirection = inputValidator.validateAndParseDirection(input.roverDirection)
+            val initialDirection = inputValidator.validateAndParseDirection(instructions.initialRoverDirection)
 
             // Validate initial rover position
-            val initialPosition = Position(input.roverPosition.x, input.roverPosition.y)
+            val initialPosition = instructions.initialRoverPosition
             inputValidator.validateInitialPosition(initialPosition, plateau)
 
             // Create rover and execute movements
             val rover = Rover(initialPosition, initialDirection)
-            roverMovementService.executeMovements(rover, plateau, input.movements)
+            roverMovementService.executeMovements(rover, plateau, instructions.movementCommands)
 
             // Format and return final position
             val result = "${rover.position.x} ${rover.position.y} ${rover.direction.toChar()}"

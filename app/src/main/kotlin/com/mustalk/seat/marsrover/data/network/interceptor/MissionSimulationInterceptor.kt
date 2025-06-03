@@ -1,12 +1,12 @@
 package com.mustalk.seat.marsrover.data.network.interceptor
 
-import com.mustalk.seat.marsrover.core.utils.Constants
-import com.mustalk.seat.marsrover.core.utils.exceptions.ApiSimulationException
-import com.mustalk.seat.marsrover.core.utils.exceptions.JsonParsingException
-import com.mustalk.seat.marsrover.core.utils.exceptions.MissionExecutionException
-import com.mustalk.seat.marsrover.data.model.input.MarsRoverInput
-import com.mustalk.seat.marsrover.data.network.model.ErrorDetails
-import com.mustalk.seat.marsrover.data.network.model.MissionResponse
+import com.mustalk.seat.marsrover.core.common.constants.Constants
+import com.mustalk.seat.marsrover.core.common.exceptions.ApiSimulationException
+import com.mustalk.seat.marsrover.core.common.exceptions.JsonParsingException
+import com.mustalk.seat.marsrover.core.common.exceptions.MissionExecutionException
+import com.mustalk.seat.marsrover.core.data.network.model.ErrorDetails
+import com.mustalk.seat.marsrover.core.data.network.model.MissionResponse
+import com.mustalk.seat.marsrover.core.domain.parser.JsonParser
 import com.mustalk.seat.marsrover.domain.usecase.ExecuteRoverMissionUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -38,6 +38,7 @@ class MissionSimulationInterceptor
     @Inject
     constructor(
         private val executeRoverMissionUseCase: ExecuteRoverMissionUseCase,
+        private val jsonParser: JsonParser,
         private val json: Json,
     ) : Interceptor {
         private val executionCounter = AtomicLong(0)
@@ -86,17 +87,17 @@ class MissionSimulationInterceptor
                 requestBody.writeTo(buffer)
                 val jsonString = buffer.readUtf8()
 
-                val missionInput =
+                val instructions =
                     try {
-                        json.decodeFromString<MarsRoverInput>(jsonString)
+                        jsonParser.parseInput(jsonString)
                     } catch (e: kotlinx.serialization.SerializationException) {
                         throw JsonParsingException("Failed to parse JSON request", e)
                     } catch (e: IllegalArgumentException) {
                         throw JsonParsingException("Invalid JSON structure", e)
                     }
 
-                // Execute the mission using ExecuteRoverMissionUseCase
-                val result = executeRoverMissionUseCase.execute(missionInput)
+                // Execute the mission using ExecuteRoverMissionUseCase with domain model
+                val result = executeRoverMissionUseCase.execute(instructions)
                 val executionTime = System.currentTimeMillis() - startTime
 
                 // Create response based on result

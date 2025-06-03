@@ -1,9 +1,9 @@
 package com.mustalk.seat.marsrover.domain.validator
 
+import com.mustalk.seat.marsrover.core.data.model.input.MarsRoverInput
 import com.mustalk.seat.marsrover.core.model.Direction
 import com.mustalk.seat.marsrover.core.model.Plateau
 import com.mustalk.seat.marsrover.core.model.Position
-import com.mustalk.seat.marsrover.data.model.input.MarsRoverInput
 
 /**
  * Interface for validating Mars Rover input data.

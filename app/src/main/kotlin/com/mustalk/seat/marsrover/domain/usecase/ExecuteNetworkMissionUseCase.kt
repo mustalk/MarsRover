@@ -1,12 +1,12 @@
 package com.mustalk.seat.marsrover.domain.usecase
 
-import com.mustalk.seat.marsrover.core.utils.NetworkResult
-import com.mustalk.seat.marsrover.core.utils.exceptions.JsonParsingException
-import com.mustalk.seat.marsrover.core.utils.exceptions.MissionExecutionException
-import com.mustalk.seat.marsrover.data.model.input.MarsRoverInput
-import com.mustalk.seat.marsrover.data.model.input.RoverPosition
-import com.mustalk.seat.marsrover.data.model.input.TopRightCorner
-import com.mustalk.seat.marsrover.data.repository.MarsRoverRepository
+import com.mustalk.seat.marsrover.core.common.exceptions.JsonParsingException
+import com.mustalk.seat.marsrover.core.common.exceptions.MissionExecutionException
+import com.mustalk.seat.marsrover.core.common.network.NetworkResult
+import com.mustalk.seat.marsrover.core.domain.parser.JsonParser
+import com.mustalk.seat.marsrover.core.domain.repository.MarsRoverRepository
+import com.mustalk.seat.marsrover.core.model.Position
+import com.mustalk.seat.marsrover.core.model.RoverMissionInstructions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -16,13 +16,14 @@ import javax.inject.Singleton
  * Use case for executing Mars rover missions through the network API.
  *
  * This use case coordinates network-based mission execution, handling the conversion
- * between UI state and network DTOs, and managing the network result states.
+ * between UI parameters and domain models, and managing the network result states.
  */
 @Singleton
 class ExecuteNetworkMissionUseCase
     @Inject
     constructor(
         private val repository: MarsRoverRepository,
+        private val jsonParser: JsonParser,
     ) {
         /**
          * Execute a rover mission using JSON input through the network API.
@@ -35,20 +36,19 @@ class ExecuteNetworkMissionUseCase
                 emit(NetworkResult.loading())
 
                 try {
-                    // Parse JSON to domain input model
-                    val json = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }
-                    val missionInput = json.decodeFromString<MarsRoverInput>(jsonInput)
+                    // Parse JSON to domain model
+                    val instructions = jsonParser.parseInput(jsonInput)
 
                     // Execute mission through repository
-                    val result = repository.executeMission(missionInput)
+                    val result = repository.executeMission(instructions)
 
                     // Map result to final position string
                     val mappedResult =
-                        result.map { response ->
-                            if (response.success) {
-                                response.finalPosition
+                        result.map { missionResult ->
+                            if (missionResult.success) {
+                                missionResult.finalPosition
                             } else {
-                                throw MissionExecutionException(response.message)
+                                throw MissionExecutionException(missionResult.message)
                             }
                         }
 
@@ -87,25 +87,26 @@ class ExecuteNetworkMissionUseCase
                 emit(NetworkResult.loading())
 
                 try {
-                    // Create mission input from individual parameters
-                    val missionInput =
-                        MarsRoverInput(
-                            topRightCorner = TopRightCorner(plateauWidth, plateauHeight),
-                            roverPosition = RoverPosition(roverStartX, roverStartY),
-                            roverDirection = roverDirection,
-                            movements = movements
+                    // Create domain model from individual parameters
+                    val instructions =
+                        RoverMissionInstructions(
+                            plateauTopRightX = plateauWidth,
+                            plateauTopRightY = plateauHeight,
+                            initialRoverPosition = Position(roverStartX, roverStartY),
+                            initialRoverDirection = roverDirection,
+                            movementCommands = movements
                         )
 
                     // Execute mission through repository
-                    val result = repository.executeMission(missionInput)
+                    val result = repository.executeMission(instructions)
 
                     // Map result to final position string
                     val mappedResult =
-                        result.map { response ->
-                            if (response.success) {
-                                response.finalPosition
+                        result.map { missionResult ->
+                            if (missionResult.success) {
+                                missionResult.finalPosition
                             } else {
-                                throw MissionExecutionException(response.message)
+                                throw MissionExecutionException(missionResult.message)
                             }
                         }
 

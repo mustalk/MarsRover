@@ -1,6 +1,6 @@
 package com.mustalk.seat.marsrover.core.utils
 
-import com.mustalk.seat.marsrover.core.utils.exceptions.NetworkException
+import com.mustalk.seat.marsrover.core.common.exceptions.NetworkException
 
 /**
  * A sealed class representing the result of a network operation.

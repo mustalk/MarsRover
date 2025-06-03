@@ -41,7 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mustalk.seat.marsrover.R
-import com.mustalk.seat.marsrover.core.utils.Constants
+import com.mustalk.seat.marsrover.core.common.constants.Constants
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsButton
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsButtonVariant
 import com.mustalk.seat.marsrover.presentation.ui.components.MarsCard

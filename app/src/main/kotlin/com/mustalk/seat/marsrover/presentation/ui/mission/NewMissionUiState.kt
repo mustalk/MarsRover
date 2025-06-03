@@ -2,7 +2,7 @@
 
 package com.mustalk.seat.marsrover.presentation.ui.mission
 
-import com.mustalk.seat.marsrover.core.utils.Constants
+import com.mustalk.seat.marsrover.core.common.constants.Constants
 
 /**
  * UI state for the New Mission screen.

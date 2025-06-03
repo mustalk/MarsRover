@@ -1,9 +1,9 @@
 package com.mustalk.seat.marsrover.data.repository
 
-import com.mustalk.seat.marsrover.core.utils.NetworkResult
-import com.mustalk.seat.marsrover.data.model.input.MarsRoverInput
-import com.mustalk.seat.marsrover.data.network.api.MarsRoverApiService
-import com.mustalk.seat.marsrover.data.network.model.MissionResponse
+import com.mustalk.seat.marsrover.core.common.network.NetworkResult
+import com.mustalk.seat.marsrover.core.data.model.input.MarsRoverInput
+import com.mustalk.seat.marsrover.core.data.network.api.MarsRoverApiService
+import com.mustalk.seat.marsrover.core.data.network.model.MissionResponse
 import javax.inject.Inject
 import javax.inject.Singleton
 

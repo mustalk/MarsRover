@@ -1,13 +1,9 @@
 package com.mustalk.seat.marsrover.core.di
 
-import com.mustalk.seat.marsrover.data.parser.JsonParserImpl
-import com.mustalk.seat.marsrover.domain.parser.JsonParser
-import com.mustalk.seat.marsrover.domain.service.RoverMovementService
-import com.mustalk.seat.marsrover.domain.service.RoverMovementServiceImpl
+import com.mustalk.seat.marsrover.core.domain.parser.JsonParser
+import com.mustalk.seat.marsrover.core.domain.service.RoverMovementService
+import com.mustalk.seat.marsrover.core.domain.validator.InputValidator
 import com.mustalk.seat.marsrover.domain.usecase.ExecuteRoverMissionUseCase
-import com.mustalk.seat.marsrover.domain.validator.InputValidator
-import com.mustalk.seat.marsrover.domain.validator.InputValidatorImpl
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,21 +27,9 @@ abstract class AppModule {
      * @Binds tells Hilt: "When someone asks for JsonParser interface, provide JsonParserImpl instance"
      * This is more efficient than @Provides for simple interface-to-implementation bindings.
      * Hilt will automatically call JsonParserImpl's @Inject constructor.
+     * @Binds
+     * abstract fun bindJsonParser(impl: JsonParserImpl): JsonParser
      */
-    @Binds
-    abstract fun bindJsonParser(impl: JsonParserImpl): JsonParser
-
-    /**
-     * @Binds for InputValidator: when requested, provide InputValidatorImpl
-     */
-    @Binds
-    abstract fun bindInputValidator(impl: InputValidatorImpl): InputValidator
-
-    /**
-     * @Binds for RoverMovementService: when requested, provide RoverMovementServiceImpl
-     */
-    @Binds
-    abstract fun bindRoverMovementService(impl: RoverMovementServiceImpl): RoverMovementService
 
     companion object {
         /**

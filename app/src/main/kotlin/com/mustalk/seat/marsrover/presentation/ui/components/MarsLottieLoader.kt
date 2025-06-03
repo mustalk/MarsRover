@@ -30,7 +30,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.mustalk.seat.marsrover.R
-import com.mustalk.seat.marsrover.core.utils.Constants
+import com.mustalk.seat.marsrover.core.common.constants.Constants
 import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
 
 /**
