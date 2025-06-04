@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.data.network.interceptor
+package com.mustalk.seat.marsrover.core.data.network.interceptor
 
 import com.mustalk.seat.marsrover.core.common.constants.Constants
 import com.mustalk.seat.marsrover.core.common.exceptions.ApiSimulationException
@@ -7,7 +7,7 @@ import com.mustalk.seat.marsrover.core.common.exceptions.MissionExecutionExcepti
 import com.mustalk.seat.marsrover.core.data.network.model.ErrorDetails
 import com.mustalk.seat.marsrover.core.data.network.model.MissionResponse
 import com.mustalk.seat.marsrover.core.domain.parser.JsonParser
-import com.mustalk.seat.marsrover.domain.usecase.ExecuteRoverMissionUseCase
+import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteRoverMissionUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -20,7 +20,6 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,8 +40,6 @@ class MissionSimulationInterceptor
         private val jsonParser: JsonParser,
         private val json: Json,
     ) : Interceptor {
-        private val executionCounter = AtomicLong(0)
-
         override fun intercept(chain: Interceptor.Chain): Response {
             val request = chain.request()
 

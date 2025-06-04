@@ -8,8 +8,8 @@ import com.mustalk.seat.marsrover.core.common.exceptions.MissionExecutionExcepti
 import com.mustalk.seat.marsrover.core.common.exceptions.NetworkException
 import com.mustalk.seat.marsrover.core.common.network.NetworkResult
 import com.mustalk.seat.marsrover.core.domain.error.RoverError
-import com.mustalk.seat.marsrover.domain.usecase.ExecuteNetworkMissionUseCase
-import com.mustalk.seat.marsrover.domain.usecase.ExecuteRoverMissionUseCase
+import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteNetworkMissionUseCase
+import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteRoverMissionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow

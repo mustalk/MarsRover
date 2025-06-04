@@ -1,13 +1,15 @@
-package com.mustalk.seat.marsrover.data.repository
+package com.mustalk.seat.marsrover.core.data.repository
 
 import com.google.common.truth.Truth.assertThat
-import com.mustalk.seat.marsrover.core.utils.NetworkResult
-import com.mustalk.seat.marsrover.data.model.input.MarsRoverInput
-import com.mustalk.seat.marsrover.data.model.input.RoverPosition
-import com.mustalk.seat.marsrover.data.model.input.TopRightCorner
-import com.mustalk.seat.marsrover.data.network.api.MarsRoverApiService
-import com.mustalk.seat.marsrover.data.network.model.ErrorDetails
-import com.mustalk.seat.marsrover.data.network.model.MissionResponse
+import com.mustalk.seat.marsrover.core.common.network.NetworkResult
+import com.mustalk.seat.marsrover.core.data.model.input.MarsRoverInput
+import com.mustalk.seat.marsrover.core.data.model.input.RoverPosition
+import com.mustalk.seat.marsrover.core.data.model.input.TopRightCorner
+import com.mustalk.seat.marsrover.core.data.network.api.MarsRoverApiService
+import com.mustalk.seat.marsrover.core.data.network.model.ErrorDetails
+import com.mustalk.seat.marsrover.core.data.network.model.MissionResponse
+import com.mustalk.seat.marsrover.core.model.Position
+import com.mustalk.seat.marsrover.core.model.RoverMissionInstructions
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -23,19 +25,20 @@ import java.net.SocketTimeoutException
 
 /**
  * Unit tests for MarsRoverRepositoryImpl.
- * Tests network operations and error handling for both regular and Flow-based mission execution.
+ * Tests network operations and error handling for mission execution with domain models.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class MarsRoverRepositoryImplTest {
     private lateinit var repository: MarsRoverRepositoryImpl
     private lateinit var mockApiService: MarsRoverApiService
 
-    private val sampleMissionInput =
-        MarsRoverInput(
-            topRightCorner = TopRightCorner(x = 5, y = 5),
-            roverPosition = RoverPosition(x = 1, y = 2),
-            roverDirection = "N",
-            movements = "LMLMLMLMM"
+    private val sampleMissionInstructions =
+        RoverMissionInstructions(
+            plateauTopRightX = 5,
+            plateauTopRightY = 5,
+            initialRoverPosition = Position(1, 2),
+            initialRoverDirection = "N",
+            movementCommands = "LMLMLMLMM"
         )
 
     @Before
@@ -58,17 +61,27 @@ class MarsRoverRepositoryImplTest {
                     executionTimeMs = 1000
                 )
 
-            coEvery { mockApiService.executeMission(sampleMissionInput) } returns expectedResponse
+            val expectedDto =
+                MarsRoverInput(
+                    topRightCorner = TopRightCorner(5, 5),
+                    roverPosition = RoverPosition(1, 2),
+                    roverDirection = "N",
+                    movements = "LMLMLMLMM"
+                )
+
+            coEvery { mockApiService.executeMission(expectedDto) } returns expectedResponse
 
             // When
-            val result = repository.executeMission(sampleMissionInput)
+            val result = repository.executeMission(sampleMissionInstructions)
 
             // Then
             assertThat(result).isInstanceOf(NetworkResult.Success::class.java)
             val successResult = result as NetworkResult.Success
-            assertThat(successResult.data).isEqualTo(expectedResponse)
+            assertThat(successResult.data.success).isTrue()
+            assertThat(successResult.data.finalPosition).isEqualTo("1 3 N")
+            assertThat(successResult.data.message).isEqualTo("Mission completed successfully")
 
-            coVerify { mockApiService.executeMission(sampleMissionInput) }
+            coVerify { mockApiService.executeMission(expectedDto) }
         }
 
     @Test
@@ -82,25 +95,25 @@ class MarsRoverRepositoryImplTest {
                 )
             val httpException = HttpException(errorResponse)
 
-            coEvery { mockApiService.executeMission(sampleMissionInput) } throws httpException
+            coEvery { mockApiService.executeMission(any()) } throws httpException
 
             // When
-            val result = repository.executeMission(sampleMissionInput)
+            val result = repository.executeMission(sampleMissionInstructions)
 
             // Then
             assertThat(result).isInstanceOf(NetworkResult.Error::class.java)
             val errorResult = result as NetworkResult.Error
-            assertThat(errorResult.message).contains("HTTP error: 400")
+            assertThat(errorResult.message).contains("HTTP 400 Response.error()")
         }
 
     @Test
     fun `executeMission should return error when API call fails with ConnectException`() =
         runTest {
             // Given
-            coEvery { mockApiService.executeMission(sampleMissionInput) } throws ConnectException("Connection refused")
+            coEvery { mockApiService.executeMission(any()) } throws ConnectException("Connection refused")
 
             // When
-            val result = repository.executeMission(sampleMissionInput)
+            val result = repository.executeMission(sampleMissionInstructions)
 
             // Then
             assertThat(result).isInstanceOf(NetworkResult.Error::class.java)
@@ -112,10 +125,10 @@ class MarsRoverRepositoryImplTest {
     fun `executeMission should return error when API call fails with SocketTimeoutException`() =
         runTest {
             // Given
-            coEvery { mockApiService.executeMission(sampleMissionInput) } throws SocketTimeoutException("Timeout")
+            coEvery { mockApiService.executeMission(any()) } throws SocketTimeoutException("Timeout")
 
             // When
-            val result = repository.executeMission(sampleMissionInput)
+            val result = repository.executeMission(sampleMissionInstructions)
 
             // Then
             assertThat(result).isInstanceOf(NetworkResult.Error::class.java)
@@ -127,10 +140,10 @@ class MarsRoverRepositoryImplTest {
     fun `executeMission should return error when API call fails with generic exception`() =
         runTest {
             // Given
-            coEvery { mockApiService.executeMission(sampleMissionInput) } throws RuntimeException("Unexpected error")
+            coEvery { mockApiService.executeMission(any()) } throws RuntimeException("Unexpected error")
 
             // When
-            val result = repository.executeMission(sampleMissionInput)
+            val result = repository.executeMission(sampleMissionInstructions)
 
             // Then
             assertThat(result).isInstanceOf(NetworkResult.Error::class.java)
@@ -158,15 +171,16 @@ class MarsRoverRepositoryImplTest {
                         )
                 )
 
-            coEvery { mockApiService.executeMission(sampleMissionInput) } returns failureResponse
+            coEvery { mockApiService.executeMission(any()) } returns failureResponse
 
             // When
-            val result = repository.executeMission(sampleMissionInput)
+            val result = repository.executeMission(sampleMissionInstructions)
 
             // Then
             assertThat(result).isInstanceOf(NetworkResult.Success::class.java)
             val successResult = result as NetworkResult.Success
-            assertThat(successResult.data).isEqualTo(failureResponse)
+            assertThat(successResult.data.success).isFalse()
+            assertThat(successResult.data.message).isEqualTo("Mission execution failed")
         }
 
     @Test
@@ -180,27 +194,28 @@ class MarsRoverRepositoryImplTest {
                 )
             val httpException = HttpException(errorResponse)
 
-            coEvery { mockApiService.executeMission(sampleMissionInput) } throws httpException
+            coEvery { mockApiService.executeMission(any()) } throws httpException
 
             // When
-            val result = repository.executeMission(sampleMissionInput)
+            val result = repository.executeMission(sampleMissionInstructions)
 
             // Then
             assertThat(result).isInstanceOf(NetworkResult.Error::class.java)
             val errorResult = result as NetworkResult.Error
-            assertThat(errorResult.message).contains("HTTP error: 500")
+            assertThat(errorResult.message).contains("HTTP 500 Response.error()")
         }
 
     @Test
     fun `repository should correctly pass all mission input parameters to API service`() =
         runTest {
             // Given
-            val complexInput =
-                MarsRoverInput(
-                    topRightCorner = TopRightCorner(x = 7, y = 9),
-                    roverPosition = RoverPosition(x = 3, y = 4),
-                    roverDirection = "S",
-                    movements = "LMLMLMLMRMRMR"
+            val complexInstructions =
+                RoverMissionInstructions(
+                    plateauTopRightX = 7,
+                    plateauTopRightY = 9,
+                    initialRoverPosition = Position(3, 4),
+                    initialRoverDirection = "S",
+                    movementCommands = "LMLMLMLMRMRMR"
                 )
 
             val response =
@@ -213,21 +228,21 @@ class MarsRoverRepositoryImplTest {
                     executionTimeMs = 2500
                 )
 
-            coEvery { mockApiService.executeMission(complexInput) } returns response
+            coEvery { mockApiService.executeMission(any()) } returns response
 
             // When
-            repository.executeMission(complexInput)
+            repository.executeMission(complexInstructions)
 
-            // Then
+            // Then - Verify the correct DTO was passed to the API
             coVerify {
                 mockApiService.executeMission(
-                    match { input ->
-                        input.topRightCorner.x == 7 &&
-                            input.topRightCorner.y == 9 &&
-                            input.roverPosition.x == 3 &&
-                            input.roverPosition.y == 4 &&
-                            input.roverDirection == "S" &&
-                            input.movements == "LMLMLMLMRMRMR"
+                    match<MarsRoverInput> { dto ->
+                        dto.topRightCorner.x == 7 &&
+                            dto.topRightCorner.y == 9 &&
+                            dto.roverPosition.x == 3 &&
+                            dto.roverPosition.y == 4 &&
+                            dto.roverDirection == "S" &&
+                            dto.movements == "LMLMLMLMRMRMR"
                     }
                 )
             }

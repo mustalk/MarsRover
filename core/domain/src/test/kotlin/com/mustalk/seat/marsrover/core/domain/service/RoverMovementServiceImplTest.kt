@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.domain.service
+package com.mustalk.seat.marsrover.core.domain.service
 
 import com.mustalk.seat.marsrover.core.model.Direction
 import com.mustalk.seat.marsrover.core.model.Plateau

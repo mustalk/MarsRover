@@ -1,12 +1,10 @@
-package com.mustalk.seat.marsrover.domain.validator
+package com.mustalk.seat.marsrover.core.domain.validator
 
 import com.mustalk.seat.marsrover.core.domain.error.RoverError
 import com.mustalk.seat.marsrover.core.model.Direction
 import com.mustalk.seat.marsrover.core.model.Plateau
 import com.mustalk.seat.marsrover.core.model.Position
-import com.mustalk.seat.marsrover.data.model.input.MarsRoverInput
-import com.mustalk.seat.marsrover.data.model.input.RoverPosition
-import com.mustalk.seat.marsrover.data.model.input.TopRightCorner
+import com.mustalk.seat.marsrover.core.model.RoverMissionInstructions
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -20,16 +18,17 @@ class InputValidatorImplTest {
     }
 
     @Test
-    fun `should create valid plateau from input`() {
-        val input =
-            MarsRoverInput(
-                topRightCorner = TopRightCorner(5, 5),
-                roverPosition = RoverPosition(1, 2),
-                roverDirection = "N",
-                movements = "LM"
+    fun `should create valid plateau from instructions`() {
+        val instructions =
+            RoverMissionInstructions(
+                plateauTopRightX = 5,
+                plateauTopRightY = 5,
+                initialRoverPosition = Position(1, 2),
+                initialRoverDirection = "N",
+                movementCommands = "LM"
             )
 
-        val plateau = inputValidator.validateAndCreatePlateau(input)
+        val plateau = inputValidator.validateAndCreatePlateau(instructions)
 
         assertEquals(5, plateau.maxX)
         assertEquals(5, plateau.maxY)
@@ -37,28 +36,30 @@ class InputValidatorImplTest {
 
     @Test(expected = RoverError.InvalidPlateauDimensions::class)
     fun `should throw InvalidPlateauDimensions for negative X`() {
-        val input =
-            MarsRoverInput(
-                topRightCorner = TopRightCorner(-1, 5),
-                roverPosition = RoverPosition(1, 2),
-                roverDirection = "N",
-                movements = "LM"
+        val instructions =
+            RoverMissionInstructions(
+                plateauTopRightX = -1,
+                plateauTopRightY = 5,
+                initialRoverPosition = Position(1, 2),
+                initialRoverDirection = "N",
+                movementCommands = "LM"
             )
 
-        inputValidator.validateAndCreatePlateau(input)
+        inputValidator.validateAndCreatePlateau(instructions)
     }
 
     @Test(expected = RoverError.InvalidPlateauDimensions::class)
     fun `should throw InvalidPlateauDimensions for negative Y`() {
-        val input =
-            MarsRoverInput(
-                topRightCorner = TopRightCorner(5, -1),
-                roverPosition = RoverPosition(1, 2),
-                roverDirection = "N",
-                movements = "LM"
+        val instructions =
+            RoverMissionInstructions(
+                plateauTopRightX = 5,
+                plateauTopRightY = -1,
+                initialRoverPosition = Position(1, 2),
+                initialRoverDirection = "N",
+                movementCommands = "LM"
             )
 
-        inputValidator.validateAndCreatePlateau(input)
+        inputValidator.validateAndCreatePlateau(instructions)
     }
 
     @Test

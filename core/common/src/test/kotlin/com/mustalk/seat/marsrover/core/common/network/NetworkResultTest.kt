@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.core.utils
+package com.mustalk.seat.marsrover.core.common.network
 
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest

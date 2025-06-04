@@ -1,10 +1,10 @@
 package com.mustalk.seat.marsrover.presentation.ui.mission
 
 import com.google.common.truth.Truth.assertThat
+import com.mustalk.seat.marsrover.core.common.network.NetworkResult
 import com.mustalk.seat.marsrover.core.domain.error.RoverError
-import com.mustalk.seat.marsrover.core.utils.NetworkResult
-import com.mustalk.seat.marsrover.domain.usecase.ExecuteNetworkMissionUseCase
-import com.mustalk.seat.marsrover.domain.usecase.ExecuteRoverMissionUseCase
+import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteNetworkMissionUseCase
+import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteRoverMissionUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every

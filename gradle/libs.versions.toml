@@ -22,6 +22,9 @@ hiltNavigationCompose = "1.2.0"
 # Serialization
 kotlinxSerialization = "1.8.1"
 
+# Coroutines
+kotlinxCoroutines = "1.8.0"
+
 # Network
 okhttp = "4.12.0"
 retrofit = "2.11.0"
@@ -75,6 +78,9 @@ hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testi
 
 # Serialization
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+
+# Coroutines
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 
 # Network
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }

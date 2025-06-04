@@ -1,9 +1,13 @@
-package com.mustalk.seat.marsrover.domain.usecase
+package com.mustalk.seat.marsrover.core.domain.usecase
 
 import com.google.common.truth.Truth.assertThat
-import com.mustalk.seat.marsrover.core.utils.NetworkResult
-import com.mustalk.seat.marsrover.data.network.model.MissionResponse
-import com.mustalk.seat.marsrover.data.repository.MarsRoverRepository
+import com.mustalk.seat.marsrover.core.common.exceptions.JsonParsingException
+import com.mustalk.seat.marsrover.core.common.network.NetworkResult
+import com.mustalk.seat.marsrover.core.domain.parser.JsonParser
+import com.mustalk.seat.marsrover.core.domain.repository.MarsRoverRepository
+import com.mustalk.seat.marsrover.core.model.MissionResult
+import com.mustalk.seat.marsrover.core.model.Position
+import com.mustalk.seat.marsrover.core.model.RoverMissionInstructions
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -20,12 +24,14 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class ExecuteNetworkMissionUseCaseTest {
     private lateinit var useCase: ExecuteNetworkMissionUseCase
+    private lateinit var jsonParser: JsonParser
     private lateinit var mockRepository: MarsRoverRepository
 
     @Before
     fun setup() {
         mockRepository = mockk()
-        useCase = ExecuteNetworkMissionUseCase(mockRepository)
+        jsonParser = mockk()
+        useCase = ExecuteNetworkMissionUseCase(mockRepository, jsonParser)
     }
 
     @Test
@@ -42,17 +48,24 @@ class ExecuteNetworkMissionUseCaseTest {
                 }
                 """.trimIndent()
 
-            val expectedResponse =
-                MissionResponse(
-                    success = true,
-                    finalPosition = "1 3 N",
-                    message = "Mission completed successfully",
-                    originalInput = jsonInput,
-                    timestamp = "2024-01-01T00:00:00Z",
-                    executionTimeMs = 1000
+            val instructions =
+                RoverMissionInstructions(
+                    plateauTopRightX = 5,
+                    plateauTopRightY = 5,
+                    initialRoverPosition = Position(1, 2),
+                    initialRoverDirection = "N",
+                    movementCommands = "LMLMLMLMM"
                 )
 
-            coEvery { mockRepository.executeMission(any()) } returns NetworkResult.success(expectedResponse)
+            val expectedMissionResult =
+                MissionResult(
+                    success = true,
+                    finalPosition = "1 3 N",
+                    message = "Mission completed successfully"
+                )
+
+            coEvery { jsonParser.parseInput(jsonInput) } returns instructions
+            coEvery { mockRepository.executeMission(instructions) } returns NetworkResult.success(expectedMissionResult)
 
             // When
             val results = useCase.executeFromJson(jsonInput).toList()
@@ -65,7 +78,7 @@ class ExecuteNetworkMissionUseCaseTest {
             val successResult = results[1] as NetworkResult.Success
             assertThat(successResult.data).isEqualTo("1 3 N")
 
-            coVerify { mockRepository.executeMission(any()) }
+            coVerify { mockRepository.executeMission(instructions) }
         }
 
     @Test
@@ -73,6 +86,7 @@ class ExecuteNetworkMissionUseCaseTest {
         runTest {
             // Given
             val invalidJson = """{"invalid": json}"""
+            coEvery { jsonParser.parseInput(invalidJson) } throws JsonParsingException("Invalid JSON")
 
             // When
             val results = useCase.executeFromJson(invalidJson).toList()
@@ -83,24 +97,30 @@ class ExecuteNetworkMissionUseCaseTest {
             assertThat(results[1]).isInstanceOf(NetworkResult.Error::class.java)
 
             val errorResult = results[1] as NetworkResult.Error
-            assertThat(errorResult.message).contains("Invalid JSON format")
+            assertThat(errorResult.message).contains("Failed to parse mission input: Invalid JSON")
         }
 
     @Test
     fun `executeFromBuilderInputs should emit loading then success result`() =
         runTest {
             // Given
-            val successResponse =
-                MissionResponse(
-                    success = true,
-                    finalPosition = "1 3 N",
-                    message = "Mission completed successfully",
-                    originalInput = "",
-                    timestamp = "2024-01-01T00:00:00Z",
-                    executionTimeMs = 1500
+            val instructions =
+                RoverMissionInstructions(
+                    plateauTopRightX = 5,
+                    plateauTopRightY = 5,
+                    initialRoverPosition = Position(1, 2),
+                    initialRoverDirection = "N",
+                    movementCommands = "LMLMLMLMM"
                 )
 
-            coEvery { mockRepository.executeMission(any()) } returns NetworkResult.success(successResponse)
+            val successMissionResult =
+                MissionResult(
+                    success = true,
+                    finalPosition = "1 3 N",
+                    message = "Mission completed successfully"
+                )
+
+            coEvery { mockRepository.executeMission(instructions) } returns NetworkResult.success(successMissionResult)
 
             // When
             val results = mutableListOf<NetworkResult<String>>()
@@ -166,17 +186,24 @@ class ExecuteNetworkMissionUseCaseTest {
                 }
                 """.trimIndent()
 
-            val failureResponse =
-                MissionResponse(
-                    success = false,
-                    finalPosition = "",
-                    message = "Rover position out of bounds",
-                    originalInput = jsonInput,
-                    timestamp = "2024-01-01T00:00:00Z",
-                    executionTimeMs = 800
+            val instructions =
+                RoverMissionInstructions(
+                    plateauTopRightX = 2,
+                    plateauTopRightY = 2,
+                    initialRoverPosition = Position(5, 5),
+                    initialRoverDirection = "N",
+                    movementCommands = "M"
                 )
 
-            coEvery { mockRepository.executeMission(any()) } returns NetworkResult.success(failureResponse)
+            val failureMissionResult =
+                MissionResult(
+                    success = false,
+                    finalPosition = "",
+                    message = "Rover position out of bounds"
+                )
+
+            coEvery { jsonParser.parseInput(jsonInput) } returns instructions
+            coEvery { mockRepository.executeMission(instructions) } returns NetworkResult.success(failureMissionResult)
 
             // When
             val results = useCase.executeFromJson(jsonInput).toList()
