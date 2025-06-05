@@ -124,7 +124,9 @@ spotless = { id = "com.diffplug.spotless", version.ref = "spotless-plugin" }
 
 # Convention plugins defined by this project
 marsrover-android-application = { id = "marsrover.android.application" }
+marsrover-android-application-compose = { id = "marsrover.android.application.compose" }
 marsrover-android-library = { id = "marsrover.android.library" }
+marsrover-android-library-compose = { id = "marsrover.android.library.compose" }
 marsrover-jvm-library = { id = "marsrover.jvm.library" }
 marsrover-android-hilt = { id = "marsrover.android.hilt" }
 marsrover-quality-detekt = { id = "marsrover.quality.detekt" }

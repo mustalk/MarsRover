@@ -1,5 +1,7 @@
 import com.android.build.api.dsl.LibraryExtension
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.mustalk.seat.marsrover.configureKotlinAndroid
+import com.mustalk.seat.marsrover.disableUnnecessaryAndroidTests
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
@@ -15,17 +17,20 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             apply(plugin = "com.android.library")
             apply(plugin = "org.jetbrains.kotlin.android")
 
+            /**
+             * Shared configuration can be set up here.
+             * This block is intentionally left as a placeholder
+             * for common build-type configurations that may
+             * be shared across library modules.
+             */
             extensions.configure<LibraryExtension> {
                 configureKotlinAndroid(this)
                 lint.targetSdk = 35
                 testOptions.targetSdk = 35
                 defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-                buildTypes {
-                    release {
-                        isMinifyEnabled = false
-                    }
-                }
+            }
+            extensions.configure<LibraryAndroidComponentsExtension> {
+                disableUnnecessaryAndroidTests(target)
             }
         }
     }

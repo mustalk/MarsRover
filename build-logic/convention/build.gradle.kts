@@ -16,9 +16,17 @@ gradlePlugin {
             id = "marsrover.android.application"
             implementationClass = "AndroidApplicationConventionPlugin"
         }
+        register("androidApplicationCompose") {
+            id = "marsrover.android.application.compose"
+            implementationClass = "AndroidApplicationComposeConventionPlugin"
+        }
         register("androidLibrary") {
             id = "marsrover.android.library"
             implementationClass = "AndroidLibraryConventionPlugin"
+        }
+        register("androidLibraryCompose") {
+            id = "marsrover.android.library.compose"
+            implementationClass = "AndroidLibraryComposeConventionPlugin"
         }
         register("jvmLibrary") {
             id = "marsrover.jvm.library"
