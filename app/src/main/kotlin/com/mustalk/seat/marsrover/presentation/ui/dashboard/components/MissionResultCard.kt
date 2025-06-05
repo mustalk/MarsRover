@@ -36,9 +36,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mustalk.seat.marsrover.R
 import com.mustalk.seat.marsrover.core.common.constants.Constants
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsCard
+import com.mustalk.seat.marsrover.core.ui.components.MarsCard
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 import com.mustalk.seat.marsrover.presentation.ui.dashboard.MissionResult
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

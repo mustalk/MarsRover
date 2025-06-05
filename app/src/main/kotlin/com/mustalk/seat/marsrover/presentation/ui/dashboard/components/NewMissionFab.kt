@@ -14,7 +14,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import com.mustalk.seat.marsrover.R
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 
 /**
  * Floating Action Button for starting a new rover mission.

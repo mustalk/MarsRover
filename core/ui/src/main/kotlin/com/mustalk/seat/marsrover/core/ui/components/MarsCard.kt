@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.ui.components
+package com.mustalk.seat.marsrover.core.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 
 /**
  * Mars-themed card component for consistent container styling.
@@ -91,7 +91,6 @@ fun MarsPrimaryCard(
         title = title,
         containerColor = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        elevation = 10.dp,
         contentDescription = contentDescription,
         content = content
     )
@@ -112,7 +111,6 @@ fun MarsSecondaryCard(
         title = title,
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        elevation = 6.dp,
         contentDescription = contentDescription,
         content = content
     )

@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.ui.components
+package com.mustalk.seat.marsrover.core.ui.components
 
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
@@ -9,7 +9,9 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
+import androidx.test.platform.app.InstrumentationRegistry
+import com.mustalk.seat.marsrover.core.ui.R
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,10 +21,12 @@ class MarsButtonTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    private fun getString(id: Int): String = InstrumentationRegistry.getInstrumentation().targetContext.getString(id)
+
     @Test
     fun marsButton_displaysTextCorrectly() {
         // Given
-        val buttonText = "Execute Mission"
+        val buttonText = getString(R.string.action_execute)
 
         // When
         composeTestRule.setContent {
@@ -44,7 +48,7 @@ class MarsButtonTest {
     fun marsButton_primaryVariant_isClickable() {
         // Given
         var clicked = false
-        val buttonText = "Primary Button"
+        val buttonText = getString(R.string.action_start)
 
         // When
         composeTestRule.setContent {
@@ -72,7 +76,7 @@ class MarsButtonTest {
     fun marsButton_secondaryVariant_isClickable() {
         // Given
         var clicked = false
-        val buttonText = "Secondary Button"
+        val buttonText = getString(R.string.action_cancel)
 
         // When
         composeTestRule.setContent {
@@ -100,7 +104,7 @@ class MarsButtonTest {
     fun marsButton_textVariant_isClickable() {
         // Given
         var clicked = false
-        val buttonText = "Text Button"
+        val buttonText = getString(R.string.action_retry)
 
         // When
         composeTestRule.setContent {
@@ -128,7 +132,7 @@ class MarsButtonTest {
     fun marsButton_whenDisabled_isNotClickable() {
         // Given
         var clicked = false
-        val buttonText = "Disabled Button"
+        val buttonText = getString(R.string.action_clear)
 
         // When
         composeTestRule.setContent {
@@ -160,7 +164,7 @@ class MarsButtonTest {
     @Test
     fun marsButton_whenLoading_showsLoadingIndicator() {
         // Given
-        val buttonText = "Loading Button"
+        val buttonText = getString(R.string.action_execute)
 
         // When
         composeTestRule.setContent {
@@ -188,7 +192,7 @@ class MarsButtonTest {
     fun marsButton_whenLoadingAndDisabled_isNotClickable() {
         // Given
         var clicked = false
-        val buttonText = "Loading Disabled"
+        val buttonText = getString(R.string.test_label_example)
 
         // When
         composeTestRule.setContent {
@@ -215,8 +219,8 @@ class MarsButtonTest {
     @Test
     fun marsButton_withContentDescription_isAccessible() {
         // Given
-        val buttonText = "Mission Button"
-        val contentDesc = "Execute Mars rover mission"
+        val buttonText = getString(R.string.action_execute)
+        val contentDesc = getString(R.string.core_ui_button_content_description)
 
         // When
         composeTestRule.setContent {
@@ -239,7 +243,7 @@ class MarsButtonTest {
     @Test
     fun marsButton_lightTheme_rendersCorrectly() {
         // Given
-        val buttonText = "Light Theme Button"
+        val buttonText = getString(R.string.action_execute)
 
         // When
         composeTestRule.setContent {
@@ -260,7 +264,7 @@ class MarsButtonTest {
     @Test
     fun marsButton_darkTheme_rendersCorrectly() {
         // Given
-        val buttonText = "Dark Theme Button"
+        val buttonText = getString(R.string.action_execute)
 
         // When
         composeTestRule.setContent {

@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.marsrover.android.application)
+    alias(libs.plugins.marsrover.android.application.compose)
     alias(libs.plugins.marsrover.android.hilt)
     alias(libs.plugins.marsrover.quality.gate)
     alias(libs.plugins.kotlin.serialization)
@@ -35,9 +36,6 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    buildFeatures {
-        compose = true
-    }
 }
 
 dependencies {
@@ -46,6 +44,7 @@ dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
     implementation(project(":core:common"))
+    implementation(project(":core:ui"))
 
     // UI and Core AndroidX - Temporarily hardcoded for Pre-Migration setup
     implementation("androidx.core:core-ktx:1.16.0")

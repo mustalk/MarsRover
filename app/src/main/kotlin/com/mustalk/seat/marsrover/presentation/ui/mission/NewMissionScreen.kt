@@ -42,18 +42,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mustalk.seat.marsrover.R
 import com.mustalk.seat.marsrover.core.common.constants.Constants
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsButton
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsButtonVariant
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsCard
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsLottieLoader
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsTextField
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsTextFieldVariant
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsToast
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsToastType
+import com.mustalk.seat.marsrover.core.ui.components.MarsButton
+import com.mustalk.seat.marsrover.core.ui.components.MarsButtonVariant
+import com.mustalk.seat.marsrover.core.ui.components.MarsCard
+import com.mustalk.seat.marsrover.core.ui.components.MarsLottieLoader
+import com.mustalk.seat.marsrover.core.ui.components.MarsTextField
+import com.mustalk.seat.marsrover.core.ui.components.MarsTextFieldVariant
+import com.mustalk.seat.marsrover.core.ui.components.MarsToast
+import com.mustalk.seat.marsrover.core.ui.components.MarsToastType
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
+import com.mustalk.seat.marsrover.core.ui.theme.MarsTopAppBarDark
+import com.mustalk.seat.marsrover.core.ui.theme.MarsTopAppBarLight
 import com.mustalk.seat.marsrover.presentation.ui.mission.components.BuilderInputsForm
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsTopAppBarDark
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsTopAppBarLight
 import kotlinx.coroutines.delay
 
 /**

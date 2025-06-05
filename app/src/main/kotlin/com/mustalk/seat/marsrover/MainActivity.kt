@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 import com.mustalk.seat.marsrover.presentation.navigation.MarsRoverNavigation
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

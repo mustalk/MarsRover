@@ -6,7 +6,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

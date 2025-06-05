@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Core UI: Loading states -->
+    <string name="loading_mission_process">Processing mission…</string>
+    <string name="loading_mission_execution">Executing mission…</string>
+    <string name="loading_please_wait">Please wait while we process your request</string>
+
+    <!-- Core UI: Content Descriptions for Accessibility -->
+    <string name="cd_loading">Loading animation</string>
+    <string name="cd_error_toast">Error notification</string>
+    <string name="cd_warning_toast">Warning notification</string>
+    <string name="cd_info_toast">Information notification</string>
+    <string name="cd_error_icon">Error icon</string>
+    <string name="cd_warning_icon">Warning icon</string>
+    <string name="cd_info_icon">Information icon</string>
+    <string name="cd_mission_card">Mission result card</string>
+
+    <!-- Core UI: Button labels -->
+    <string name="action_start">Start</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_execute">Execute</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_clear">Clear</string>
+
+    <!-- Core UI: Generic component content descriptions -->
+    <string name="core_ui_button_content_description">Action button</string>
+    <string name="core_ui_card_content_description">Information card</string>
+    <string name="core_ui_textfield_content_description">Text input field</string>
+    <string name="core_ui_lottie_animation_content_description">Mission animation</string>
+
+    <!-- Core UI: Toast messages -->
+    <string name="toast_message_invalid_json">Invalid JSON format</string>
+
+    <!-- Core UI: Generic test strings (reusable across components) -->
+    <string name="test_content_example">Example content</string>
+    <string name="test_title_example">Example Title</string>
+    <string name="test_label_example">Example Label</string>
+    <string name="test_value_example">Example Value</string>
+    <string name="test_placeholder_example">Enter text here…</string>
+    <string name="test_error_message">This field is required</string>
+    <string name="test_message_long">This is a very long message that should still display correctly and wrap properly to multiple lines if needed for testing purposes</string>
+</resources>

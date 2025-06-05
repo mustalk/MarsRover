@@ -12,7 +12,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test

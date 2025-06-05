@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.ui.components
+package com.mustalk.seat.marsrover.core.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +25,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 
 /**
  * Mars-themed text field component with validation and error handling.
@@ -98,6 +98,7 @@ fun MarsTextField(
                             .then(focusModifier)
                 )
             }
+
             MarsTextFieldVariant.Outlined -> {
                 OutlinedTextField(
                     value = value,

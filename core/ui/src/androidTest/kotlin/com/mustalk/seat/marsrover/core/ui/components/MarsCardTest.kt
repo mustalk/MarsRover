@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.ui.components
+package com.mustalk.seat.marsrover.core.ui.components
 
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
@@ -6,7 +6,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
+import androidx.test.platform.app.InstrumentationRegistry
+import com.mustalk.seat.marsrover.core.ui.R
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -16,10 +18,12 @@ class MarsCardTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    private fun getString(id: Int): String = InstrumentationRegistry.getInstrumentation().targetContext.getString(id)
+
     @Test
     fun marsCard_displaysTitleCorrectly() {
         // Given
-        val title = "Mission Results"
+        val title = getString(R.string.test_title_example)
 
         // When
         composeTestRule.setContent {
@@ -27,7 +31,7 @@ class MarsCardTest {
                 MarsCard(
                     title = title
                 ) {
-                    Text("Card content")
+                    Text(getString(R.string.test_content_example))
                 }
             }
         }
@@ -41,7 +45,7 @@ class MarsCardTest {
     @Test
     fun marsCard_displaysContentCorrectly() {
         // Given
-        val content = "Mission completed successfully"
+        val content = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -61,8 +65,8 @@ class MarsCardTest {
     @Test
     fun marsCard_withTitleAndContent_displaysBoth() {
         // Given
-        val title = "Active Mission"
-        val content = "Rover is executing commands"
+        val title = getString(R.string.test_title_example)
+        val content = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -88,8 +92,8 @@ class MarsCardTest {
     @Test
     fun marsCard_withContentDescription_isAccessible() {
         // Given
-        val title = "Accessible Card"
-        val contentDesc = "Mission status card"
+        val title = getString(R.string.test_title_example)
+        val contentDesc = getString(R.string.core_ui_card_content_description)
 
         // When
         composeTestRule.setContent {
@@ -98,7 +102,7 @@ class MarsCardTest {
                     title = title,
                     contentDescription = contentDesc
                 ) {
-                    Text("Card content")
+                    Text(getString(R.string.test_content_example))
                 }
             }
         }
@@ -112,8 +116,8 @@ class MarsCardTest {
     @Test
     fun marsPrimaryCard_displaysCorrectly() {
         // Given
-        val title = "Primary Card"
-        val content = "Primary content"
+        val title = getString(R.string.test_title_example)
+        val content = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -139,8 +143,8 @@ class MarsCardTest {
     @Test
     fun marsSecondaryCard_displaysCorrectly() {
         // Given
-        val title = "Secondary Card"
-        val content = "Secondary content"
+        val title = getString(R.string.test_title_example)
+        val content = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -166,7 +170,7 @@ class MarsCardTest {
     @Test
     fun marsCard_withoutTitle_displaysOnlyContent() {
         // Given
-        val content = "Content without title"
+        val content = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -186,7 +190,7 @@ class MarsCardTest {
     @Test
     fun marsCard_rendersInLightTheme() {
         // Given
-        val title = "Light Theme Card"
+        val title = getString(R.string.test_title_example)
 
         // When
         composeTestRule.setContent {
@@ -194,7 +198,7 @@ class MarsCardTest {
                 MarsCard(
                     title = title
                 ) {
-                    Text("Light theme content")
+                    Text(getString(R.string.test_content_example))
                 }
             }
         }
@@ -208,7 +212,7 @@ class MarsCardTest {
     @Test
     fun marsCard_rendersInDarkTheme() {
         // Given
-        val title = "Dark Theme Card"
+        val title = getString(R.string.test_title_example)
 
         // When
         composeTestRule.setContent {
@@ -216,7 +220,7 @@ class MarsCardTest {
                 MarsCard(
                     title = title
                 ) {
-                    Text("Dark theme content")
+                    Text(getString(R.string.test_content_example))
                 }
             }
         }
@@ -230,7 +234,7 @@ class MarsCardTest {
     @Test
     fun marsCard_multipleTextElements_displaysAll() {
         // Given
-        val title = "Complex Card"
+        val title = getString(R.string.test_title_example)
 
         // When
         composeTestRule.setContent {
@@ -238,9 +242,9 @@ class MarsCardTest {
                 MarsCard(
                     title = title
                 ) {
-                    Text("First line")
-                    Text("Second line")
-                    Text("Third line")
+                    Text(getString(R.string.action_start))
+                    Text(getString(R.string.action_execute))
+                    Text(getString(R.string.action_cancel))
                 }
             }
         }
@@ -251,15 +255,15 @@ class MarsCardTest {
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("First line")
+            .onNodeWithText(getString(R.string.action_start))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Second line")
+            .onNodeWithText(getString(R.string.action_execute))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Third line")
+            .onNodeWithText(getString(R.string.action_cancel))
             .assertIsDisplayed()
     }
 }

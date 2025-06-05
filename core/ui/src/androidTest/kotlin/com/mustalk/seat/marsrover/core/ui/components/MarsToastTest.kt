@@ -1,11 +1,13 @@
-package com.mustalk.seat.marsrover.presentation.ui.components
+package com.mustalk.seat.marsrover.core.ui.components
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
+import androidx.test.platform.app.InstrumentationRegistry
+import com.mustalk.seat.marsrover.core.ui.R
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,10 +17,12 @@ class MarsToastTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    private fun getString(id: Int): String = InstrumentationRegistry.getInstrumentation().targetContext.getString(id)
+
     @Test
     fun marsToast_displaysMessageCorrectly() {
         // Given
-        val message = "Mission completed successfully"
+        val message = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -39,8 +43,8 @@ class MarsToastTest {
     @Test
     fun marsToast_withTitle_displaysBothTitleAndMessage() {
         // Given
-        val title = "Mission Status"
-        val message = "Rover has reached target destination"
+        val title = getString(R.string.test_title_example)
+        val message = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -66,7 +70,7 @@ class MarsToastTest {
     @Test
     fun marsToast_errorType_displaysWithErrorIcon() {
         // Given
-        val message = "Invalid JSON format"
+        val message = getString(R.string.toast_message_invalid_json)
 
         // When
         composeTestRule.setContent {
@@ -84,14 +88,14 @@ class MarsToastTest {
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithContentDescription("Error")
+            .onNodeWithContentDescription(getString(R.string.cd_error_icon))
             .assertIsDisplayed()
     }
 
     @Test
     fun marsToast_warningType_displaysWithWarningIcon() {
         // Given
-        val message = "Rover approaching plateau boundary"
+        val message = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -109,14 +113,14 @@ class MarsToastTest {
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithContentDescription("Warning")
+            .onNodeWithContentDescription(getString(R.string.cd_warning_icon))
             .assertIsDisplayed()
     }
 
     @Test
     fun marsToast_infoType_displaysWithInfoIcon() {
         // Given
-        val message = "Mission data uploaded successfully"
+        val message = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -134,15 +138,15 @@ class MarsToastTest {
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithContentDescription("Information")
+            .onNodeWithContentDescription(getString(R.string.cd_info_icon))
             .assertIsDisplayed()
     }
 
     @Test
     fun marsToast_withContentDescription_isAccessible() {
         // Given
-        val message = "Connection established"
-        val contentDesc = "Success notification"
+        val message = getString(R.string.test_content_example)
+        val contentDesc = getString(R.string.cd_info_toast)
 
         // When
         composeTestRule.setContent {
@@ -167,8 +171,8 @@ class MarsToastTest {
         composeTestRule.setContent {
             MarsRoverTheme(darkTheme = false) {
                 MarsToast(
-                    title = "Light Theme Test",
-                    message = "Testing error toast in light theme",
+                    title = getString(R.string.test_title_example),
+                    message = getString(R.string.test_content_example),
                     type = MarsToastType.Error
                 )
             }
@@ -176,11 +180,11 @@ class MarsToastTest {
 
         // Then
         composeTestRule
-            .onNodeWithText("Light Theme Test")
+            .onNodeWithText(getString(R.string.test_title_example))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Testing error toast in light theme")
+            .onNodeWithText(getString(R.string.test_content_example))
             .assertIsDisplayed()
     }
 
@@ -190,8 +194,8 @@ class MarsToastTest {
         composeTestRule.setContent {
             MarsRoverTheme(darkTheme = true) {
                 MarsToast(
-                    title = "Dark Theme Test",
-                    message = "Testing warning toast in dark theme",
+                    title = getString(R.string.test_title_example),
+                    message = getString(R.string.test_content_example),
                     type = MarsToastType.Warning
                 )
             }
@@ -199,19 +203,18 @@ class MarsToastTest {
 
         // Then
         composeTestRule
-            .onNodeWithText("Dark Theme Test")
+            .onNodeWithText(getString(R.string.test_title_example))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Testing warning toast in dark theme")
+            .onNodeWithText(getString(R.string.test_content_example))
             .assertIsDisplayed()
     }
 
     @Test
     fun marsToast_longMessage_displaysCorrectly() {
         // Given
-        val longMessage =
-            "This is a very long message that should still display correctly in the toast component and wrap properly to multiple lines if needed"
+        val longMessage = getString(R.string.test_message_long)
 
         // When
         composeTestRule.setContent {
@@ -232,7 +235,7 @@ class MarsToastTest {
     @Test
     fun marsToast_withoutTitle_displaysOnlyMessage() {
         // Given
-        val message = "Simple message without title"
+        val message = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {

@@ -30,13 +30,13 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mustalk.seat.marsrover.R
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsButton
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsButtonVariant
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsCard
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsTextField
-import com.mustalk.seat.marsrover.presentation.ui.components.MarsTextFieldVariant
+import com.mustalk.seat.marsrover.core.ui.components.MarsButton
+import com.mustalk.seat.marsrover.core.ui.components.MarsButtonVariant
+import com.mustalk.seat.marsrover.core.ui.components.MarsCard
+import com.mustalk.seat.marsrover.core.ui.components.MarsTextField
+import com.mustalk.seat.marsrover.core.ui.components.MarsTextFieldVariant
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 import com.mustalk.seat.marsrover.presentation.ui.mission.NewMissionUiState
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
 
 /**
  * Form component for builder mission parameter inputs.

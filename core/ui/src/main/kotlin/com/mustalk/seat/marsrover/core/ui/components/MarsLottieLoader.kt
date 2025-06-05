@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.ui.components
+package com.mustalk.seat.marsrover.core.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -29,9 +29,9 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.mustalk.seat.marsrover.R
-import com.mustalk.seat.marsrover.core.common.constants.Constants
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
+import com.mustalk.seat.marsrover.core.ui.R
+import com.mustalk.seat.marsrover.core.ui.constants.UiConstants
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 
 /**
  * Mars-themed loading indicator that uses Lottie animation.
@@ -43,10 +43,12 @@ fun MarsLottieLoader(
     message: String = stringResource(R.string.loading_mission_execution),
     modifier: Modifier = Modifier,
     isVisible: Boolean = true,
+    animationDurationMs: Int = UiConstants.Animation.LOADING_DURATION_MS.toInt(),
+    animationSizeDp: Int = UiConstants.Animation.LOTTIE_ANIMATION_SIZE_DP,
 ) {
     // Load the Lottie composition from assets
     val composition by rememberLottieComposition(
-        LottieCompositionSpec.Asset("mars-rover-lottie.json")
+        LottieCompositionSpec.Asset("core-ui-mars-rover-lottie.json")
     )
 
     // Animate the composition
@@ -57,14 +59,8 @@ fun MarsLottieLoader(
 
     AnimatedVisibility(
         visible = isVisible,
-        enter =
-            fadeIn(
-                animationSpec = tween(Constants.UI.LOADING_ANIMATION_DURATION_MS.toInt())
-            ),
-        exit =
-            fadeOut(
-                animationSpec = tween(Constants.UI.LOADING_ANIMATION_DURATION_MS.toInt())
-            ),
+        enter = fadeIn(animationSpec = tween(animationDurationMs)),
+        exit = fadeOut(animationSpec = tween(animationDurationMs)),
         modifier = modifier
     ) {
         Box(
@@ -72,15 +68,16 @@ fun MarsLottieLoader(
                 Modifier
                     .fillMaxSize()
                     .background(
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = UiConstants.Layout.ALPHA_HALF)
                     ),
             contentAlignment = Alignment.Center
         ) {
             MarsCard(
                 modifier =
                     Modifier
-                        .clip(RoundedCornerShape(16.dp))
-                        .padding(24.dp)
+                        .clip(RoundedCornerShape(UiConstants.Sizing.CARD_CORNER_RADIUS_DP.dp))
+                        .padding(24.dp),
+                contentDescription = stringResource(R.string.core_ui_lottie_animation_content_description)
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -91,7 +88,7 @@ fun MarsLottieLoader(
                     LottieAnimation(
                         composition = composition,
                         progress = { progress },
-                        modifier = Modifier.size(Constants.UI.LOTTIE_ANIMATION_SIZE_DP.dp)
+                        modifier = Modifier.size(animationSizeDp.dp)
                     )
 
                     // Loading text
@@ -123,13 +120,14 @@ fun MarsLottieLoader(
  */
 @Composable
 fun MarsLottieLoaderCompact(
-    message: String = stringResource(R.string.loading_mission_execution),
+    message: String = stringResource(R.string.loading_mission_process),
     modifier: Modifier = Modifier,
     isVisible: Boolean = true,
+    animationSizeDp: Int = UiConstants.Animation.LOTTIE_ANIMATION_SIZE_COMPACT_DP,
 ) {
     // Load the Lottie composition from assets
     val composition by rememberLottieComposition(
-        LottieCompositionSpec.Asset("mars-rover-lottie.json")
+        LottieCompositionSpec.Asset("core-ui-mars-rover-lottie.json")
     )
 
     // Animate the composition
@@ -140,14 +138,8 @@ fun MarsLottieLoaderCompact(
 
     AnimatedVisibility(
         visible = isVisible,
-        enter =
-            fadeIn(
-                animationSpec = tween(Constants.UI.LOADING_ANIMATION_DURATION_MS.toInt())
-            ),
-        exit =
-            fadeOut(
-                animationSpec = tween(Constants.UI.LOADING_ANIMATION_DURATION_MS.toInt())
-            ),
+        enter = fadeIn(animationSpec = tween(UiConstants.Animation.LOADING_DURATION_MS.toInt())),
+        exit = fadeOut(animationSpec = tween(UiConstants.Animation.LOADING_DURATION_MS.toInt())),
         modifier = modifier
     ) {
         Column(
@@ -159,7 +151,7 @@ fun MarsLottieLoaderCompact(
             LottieAnimation(
                 composition = composition,
                 progress = { progress },
-                modifier = Modifier.size(Constants.UI.LOTTIE_ANIMATION_SIZE_COMPACT_DP.dp)
+                modifier = Modifier.size(animationSizeDp.dp)
             )
 
             // Loading text

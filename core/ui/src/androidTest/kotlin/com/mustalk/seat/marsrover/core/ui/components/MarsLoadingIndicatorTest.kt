@@ -1,11 +1,13 @@
-package com.mustalk.seat.marsrover.presentation.ui.components
+package com.mustalk.seat.marsrover.core.ui.components
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
+import androidx.test.platform.app.InstrumentationRegistry
+import com.mustalk.seat.marsrover.core.ui.R
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,30 +17,50 @@ class MarsLoadingIndicatorTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    private fun getString(id: Int): String = InstrumentationRegistry.getInstrumentation().targetContext.getString(id)
+
     @Test
     fun marsLoadingIndicator_displaysMessageCorrectly() {
         // Given
-        val message = "Processing mission data..."
+        val expectedMessage = getString(R.string.loading_mission_process)
+
+        // When
+        composeTestRule.setContent {
+            MarsRoverTheme {
+                MarsLoadingIndicator()
+            }
+        }
+
+        // Then
+        composeTestRule
+            .onNodeWithText(expectedMessage)
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun marsLoadingIndicator_displaysCustomMessage() {
+        // Given
+        val customMessage = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {
             MarsRoverTheme {
                 MarsLoadingIndicator(
-                    message = message
+                    message = customMessage
                 )
             }
         }
 
         // Then
         composeTestRule
-            .onNodeWithText(message)
+            .onNodeWithText(customMessage)
             .assertIsDisplayed()
     }
 
     @Test
     fun marsLoadingIndicator_whenShowMessageFalse_hidesMessage() {
         // Given
-        val message = "Hidden message"
+        val message = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -59,8 +81,8 @@ class MarsLoadingIndicatorTest {
     @Test
     fun marsLoadingIndicator_withContentDescription_isAccessible() {
         // Given
-        val message = "Loading data"
-        val contentDesc = "Loading mission information"
+        val message = getString(R.string.test_content_example)
+        val contentDesc = getString(R.string.cd_loading)
 
         // When
         composeTestRule.setContent {
@@ -79,82 +101,94 @@ class MarsLoadingIndicatorTest {
     }
 
     @Test
-    fun marsLoadingIndicator_usesMessageAsDefaultContentDescription() {
+    fun marsLoadingIndicator_usesDefaultContentDescription() {
         // Given
-        val message = "Default content description"
+        val expectedContentDesc = getString(R.string.cd_loading)
 
         // When
         composeTestRule.setContent {
             MarsRoverTheme {
-                MarsLoadingIndicator(
-                    message = message
-                )
+                MarsLoadingIndicator()
             }
         }
 
         // Then
         composeTestRule
-            .onNodeWithContentDescription(message)
+            .onNodeWithContentDescription(expectedContentDesc)
             .assertIsDisplayed()
     }
 
     @Test
     fun marsFullScreenLoader_displaysCorrectly() {
         // Given
-        val message = "Full screen loading"
+        val expectedMessage = getString(R.string.loading_mission_process)
+
+        // When
+        composeTestRule.setContent {
+            MarsRoverTheme {
+                MarsFullScreenLoader()
+            }
+        }
+
+        // Then
+        composeTestRule
+            .onNodeWithText(expectedMessage)
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun marsFullScreenLoader_displaysCustomMessage() {
+        // Given
+        val customMessage = getString(R.string.test_content_example)
 
         // When
         composeTestRule.setContent {
             MarsRoverTheme {
                 MarsFullScreenLoader(
-                    message = message
+                    message = customMessage
                 )
             }
         }
 
         // Then
         composeTestRule
-            .onNodeWithText(message)
+            .onNodeWithText(customMessage)
             .assertIsDisplayed()
     }
 
     @Test
     fun marsLoadingIndicator_rendersInLightTheme() {
         // Given
-        val message = "Light theme loading"
+        val expectedMessage = getString(R.string.loading_mission_process)
 
         // When
         composeTestRule.setContent {
             MarsRoverTheme(darkTheme = false) {
-                MarsLoadingIndicator(
-                    message = message
-                )
+                MarsLoadingIndicator()
             }
         }
 
         // Then
         composeTestRule
-            .onNodeWithText(message)
+            .onNodeWithText(expectedMessage)
             .assertIsDisplayed()
     }
 
     @Test
     fun marsLoadingIndicator_rendersInDarkTheme() {
         // Given
-        val message = "Dark theme loading"
+        val expectedMessage = getString(R.string.loading_mission_process)
 
         // When
         composeTestRule.setContent {
             MarsRoverTheme(darkTheme = true) {
-                MarsLoadingIndicator(
-                    message = message
-                )
+                MarsLoadingIndicator()
             }
         }
 
         // Then
         composeTestRule
-            .onNodeWithText(message)
+            .onNodeWithText(expectedMessage)
             .assertIsDisplayed()
     }
 }

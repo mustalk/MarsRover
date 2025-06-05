@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.ui.components
+package com.mustalk.seat.marsrover.core.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +27,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mustalk.seat.marsrover.presentation.ui.theme.MarsRoverTheme
+import com.mustalk.seat.marsrover.core.ui.R
+import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 
 /**
  * Mars-themed toast component for displaying error, warning, and info messages.
@@ -72,9 +73,9 @@ fun MarsToast(
         } else {
             val defaultContentDescription =
                 when (type) {
-                    MarsToastType.Error -> stringResource(com.mustalk.seat.marsrover.R.string.cd_error_toast)
-                    MarsToastType.Warning -> stringResource(com.mustalk.seat.marsrover.R.string.cd_warning_toast)
-                    MarsToastType.Info -> stringResource(com.mustalk.seat.marsrover.R.string.cd_info_toast)
+                    MarsToastType.Error -> stringResource(R.string.cd_error_toast)
+                    MarsToastType.Warning -> stringResource(R.string.cd_warning_toast)
+                    MarsToastType.Info -> stringResource(R.string.cd_info_toast)
                 }
             modifier.semantics { this.contentDescription = defaultContentDescription }
         }
@@ -109,9 +110,9 @@ fun MarsToast(
                 imageVector = icon,
                 contentDescription =
                     when (type) {
-                        MarsToastType.Error -> stringResource(com.mustalk.seat.marsrover.R.string.cd_error_icon)
-                        MarsToastType.Warning -> stringResource(com.mustalk.seat.marsrover.R.string.cd_warning_icon)
-                        MarsToastType.Info -> stringResource(com.mustalk.seat.marsrover.R.string.cd_info_icon)
+                        MarsToastType.Error -> stringResource(R.string.cd_error_icon)
+                        MarsToastType.Warning -> stringResource(R.string.cd_warning_icon)
+                        MarsToastType.Info -> stringResource(R.string.cd_info_icon)
                     },
                 tint = contentColor,
                 modifier = Modifier.size(24.dp)
