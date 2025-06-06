@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover
+package com.mustalk.seat.marsrover.core.testing.android
 
 import android.app.Application
 import android.content.Context
@@ -6,14 +6,15 @@ import androidx.test.runner.AndroidJUnitRunner
 import dagger.hilt.android.testing.HiltTestApplication
 
 /**
- * Custom test runner for Hilt integration tests.
- * This runner uses HiltTestApplication instead of the main application
- * to allow for proper dependency injection in tests.
+ * Custom test runner for Mars Rover application.
+ *
+ * This test runner uses HiltTestApplication to allow Hilt's dependency injection
+ * during instrumented tests.
  */
-class HiltTestRunner : AndroidJUnitRunner() {
+class MarsTestRunner : AndroidJUnitRunner() {
     override fun newApplication(
         cl: ClassLoader?,
-        name: String?,
+        className: String?,
         context: Context?,
     ): Application = super.newApplication(cl, HiltTestApplication::class.java.name, context)
 }

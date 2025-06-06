@@ -37,12 +37,11 @@ lottie = "6.6.3"
 # Testing
 junit = "4.13.2"
 junitVersion = "1.2.1"
-espressoCore = "3.6.1"
 mockk = "1.13.10"
 truth = "1.4.4"
 coroutinesTest = "1.8.0"
-turbine = "1.1.0"
 mockWebServer = "4.12.0"
+testRunner = "1.6.2"
 
 # Code analysis tools
 detekt-plugin = "1.23.8"
@@ -94,11 +93,11 @@ lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", versio
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockWebServer" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "testRunner" }
 
 # Dependencies of the included build-logic (for convention plugins)
 android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
