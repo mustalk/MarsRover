@@ -20,11 +20,7 @@ dependencies {
     implementation(libs.retrofit.kotlinx.serialization)
 
     // Test dependencies
-    testImplementation(libs.junit)
-    testImplementation(libs.mockk)
-    testImplementation(libs.truth)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockwebserver)
+    testImplementation(project(":core:testing-jvm"))
 
     // Hilt for dependency injection (already applied by plugin)
     // implementation(libs.hilt.android)

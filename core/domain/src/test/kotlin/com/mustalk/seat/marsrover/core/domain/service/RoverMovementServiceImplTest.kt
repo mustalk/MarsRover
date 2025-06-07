@@ -1,14 +1,20 @@
 package com.mustalk.seat.marsrover.core.domain.service
 
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import com.mustalk.seat.marsrover.core.model.Direction
-import com.mustalk.seat.marsrover.core.model.Plateau
-import com.mustalk.seat.marsrover.core.model.Position
 import com.mustalk.seat.marsrover.core.model.Rover
-import org.junit.Assert.assertEquals
+import com.mustalk.seat.marsrover.core.testing.jvm.data.DomainTestData.MovementServiceTestData
+import com.mustalk.seat.marsrover.core.testing.jvm.data.DomainTestData.TestConstants
+import com.mustalk.seat.marsrover.core.testing.jvm.util.MainDispatcherRule
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 class RoverMovementServiceImplTest {
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
     private lateinit var movementService: RoverMovementServiceImpl
 
     @Before
@@ -18,129 +24,150 @@ class RoverMovementServiceImplTest {
 
     @Test
     fun `should turn rover left correctly`() {
-        val plateau = Plateau(5, 5)
-        val rover = Rover(Position(2, 2), Direction.NORTH)
+        val testData = MovementServiceTestData.Rotations.TurnLeft
+        val rover = testData.INITIAL_ROVER.copy()
+        val plateau = TestConstants.STANDARD_PLATEAU
 
-        movementService.executeMovements(rover, plateau, "L")
+        movementService.executeMovements(rover, plateau, testData.COMMAND)
 
-        assertEquals(Position(2, 2), rover.position)
-        assertEquals(Direction.WEST, rover.direction)
+        assertThat(rover.position).isEqualTo(testData.EXPECTED_POSITION)
+        assertThat(rover.direction).isEqualTo(testData.EXPECTED_DIRECTION)
     }
 
     @Test
     fun `should turn rover right correctly`() {
-        val plateau = Plateau(5, 5)
-        val rover = Rover(Position(2, 2), Direction.NORTH)
+        val testData = MovementServiceTestData.Rotations.TurnRight
+        val rover = testData.INITIAL_ROVER.copy()
+        val plateau = TestConstants.STANDARD_PLATEAU
 
-        movementService.executeMovements(rover, plateau, "R")
+        movementService.executeMovements(rover, plateau, testData.COMMAND)
 
-        assertEquals(Position(2, 2), rover.position)
-        assertEquals(Direction.EAST, rover.direction)
+        assertThat(rover.position).isEqualTo(testData.EXPECTED_POSITION)
+        assertThat(rover.direction).isEqualTo(testData.EXPECTED_DIRECTION)
     }
 
     @Test
     fun `should move rover forward within bounds`() {
-        val plateau = Plateau(5, 5)
-        val rover = Rover(Position(2, 2), Direction.NORTH)
+        val testData = MovementServiceTestData.BasicMovements.MoveNorth
+        val rover = testData.INITIAL_ROVER.copy()
+        val plateau = TestConstants.STANDARD_PLATEAU
 
-        movementService.executeMovements(rover, plateau, "M")
+        movementService.executeMovements(rover, plateau, testData.COMMAND)
 
-        assertEquals(Position(2, 3), rover.position)
-        assertEquals(Direction.NORTH, rover.direction)
+        assertThat(rover.position).isEqualTo(testData.EXPECTED_POSITION)
+        assertThat(rover.direction).isEqualTo(testData.EXPECTED_DIRECTION)
     }
 
     @Test
     fun `should not move rover beyond plateau boundary`() {
-        val plateau = Plateau(5, 5)
-        val rover = Rover(Position(5, 5), Direction.NORTH)
+        val testData = MovementServiceTestData.BoundaryTests.HitNorthBoundary
+        val rover = testData.INITIAL_ROVER.copy()
+        val plateau = MovementServiceTestData.BoundaryTests.PLATEAU
 
-        movementService.executeMovements(rover, plateau, "M")
+        movementService.executeMovements(rover, plateau, testData.COMMAND)
 
         // Should stay at same position
-        assertEquals(Position(5, 5), rover.position)
-        assertEquals(Direction.NORTH, rover.direction)
+        assertThat(rover.position).isEqualTo(testData.EXPECTED_POSITION)
+        assertThat(rover.direction).isEqualTo(testData.EXPECTED_DIRECTION)
     }
 
     @Test
     fun `should handle complex movement sequence`() {
-        val plateau = Plateau(5, 5)
-        val rover = Rover(Position(1, 2), Direction.NORTH)
+        val testData = MovementServiceTestData.ComplexMovements.StandardMission
+        val rover = testData.INITIAL_ROVER.copy()
 
-        movementService.executeMovements(rover, plateau, "LMLMLMLMM")
+        movementService.executeMovements(rover, testData.PLATEAU, testData.COMMANDS)
 
-        assertEquals(Position(1, 3), rover.position)
-        assertEquals(Direction.NORTH, rover.direction)
+        assertThat(rover.position).isEqualTo(testData.EXPECTED_POSITION)
+        assertThat(rover.direction).isEqualTo(testData.EXPECTED_DIRECTION)
     }
 
     @Test
     fun `should ignore invalid movement characters`() {
-        val plateau = Plateau(5, 5)
-        val rover = Rover(Position(2, 2), Direction.NORTH)
+        val plateau = TestConstants.STANDARD_PLATEAU
+        val rover = Rover(TestConstants.POSITION_2_2, Direction.NORTH)
 
-        movementService.executeMovements(rover, plateau, "MXL1R@M")
+        movementService.executeMovements(rover, plateau, TestConstants.INVALID_COMMANDS)
 
-        // Should execute: M (move to 2,3), L (turn to W), R (turn to N), M (move to 2,4)
-        assertEquals(Position(2, 4), rover.position)
-        assertEquals(Direction.NORTH, rover.direction)
+        // Starting at (2,2) facing N:
+        // M - move north to (2,3) facing N
+        // X - invalid, ignore
+        // L - turn left to face W
+        // 1 - invalid, ignore
+        // R - turn right to face N
+        // @ - invalid, ignore
+        // M - move north to (2,4) facing N
+        assertThat(rover.position).isEqualTo(TestConstants.POSITION_2_4)
+        assertThat(rover.direction).isEqualTo(Direction.NORTH)
     }
 
     @Test
     fun `should handle empty movement string`() {
-        val plateau = Plateau(5, 5)
-        val rover = Rover(Position(2, 2), Direction.EAST)
+        val plateau = TestConstants.STANDARD_PLATEAU
+        val rover = Rover(TestConstants.POSITION_2_2, Direction.EAST)
 
-        movementService.executeMovements(rover, plateau, "")
+        movementService.executeMovements(rover, plateau, TestConstants.EMPTY_COMMANDS)
 
         // Should not change anything
-        assertEquals(Position(2, 2), rover.position)
-        assertEquals(Direction.EAST, rover.direction)
+        assertThat(rover.position).isEqualTo(TestConstants.POSITION_2_2)
+        assertThat(rover.direction).isEqualTo(Direction.EAST)
     }
 
     @Test
     fun `should handle movement in all directions`() {
-        val plateau = Plateau(5, 5)
+        val plateau = TestConstants.STANDARD_PLATEAU
 
         // Test North movement
-        val roverNorth = Rover(Position(2, 2), Direction.NORTH)
-        movementService.executeMovements(roverNorth, plateau, "M")
-        assertEquals(Position(2, 3), roverNorth.position)
+        val roverNorth = Rover(TestConstants.POSITION_2_2, Direction.NORTH)
+        movementService.executeMovements(roverNorth, plateau, TestConstants.SINGLE_MOVE)
+        assertThat(roverNorth.position).isEqualTo(TestConstants.POSITION_2_3)
 
         // Test East movement
-        val roverEast = Rover(Position(2, 2), Direction.EAST)
-        movementService.executeMovements(roverEast, plateau, "M")
-        assertEquals(Position(3, 2), roverEast.position)
+        val roverEast = Rover(TestConstants.POSITION_2_2, Direction.EAST)
+        movementService.executeMovements(roverEast, plateau, TestConstants.SINGLE_MOVE)
+        assertThat(roverEast.position).isEqualTo(TestConstants.POSITION_3_2)
 
         // Test South movement
-        val roverSouth = Rover(Position(2, 2), Direction.SOUTH)
-        movementService.executeMovements(roverSouth, plateau, "M")
-        assertEquals(Position(2, 1), roverSouth.position)
+        val roverSouth = Rover(TestConstants.POSITION_2_2, Direction.SOUTH)
+        movementService.executeMovements(roverSouth, plateau, TestConstants.SINGLE_MOVE)
+        assertThat(roverSouth.position).isEqualTo(TestConstants.POSITION_2_1)
 
         // Test West movement
-        val roverWest = Rover(Position(2, 2), Direction.WEST)
-        movementService.executeMovements(roverWest, plateau, "M")
-        assertEquals(Position(1, 2), roverWest.position)
+        val roverWest = Rover(TestConstants.POSITION_2_2, Direction.WEST)
+        movementService.executeMovements(roverWest, plateau, TestConstants.SINGLE_MOVE)
+        assertThat(roverWest.position).isEqualTo(TestConstants.POSITION_1_2)
     }
 
     @Test
     fun `should handle boundary conditions for all edges`() {
-        val plateau = Plateau(2, 2)
+        val plateau = TestConstants.SMALL_PLATEAU
 
         val testCases =
             listOf(
                 // West edge
-                Triple(Position(0, 0), Direction.WEST, Position(0, 0)),
+                // Starting at (0,0) facing W on a 3x3 plateau:
+                // M - can't move west (out of bounds), stay at (0,0) facing W
+                Triple(TestConstants.POSITION_0_0, Direction.WEST, TestConstants.POSITION_0_0),
                 // South edge
-                Triple(Position(0, 0), Direction.SOUTH, Position(0, 0)),
+                // Starting at (0,0) facing S on a 3x3 plateau:
+                // M - can't move south (out of bounds), stay at (0,0) facing S
+                Triple(TestConstants.POSITION_0_0, Direction.SOUTH, TestConstants.POSITION_0_0),
                 // East edge
-                Triple(Position(2, 2), Direction.EAST, Position(2, 2)),
+                // Starting at (2,2) facing E on a 2x2 plateau:
+                // M - can't move east (out of bounds), stay at (2,2) facing E
+                Triple(TestConstants.POSITION_2_2, Direction.EAST, TestConstants.POSITION_2_2),
                 // North edge
-                Triple(Position(2, 2), Direction.NORTH, Position(2, 2))
+                // Starting at (2,2) facing N on a 2x2 plateau:
+                // M - can't move north (out of bounds), stay at (2,2) facing N
+                Triple(TestConstants.POSITION_2_2, Direction.NORTH, TestConstants.POSITION_2_2)
             )
 
         testCases.forEach { (startPos, direction, expectedPos) ->
             val rover = Rover(startPos, direction)
-            movementService.executeMovements(rover, plateau, "M")
-            assertEquals("Failed for $direction movement from $startPos", expectedPos, rover.position)
+            movementService.executeMovements(rover, plateau, TestConstants.SINGLE_MOVE)
+            assertWithMessage("Failed for $direction movement from $startPos")
+                .that(rover.position)
+                .isEqualTo(expectedPos)
         }
     }
 }

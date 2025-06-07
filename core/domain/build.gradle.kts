@@ -9,4 +9,7 @@ dependencies {
 
     // Kotlin Coroutines for Flow support in use cases
     implementation(libs.kotlinx.coroutines.core)
+
+    // Testing dependencies
+    testImplementation(project(":core:testing-jvm"))
 }

@@ -88,6 +88,166 @@ object DomainTestData {
                     )
                 const val EXPECTED_POSITION = "0 1 N"
             }
+
+            object BoundaryMovement {
+                const val JSON = """
+                    {
+                        "topRightCorner": { "x": 2, "y": 2 },
+                        "roverPosition": { "x": 1, "y": 1 },
+                        "roverDirection": "E",
+                        "movements": "M"
+                    }
+                """
+                val INSTRUCTIONS =
+                    RoverMissionInstructions(
+                        plateauTopRightX = 2,
+                        plateauTopRightY = 2,
+                        initialRoverPosition = Position(1, 1),
+                        initialRoverDirection = "E",
+                        movementCommands = "M"
+                    )
+                const val EXPECTED_POSITION = "2 1 E"
+            }
+
+            object BoundaryBlocked {
+                const val JSON = """
+                    {
+                        "topRightCorner": { "x": 2, "y": 2 },
+                        "roverPosition": { "x": 2, "y": 2 },
+                        "roverDirection": "N",
+                        "movements": "M"
+                    }
+                """
+                val INSTRUCTIONS =
+                    RoverMissionInstructions(
+                        plateauTopRightX = 2,
+                        plateauTopRightY = 2,
+                        initialRoverPosition = Position(2, 2),
+                        initialRoverDirection = "N",
+                        movementCommands = "M"
+                    )
+                const val EXPECTED_POSITION = "2 2 N"
+            }
+
+            object MultipleBoundaryAttempts {
+                const val JSON = """
+                    {
+                        "topRightCorner": { "x": 1, "y": 1 },
+                        "roverPosition": { "x": 0, "y": 0 },
+                        "roverDirection": "W",
+                        "movements": "MMMMSMMM"
+                    }
+                """
+                val INSTRUCTIONS =
+                    RoverMissionInstructions(
+                        plateauTopRightX = 1,
+                        plateauTopRightY = 1,
+                        initialRoverPosition = Position(0, 0),
+                        initialRoverDirection = "W",
+                        movementCommands = "MMMMSMMM"
+                    )
+                const val EXPECTED_POSITION = "0 0 W"
+            }
+
+            object InvalidCharacterIgnore {
+                const val JSON = """
+                    {
+                        "topRightCorner": { "x": 5, "y": 5 },
+                        "roverPosition": { "x": 1, "y": 1 },
+                        "roverDirection": "N",
+                        "movements": "MXL1R@M"
+                    }
+                """
+                val INSTRUCTIONS =
+                    RoverMissionInstructions(
+                        plateauTopRightX = 5,
+                        plateauTopRightY = 5,
+                        initialRoverPosition = Position(1, 1),
+                        initialRoverDirection = "N",
+                        movementCommands = "MXL1R@M"
+                    )
+                const val EXPECTED_POSITION = "1 3 N"
+            }
+
+            object EmptyMovements {
+                const val JSON = """
+                    {
+                        "topRightCorner": { "x": 5, "y": 5 },
+                        "roverPosition": { "x": 2, "y": 3 },
+                        "roverDirection": "E",
+                        "movements": ""
+                    }
+                """
+                val INSTRUCTIONS =
+                    RoverMissionInstructions(
+                        plateauTopRightX = 5,
+                        plateauTopRightY = 5,
+                        initialRoverPosition = Position(2, 3),
+                        initialRoverDirection = "E",
+                        movementCommands = ""
+                    )
+                const val EXPECTED_POSITION = "2 3 E"
+            }
+
+            object OnlyRotations {
+                const val JSON = """
+                    {
+                        "topRightCorner": { "x": 5, "y": 5 },
+                        "roverPosition": { "x": 2, "y": 3 },
+                        "roverDirection": "N",
+                        "movements": "LLLL"
+                    }
+                """
+                val INSTRUCTIONS =
+                    RoverMissionInstructions(
+                        plateauTopRightX = 5,
+                        plateauTopRightY = 5,
+                        initialRoverPosition = Position(2, 3),
+                        initialRoverDirection = "N",
+                        movementCommands = "LLLL"
+                    )
+                const val EXPECTED_POSITION = "2 3 N"
+            }
+
+            object LowercaseDirection {
+                const val JSON = """
+                    {
+                        "topRightCorner": { "x": 5, "y": 5 },
+                        "roverPosition": { "x": 1, "y": 2 },
+                        "roverDirection": "n",
+                        "movements": "M"
+                    }
+                """
+                val INSTRUCTIONS =
+                    RoverMissionInstructions(
+                        plateauTopRightX = 5,
+                        plateauTopRightY = 5,
+                        initialRoverPosition = Position(1, 2),
+                        initialRoverDirection = "n",
+                        movementCommands = "M"
+                    )
+                const val EXPECTED_POSITION = "1 3 N"
+            }
+
+            object SingleCellPlateau {
+                const val JSON = """
+                    {
+                        "topRightCorner": { "x": 0, "y": 0 },
+                        "roverPosition": { "x": 0, "y": 0 },
+                        "roverDirection": "N",
+                        "movements": "MRLM"
+                    }
+                """
+                val INSTRUCTIONS =
+                    RoverMissionInstructions(
+                        plateauTopRightX = 0,
+                        plateauTopRightY = 0,
+                        initialRoverPosition = Position(0, 0),
+                        initialRoverDirection = "N",
+                        movementCommands = "MRLM"
+                    )
+                const val EXPECTED_POSITION = "0 0 N"
+            }
         }
 
         // Error scenarios for use case testing
@@ -128,6 +288,53 @@ object DomainTestData {
                         plateauTopRightY = 5,
                         initialRoverPosition = Position(6, 2),
                         initialRoverDirection = "N",
+                        movementCommands = "M"
+                    )
+            }
+
+            object MissingRequiredFields {
+                const val JSON = """
+                    {
+                        "topRightCorner": { "x": 5, "y": 5 },
+                        "roverPosition": { "x": 1, "y": 2 }
+                    }
+                """
+            }
+
+            object NegativePlateauDimensions {
+                const val JSON = """
+                    {
+                        "topRightCorner": { "x": -1, "y": 5 },
+                        "roverPosition": { "x": 1, "y": 2 },
+                        "roverDirection": "N",
+                        "movements": "M"
+                    }
+                """
+                val INSTRUCTIONS =
+                    RoverMissionInstructions(
+                        plateauTopRightX = -1,
+                        plateauTopRightY = 5,
+                        initialRoverPosition = Position(1, 2),
+                        initialRoverDirection = "N",
+                        movementCommands = "M"
+                    )
+            }
+
+            object MultiCharacterDirection {
+                const val JSON = """
+                    {
+                        "topRightCorner": { "x": 5, "y": 5 },
+                        "roverPosition": { "x": 1, "y": 2 },
+                        "roverDirection": "NE",
+                        "movements": "M"
+                    }
+                """
+                val INSTRUCTIONS =
+                    RoverMissionInstructions(
+                        plateauTopRightX = 5,
+                        plateauTopRightY = 5,
+                        initialRoverPosition = Position(1, 2),
+                        initialRoverDirection = "NE",
                         movementCommands = "M"
                     )
             }

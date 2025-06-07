@@ -6,8 +6,9 @@ import com.mustalk.seat.marsrover.core.common.network.NetworkResult
 import com.mustalk.seat.marsrover.core.domain.parser.JsonParser
 import com.mustalk.seat.marsrover.core.domain.repository.MarsRoverRepository
 import com.mustalk.seat.marsrover.core.model.MissionResult
-import com.mustalk.seat.marsrover.core.model.Position
-import com.mustalk.seat.marsrover.core.model.RoverMissionInstructions
+import com.mustalk.seat.marsrover.core.testing.jvm.data.DomainTestData.UseCaseTestData
+import com.mustalk.seat.marsrover.core.testing.jvm.data.MarsRoverTestData.RepositoryTestData
+import com.mustalk.seat.marsrover.core.testing.jvm.util.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -15,6 +16,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 /**
@@ -23,6 +25,9 @@ import org.junit.Test
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ExecuteNetworkMissionUseCaseTest {
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
     private lateinit var useCase: ExecuteNetworkMissionUseCase
     private lateinit var jsonParser: JsonParser
     private lateinit var mockRepository: MarsRoverRepository
@@ -38,37 +43,21 @@ class ExecuteNetworkMissionUseCaseTest {
     fun `executeFromJson should emit loading then success result`() =
         runTest {
             // Given
-            val jsonInput =
-                """
-                {
-                    "topRightCorner": {"x": 5, "y": 5},
-                    "roverPosition": {"x": 1, "y": 2},
-                    "roverDirection": "N",
-                    "movements": "LMLMLMLMM"
-                }
-                """.trimIndent()
-
-            val instructions =
-                RoverMissionInstructions(
-                    plateauTopRightX = 5,
-                    plateauTopRightY = 5,
-                    initialRoverPosition = Position(1, 2),
-                    initialRoverDirection = "N",
-                    movementCommands = "LMLMLMLMM"
-                )
+            val testData = UseCaseTestData.SuccessfulExecution.STANDARD_MISSION
+            val instructions = testData.EXPECTED_RESULT
 
             val expectedMissionResult =
                 MissionResult(
                     success = true,
-                    finalPosition = "1 3 N",
-                    message = "Mission completed successfully"
+                    finalPosition = RepositoryTestData.StandardMission.FINAL_POSITION,
+                    message = RepositoryTestData.StandardMission.SUCCESS_MESSAGE
                 )
 
-            coEvery { jsonParser.parseInput(jsonInput) } returns instructions
+            coEvery { jsonParser.parseInput(testData.JSON) } returns instructions
             coEvery { mockRepository.executeMission(instructions) } returns NetworkResult.success(expectedMissionResult)
 
             // When
-            val results = useCase.executeFromJson(jsonInput).toList()
+            val results = useCase.executeFromJson(testData.JSON).toList()
 
             // Then
             assertThat(results).hasSize(2)
@@ -76,7 +65,7 @@ class ExecuteNetworkMissionUseCaseTest {
             assertThat(results[1]).isInstanceOf(NetworkResult.Success::class.java)
 
             val successResult = results[1] as NetworkResult.Success
-            assertThat(successResult.data).isEqualTo("1 3 N")
+            assertThat(successResult.data).isEqualTo(RepositoryTestData.StandardMission.FINAL_POSITION)
 
             coVerify { mockRepository.executeMission(instructions) }
         }
@@ -85,7 +74,7 @@ class ExecuteNetworkMissionUseCaseTest {
     fun `executeFromJson should handle JSON parsing error`() =
         runTest {
             // Given
-            val invalidJson = """{"invalid": json}"""
+            val invalidJson = UseCaseTestData.ErrorScenarios.INVALID_JSON
             coEvery { jsonParser.parseInput(invalidJson) } throws JsonParsingException("Invalid JSON")
 
             // When
@@ -104,20 +93,14 @@ class ExecuteNetworkMissionUseCaseTest {
     fun `executeFromBuilderInputs should emit loading then success result`() =
         runTest {
             // Given
-            val instructions =
-                RoverMissionInstructions(
-                    plateauTopRightX = 5,
-                    plateauTopRightY = 5,
-                    initialRoverPosition = Position(1, 2),
-                    initialRoverDirection = "N",
-                    movementCommands = "LMLMLMLMM"
-                )
+            val testData = RepositoryTestData.StandardMission
+            val instructions = testData.INPUT
 
             val successMissionResult =
                 MissionResult(
                     success = true,
-                    finalPosition = "1 3 N",
-                    message = "Mission completed successfully"
+                    finalPosition = testData.FINAL_POSITION,
+                    message = testData.SUCCESS_MESSAGE
                 )
 
             coEvery { mockRepository.executeMission(instructions) } returns NetworkResult.success(successMissionResult)
@@ -126,19 +109,19 @@ class ExecuteNetworkMissionUseCaseTest {
             val results = mutableListOf<NetworkResult<String>>()
             useCase
                 .executeFromBuilderInputs(
-                    plateauWidth = 5,
-                    plateauHeight = 5,
-                    roverStartX = 1,
-                    roverStartY = 2,
-                    roverDirection = "N",
-                    movements = "LMLMLMLMM"
+                    plateauWidth = testData.TOP_RIGHT_X,
+                    plateauHeight = testData.TOP_RIGHT_Y,
+                    roverStartX = testData.ROVER_START_X,
+                    roverStartY = testData.ROVER_START_Y,
+                    roverDirection = testData.ROVER_START_DIRECTION,
+                    movements = testData.ROVER_MOVEMENTS
                 ).collect { results.add(it) }
 
             // Then
             assertThat(results).hasSize(2)
             assertThat(results[0]).isInstanceOf(NetworkResult.Loading::class.java)
             assertThat(results[1]).isInstanceOf(NetworkResult.Success::class.java)
-            assertThat((results[1] as NetworkResult.Success).data).isEqualTo("1 3 N")
+            assertThat((results[1] as NetworkResult.Success).data).isEqualTo(testData.FINAL_POSITION)
         }
 
     @Test
@@ -147,8 +130,8 @@ class ExecuteNetworkMissionUseCaseTest {
             // Given
             coEvery { mockRepository.executeMission(any()) } returns
                 NetworkResult.error(
-                    RuntimeException("Network error"),
-                    "Network connection failed"
+                    RuntimeException(RepositoryTestData.NetworkErrors.CONNECTION_REFUSED),
+                    RepositoryTestData.NetworkErrors.CONNECTION_REFUSED
                 )
 
             // When
@@ -169,50 +152,65 @@ class ExecuteNetworkMissionUseCaseTest {
             assertThat(results[1]).isInstanceOf(NetworkResult.Error::class.java)
 
             val errorResult = results[1] as NetworkResult.Error
-            assertThat(errorResult.message).isEqualTo("Network connection failed")
+            assertThat(errorResult.message).isEqualTo(RepositoryTestData.NetworkErrors.CONNECTION_REFUSED)
         }
 
     @Test
     fun `executeFromJson should handle mission failure response`() =
         runTest {
             // Given
-            val jsonInput =
-                """
-                {
-                    "topRightCorner": {"x": 2, "y": 2},
-                    "roverPosition": {"x": 5, "y": 5},
-                    "roverDirection": "N",
-                    "movements": "M"
-                }
-                """.trimIndent()
-
-            val instructions =
-                RoverMissionInstructions(
-                    plateauTopRightX = 2,
-                    plateauTopRightY = 2,
-                    initialRoverPosition = Position(5, 5),
-                    initialRoverDirection = "N",
-                    movementCommands = "M"
-                )
+            val testData = UseCaseTestData.ErrorScenarios.OutOfBoundsPosition
+            val instructions = testData.INSTRUCTIONS
 
             val failureMissionResult =
                 MissionResult(
                     success = false,
                     finalPosition = "",
-                    message = "Rover position out of bounds"
+                    message = RepositoryTestData.ErrorCases.OUT_OF_BOUNDS_DETAILS
                 )
 
-            coEvery { jsonParser.parseInput(jsonInput) } returns instructions
+            coEvery { jsonParser.parseInput(testData.JSON) } returns instructions
             coEvery { mockRepository.executeMission(instructions) } returns NetworkResult.success(failureMissionResult)
 
             // When
-            val results = useCase.executeFromJson(jsonInput).toList()
+            val results = useCase.executeFromJson(testData.JSON).toList()
 
             // Then
             assertThat(results).hasSize(2)
             assertThat(results[1]).isInstanceOf(NetworkResult.Error::class.java)
 
             val errorResult = results[1] as NetworkResult.Error
-            assertThat(errorResult.message).contains("Rover position out of bounds")
+            assertThat(errorResult.message).contains(RepositoryTestData.ErrorCases.OUT_OF_BOUNDS_DETAILS)
+        }
+
+    @Test
+    fun `executeFromJson should emit loading then success result for simple movement`() =
+        runTest {
+            // Given
+            val testData = UseCaseTestData.SuccessfulExecution.SimpleMove
+            val instructions = testData.INSTRUCTIONS
+
+            val expectedMissionResult =
+                MissionResult(
+                    success = true,
+                    finalPosition = testData.EXPECTED_POSITION,
+                    message = RepositoryTestData.StandardMission.SUCCESS_MESSAGE
+                )
+
+            coEvery { jsonParser.parseInput(testData.JSON) } returns instructions
+            coEvery { mockRepository.executeMission(instructions) } returns NetworkResult.success(expectedMissionResult)
+
+            // When
+            val results = useCase.executeFromJson(testData.JSON).toList()
+
+            // Then
+            assertThat(results).hasSize(2)
+            assertThat(results[0]).isInstanceOf(NetworkResult.Loading::class.java)
+            assertThat(results[1]).isInstanceOf(NetworkResult.Success::class.java)
+
+            val successResult = results[1] as NetworkResult.Success
+            assertThat(successResult.data).isEqualTo(testData.EXPECTED_POSITION)
+
+            coVerify { mockRepository.executeMission(instructions) }
         }
 }

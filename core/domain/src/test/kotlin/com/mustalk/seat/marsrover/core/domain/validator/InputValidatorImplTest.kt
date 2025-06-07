@@ -1,15 +1,20 @@
 package com.mustalk.seat.marsrover.core.domain.validator
 
+import com.google.common.truth.Truth.assertThat
 import com.mustalk.seat.marsrover.core.domain.error.RoverError
 import com.mustalk.seat.marsrover.core.model.Direction
-import com.mustalk.seat.marsrover.core.model.Plateau
 import com.mustalk.seat.marsrover.core.model.Position
-import com.mustalk.seat.marsrover.core.model.RoverMissionInstructions
-import org.junit.Assert.assertEquals
+import com.mustalk.seat.marsrover.core.testing.jvm.data.DomainTestData.TestConstants
+import com.mustalk.seat.marsrover.core.testing.jvm.data.DomainTestData.ValidatorTestData
+import com.mustalk.seat.marsrover.core.testing.jvm.util.MainDispatcherRule
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 class InputValidatorImplTest {
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
     private lateinit var inputValidator: InputValidatorImpl
 
     @Before
@@ -18,122 +23,111 @@ class InputValidatorImplTest {
     }
 
     @Test
-    fun `should create valid plateau from instructions`() {
-        val instructions =
-            RoverMissionInstructions(
-                plateauTopRightX = 5,
-                plateauTopRightY = 5,
-                initialRoverPosition = Position(1, 2),
-                initialRoverDirection = "N",
-                movementCommands = "LM"
-            )
+    fun `should create valid plateau from standard instructions`() {
+        val instructions = ValidatorTestData.ValidPlateaus.STANDARD_PLATEAU
 
         val plateau = inputValidator.validateAndCreatePlateau(instructions)
 
-        assertEquals(5, plateau.maxX)
-        assertEquals(5, plateau.maxY)
+        assertThat(plateau.maxX).isEqualTo(TestConstants.STANDARD_PLATEAU_X)
+        assertThat(plateau.maxY).isEqualTo(TestConstants.STANDARD_PLATEAU_Y)
     }
 
     @Test(expected = RoverError.InvalidPlateauDimensions::class)
     fun `should throw InvalidPlateauDimensions for negative X`() {
-        val instructions =
-            RoverMissionInstructions(
-                plateauTopRightX = -1,
-                plateauTopRightY = 5,
-                initialRoverPosition = Position(1, 2),
-                initialRoverDirection = "N",
-                movementCommands = "LM"
-            )
-
+        val instructions = ValidatorTestData.InvalidPlateaus.NEGATIVE_X
         inputValidator.validateAndCreatePlateau(instructions)
     }
 
     @Test(expected = RoverError.InvalidPlateauDimensions::class)
     fun `should throw InvalidPlateauDimensions for negative Y`() {
-        val instructions =
-            RoverMissionInstructions(
-                plateauTopRightX = 5,
-                plateauTopRightY = -1,
-                initialRoverPosition = Position(1, 2),
-                initialRoverDirection = "N",
-                movementCommands = "LM"
-            )
-
+        val instructions = ValidatorTestData.InvalidPlateaus.NEGATIVE_Y
         inputValidator.validateAndCreatePlateau(instructions)
     }
 
     @Test
     fun `should parse valid direction characters`() {
-        assertEquals(Direction.NORTH, inputValidator.validateAndParseDirection("N"))
-        assertEquals(Direction.EAST, inputValidator.validateAndParseDirection("E"))
-        assertEquals(Direction.SOUTH, inputValidator.validateAndParseDirection("S"))
-        assertEquals(Direction.WEST, inputValidator.validateAndParseDirection("W"))
+        ValidatorTestData.DirectionValidation.VALID_DIRECTIONS.forEach { (input, expected) ->
+            val result = inputValidator.validateAndParseDirection(input)
+            assertThat(result).isEqualTo(expected)
+        }
     }
 
     @Test
     fun `should handle lowercase direction characters`() {
-        assertEquals(Direction.NORTH, inputValidator.validateAndParseDirection("n"))
-        assertEquals(Direction.EAST, inputValidator.validateAndParseDirection("e"))
-        assertEquals(Direction.SOUTH, inputValidator.validateAndParseDirection("s"))
-        assertEquals(Direction.WEST, inputValidator.validateAndParseDirection("w"))
+        val lowercaseDirections =
+            mapOf(
+                "n" to Direction.NORTH,
+                "e" to Direction.EAST,
+                "s" to Direction.SOUTH,
+                "w" to Direction.WEST
+            )
+
+        lowercaseDirections.forEach { (input, expected) ->
+            val result = inputValidator.validateAndParseDirection(input)
+            assertThat(result).isEqualTo(expected)
+        }
     }
 
     @Test(expected = RoverError.InvalidDirectionChar::class)
     fun `should throw InvalidDirectionChar for invalid character`() {
-        inputValidator.validateAndParseDirection("X")
+        inputValidator.validateAndParseDirection(TestConstants.INVALID_DIRECTION_X)
     }
 
     @Test(expected = RoverError.InvalidDirectionChar::class)
     fun `should throw InvalidDirectionChar for multi-character string`() {
-        inputValidator.validateAndParseDirection("NE")
+        inputValidator.validateAndParseDirection(TestConstants.INVALID_DIRECTION_NE)
     }
 
-    @Test(expected = RoverError.InvalidDirectionChar::class)
-    fun `should throw InvalidDirectionChar for empty string`() {
-        inputValidator.validateAndParseDirection("")
+    @Test
+    fun `should throw InvalidDirectionChar for invalid characters`() {
+        ValidatorTestData.DirectionValidation.INVALID_DIRECTIONS.forEach { invalidDirection ->
+            try {
+                inputValidator.validateAndParseDirection(invalidDirection)
+                assertThat(false).isTrue() // Should not reach here
+            } catch (e: RoverError.InvalidDirectionChar) {
+                // Expected exception
+                assertThat(e).isInstanceOf(RoverError.InvalidDirectionChar::class.java)
+            }
+        }
     }
 
     @Test
     fun `should validate position within plateau bounds`() {
-        val plateau = Plateau(5, 5)
-        val position = Position(2, 3)
-
-        // Should not throw exception
-        inputValidator.validateInitialPosition(position, plateau)
+        ValidatorTestData.PositionValidation.VALID_POSITIONS.forEach { position ->
+            // Should not throw exception
+            inputValidator.validateInitialPosition(position, ValidatorTestData.PositionValidation.STANDARD_PLATEAU)
+        }
     }
 
     @Test
     fun `should validate position at plateau boundaries`() {
-        val plateau = Plateau(5, 5)
+        val plateau = ValidatorTestData.PositionValidation.STANDARD_PLATEAU
+        val boundaryPositions =
+            listOf(
+                TestConstants.POSITION_0_0,
+                TestConstants.POSITION_5_5,
+                Position(0, 5),
+                Position(5, 0)
+            )
 
-        // Test corner positions
-        inputValidator.validateInitialPosition(Position(0, 0), plateau)
-        inputValidator.validateInitialPosition(Position(5, 5), plateau)
-        inputValidator.validateInitialPosition(Position(0, 5), plateau)
-        inputValidator.validateInitialPosition(Position(5, 0), plateau)
+        // Test corner positions - should not throw exception
+        boundaryPositions.forEach { position ->
+            inputValidator.validateInitialPosition(position, plateau)
+        }
     }
 
-    @Test(expected = RoverError.InvalidInitialPosition::class)
-    fun `should throw InvalidInitialPosition for X outside bounds`() {
-        val plateau = Plateau(5, 5)
-        val position = Position(6, 3)
+    @Test
+    fun `should throw InvalidInitialPosition for positions outside bounds`() {
+        val plateau = ValidatorTestData.PositionValidation.STANDARD_PLATEAU
 
-        inputValidator.validateInitialPosition(position, plateau)
-    }
-
-    @Test(expected = RoverError.InvalidInitialPosition::class)
-    fun `should throw InvalidInitialPosition for Y outside bounds`() {
-        val plateau = Plateau(5, 5)
-        val position = Position(3, 6)
-
-        inputValidator.validateInitialPosition(position, plateau)
-    }
-
-    @Test(expected = RoverError.InvalidInitialPosition::class)
-    fun `should throw InvalidInitialPosition for negative coordinates`() {
-        val plateau = Plateau(5, 5)
-        val position = Position(-1, 3)
-
-        inputValidator.validateInitialPosition(position, plateau)
+        ValidatorTestData.PositionValidation.INVALID_POSITIONS.forEach { position ->
+            try {
+                inputValidator.validateInitialPosition(position, plateau)
+                assertThat(false).isTrue() // Should not reach here
+            } catch (e: RoverError.InvalidInitialPosition) {
+                // Expected exception
+                assertThat(e).isInstanceOf(RoverError.InvalidInitialPosition::class.java)
+            }
+        }
     }
 }
