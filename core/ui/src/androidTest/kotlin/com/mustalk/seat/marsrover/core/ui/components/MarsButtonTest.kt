@@ -26,7 +26,7 @@ class MarsButtonTest {
     @Test
     fun marsButton_displaysTextCorrectly() {
         // Given
-        val buttonText = getString(R.string.action_execute)
+        val buttonText = getString(R.string.core_ui_action_execute)
 
         // When
         composeTestRule.setContent {
@@ -48,7 +48,7 @@ class MarsButtonTest {
     fun marsButton_primaryVariant_isClickable() {
         // Given
         var clicked = false
-        val buttonText = getString(R.string.action_start)
+        val buttonText = getString(R.string.core_ui_action_start)
 
         // When
         composeTestRule.setContent {
@@ -76,7 +76,7 @@ class MarsButtonTest {
     fun marsButton_secondaryVariant_isClickable() {
         // Given
         var clicked = false
-        val buttonText = getString(R.string.action_cancel)
+        val buttonText = getString(R.string.core_ui_action_cancel)
 
         // When
         composeTestRule.setContent {
@@ -104,7 +104,7 @@ class MarsButtonTest {
     fun marsButton_textVariant_isClickable() {
         // Given
         var clicked = false
-        val buttonText = getString(R.string.action_retry)
+        val buttonText = getString(R.string.core_ui_action_retry)
 
         // When
         composeTestRule.setContent {
@@ -132,7 +132,7 @@ class MarsButtonTest {
     fun marsButton_whenDisabled_isNotClickable() {
         // Given
         var clicked = false
-        val buttonText = getString(R.string.action_clear)
+        val buttonText = getString(R.string.core_ui_action_clear)
 
         // When
         composeTestRule.setContent {
@@ -164,7 +164,7 @@ class MarsButtonTest {
     @Test
     fun marsButton_whenLoading_showsLoadingIndicator() {
         // Given
-        val buttonText = getString(R.string.action_execute)
+        val buttonText = getString(R.string.core_ui_action_execute)
 
         // When
         composeTestRule.setContent {
@@ -192,7 +192,7 @@ class MarsButtonTest {
     fun marsButton_whenLoadingAndDisabled_isNotClickable() {
         // Given
         var clicked = false
-        val buttonText = getString(R.string.test_label_example)
+        val buttonText = getString(R.string.core_ui_test_label_example)
 
         // When
         composeTestRule.setContent {
@@ -219,7 +219,7 @@ class MarsButtonTest {
     @Test
     fun marsButton_withContentDescription_isAccessible() {
         // Given
-        val buttonText = getString(R.string.action_execute)
+        val buttonText = getString(R.string.core_ui_action_execute)
         val contentDesc = getString(R.string.core_ui_button_content_description)
 
         // When
@@ -243,7 +243,7 @@ class MarsButtonTest {
     @Test
     fun marsButton_lightTheme_rendersCorrectly() {
         // Given
-        val buttonText = getString(R.string.action_execute)
+        val buttonText = getString(R.string.core_ui_action_execute)
 
         // When
         composeTestRule.setContent {
@@ -264,7 +264,7 @@ class MarsButtonTest {
     @Test
     fun marsButton_darkTheme_rendersCorrectly() {
         // Given
-        val buttonText = getString(R.string.action_execute)
+        val buttonText = getString(R.string.core_ui_action_execute)
 
         // When
         composeTestRule.setContent {

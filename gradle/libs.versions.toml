@@ -105,7 +105,6 @@ kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-p
 compose-gradle-plugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 detekt-gradle-plugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt-plugin" }
 spotless-gradle-plugin = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless-plugin" }
-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 
 [plugins]
 # Build tools
@@ -127,6 +126,7 @@ marsrover-android-application = { id = "marsrover.android.application" }
 marsrover-android-application-compose = { id = "marsrover.android.application.compose" }
 marsrover-android-library = { id = "marsrover.android.library" }
 marsrover-android-library-compose = { id = "marsrover.android.library.compose" }
+marsrover-android-feature = { id = "marsrover.android.feature" }
 marsrover-jvm-library = { id = "marsrover.jvm.library" }
 marsrover-android-hilt = { id = "marsrover.android.hilt" }
 marsrover-quality-detekt = { id = "marsrover.quality.detekt" }

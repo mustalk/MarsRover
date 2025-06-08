@@ -143,7 +143,7 @@ fun NewMissionScreen(
         ) {
             // Mars background image
             Image(
-                painter = painterResource(id = R.drawable.mars_background),
+                painter = painterResource(id = com.mustalk.seat.marsrover.core.ui.R.drawable.core_ui_mars_background),
                 contentDescription = stringResource(R.string.cd_mars_background),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop

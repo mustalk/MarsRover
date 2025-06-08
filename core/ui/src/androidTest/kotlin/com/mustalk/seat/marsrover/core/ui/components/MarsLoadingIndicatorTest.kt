@@ -22,7 +22,7 @@ class MarsLoadingIndicatorTest {
     @Test
     fun marsLoadingIndicator_displaysMessageCorrectly() {
         // Given
-        val expectedMessage = getString(R.string.loading_mission_process)
+        val expectedMessage = getString(R.string.core_ui_loading_mission_process)
 
         // When
         composeTestRule.setContent {
@@ -40,7 +40,7 @@ class MarsLoadingIndicatorTest {
     @Test
     fun marsLoadingIndicator_displaysCustomMessage() {
         // Given
-        val customMessage = getString(R.string.test_content_example)
+        val customMessage = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -60,7 +60,7 @@ class MarsLoadingIndicatorTest {
     @Test
     fun marsLoadingIndicator_whenShowMessageFalse_hidesMessage() {
         // Given
-        val message = getString(R.string.test_content_example)
+        val message = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -81,8 +81,8 @@ class MarsLoadingIndicatorTest {
     @Test
     fun marsLoadingIndicator_withContentDescription_isAccessible() {
         // Given
-        val message = getString(R.string.test_content_example)
-        val contentDesc = getString(R.string.cd_loading)
+        val message = getString(R.string.core_ui_test_content_example)
+        val contentDesc = getString(R.string.core_ui_cd_loading)
 
         // When
         composeTestRule.setContent {
@@ -103,7 +103,7 @@ class MarsLoadingIndicatorTest {
     @Test
     fun marsLoadingIndicator_usesDefaultContentDescription() {
         // Given
-        val expectedContentDesc = getString(R.string.cd_loading)
+        val expectedContentDesc = getString(R.string.core_ui_cd_loading)
 
         // When
         composeTestRule.setContent {
@@ -121,7 +121,7 @@ class MarsLoadingIndicatorTest {
     @Test
     fun marsFullScreenLoader_displaysCorrectly() {
         // Given
-        val expectedMessage = getString(R.string.loading_mission_process)
+        val expectedMessage = getString(R.string.core_ui_loading_mission_process)
 
         // When
         composeTestRule.setContent {
@@ -139,7 +139,7 @@ class MarsLoadingIndicatorTest {
     @Test
     fun marsFullScreenLoader_displaysCustomMessage() {
         // Given
-        val customMessage = getString(R.string.test_content_example)
+        val customMessage = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -159,7 +159,7 @@ class MarsLoadingIndicatorTest {
     @Test
     fun marsLoadingIndicator_rendersInLightTheme() {
         // Given
-        val expectedMessage = getString(R.string.loading_mission_process)
+        val expectedMessage = getString(R.string.core_ui_loading_mission_process)
 
         // When
         composeTestRule.setContent {
@@ -177,7 +177,7 @@ class MarsLoadingIndicatorTest {
     @Test
     fun marsLoadingIndicator_rendersInDarkTheme() {
         // Given
-        val expectedMessage = getString(R.string.loading_mission_process)
+        val expectedMessage = getString(R.string.core_ui_loading_mission_process)
 
         // When
         composeTestRule.setContent {

@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.ui.dashboard
+package com.mustalk.seat.marsrover.feature.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -22,7 +22,7 @@ class MarsToastTest {
     @Test
     fun marsToast_displaysMessageCorrectly() {
         // Given
-        val message = getString(R.string.test_content_example)
+        val message = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -43,8 +43,8 @@ class MarsToastTest {
     @Test
     fun marsToast_withTitle_displaysBothTitleAndMessage() {
         // Given
-        val title = getString(R.string.test_title_example)
-        val message = getString(R.string.test_content_example)
+        val title = getString(R.string.core_ui_test_title_example)
+        val message = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -70,7 +70,7 @@ class MarsToastTest {
     @Test
     fun marsToast_errorType_displaysWithErrorIcon() {
         // Given
-        val message = getString(R.string.toast_message_invalid_json)
+        val message = getString(R.string.core_ui_toast_message_invalid_json)
 
         // When
         composeTestRule.setContent {
@@ -88,14 +88,14 @@ class MarsToastTest {
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithContentDescription(getString(R.string.cd_error_icon))
+            .onNodeWithContentDescription(getString(R.string.core_ui_cd_error_icon))
             .assertIsDisplayed()
     }
 
     @Test
     fun marsToast_warningType_displaysWithWarningIcon() {
         // Given
-        val message = getString(R.string.test_content_example)
+        val message = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -113,14 +113,14 @@ class MarsToastTest {
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithContentDescription(getString(R.string.cd_warning_icon))
+            .onNodeWithContentDescription(getString(R.string.core_ui_cd_warning_icon))
             .assertIsDisplayed()
     }
 
     @Test
     fun marsToast_infoType_displaysWithInfoIcon() {
         // Given
-        val message = getString(R.string.test_content_example)
+        val message = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -138,15 +138,15 @@ class MarsToastTest {
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithContentDescription(getString(R.string.cd_info_icon))
+            .onNodeWithContentDescription(getString(R.string.core_ui_cd_info_icon))
             .assertIsDisplayed()
     }
 
     @Test
     fun marsToast_withContentDescription_isAccessible() {
         // Given
-        val message = getString(R.string.test_content_example)
-        val contentDesc = getString(R.string.cd_info_toast)
+        val message = getString(R.string.core_ui_test_content_example)
+        val contentDesc = getString(R.string.core_ui_cd_info_toast)
 
         // When
         composeTestRule.setContent {
@@ -171,8 +171,8 @@ class MarsToastTest {
         composeTestRule.setContent {
             MarsRoverTheme(darkTheme = false) {
                 MarsToast(
-                    title = getString(R.string.test_title_example),
-                    message = getString(R.string.test_content_example),
+                    title = getString(R.string.core_ui_test_title_example),
+                    message = getString(R.string.core_ui_test_content_example),
                     type = MarsToastType.Error
                 )
             }
@@ -180,11 +180,11 @@ class MarsToastTest {
 
         // Then
         composeTestRule
-            .onNodeWithText(getString(R.string.test_title_example))
+            .onNodeWithText(getString(R.string.core_ui_test_title_example))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText(getString(R.string.test_content_example))
+            .onNodeWithText(getString(R.string.core_ui_test_content_example))
             .assertIsDisplayed()
     }
 
@@ -194,8 +194,8 @@ class MarsToastTest {
         composeTestRule.setContent {
             MarsRoverTheme(darkTheme = true) {
                 MarsToast(
-                    title = getString(R.string.test_title_example),
-                    message = getString(R.string.test_content_example),
+                    title = getString(R.string.core_ui_test_title_example),
+                    message = getString(R.string.core_ui_test_content_example),
                     type = MarsToastType.Warning
                 )
             }
@@ -203,18 +203,18 @@ class MarsToastTest {
 
         // Then
         composeTestRule
-            .onNodeWithText(getString(R.string.test_title_example))
+            .onNodeWithText(getString(R.string.core_ui_test_title_example))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText(getString(R.string.test_content_example))
+            .onNodeWithText(getString(R.string.core_ui_test_content_example))
             .assertIsDisplayed()
     }
 
     @Test
     fun marsToast_longMessage_displaysCorrectly() {
         // Given
-        val longMessage = getString(R.string.test_message_long)
+        val longMessage = getString(R.string.core_ui_test_message_long)
 
         // When
         composeTestRule.setContent {
@@ -235,7 +235,7 @@ class MarsToastTest {
     @Test
     fun marsToast_withoutTitle_displaysOnlyMessage() {
         // Given
-        val message = getString(R.string.test_content_example)
+        val message = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {

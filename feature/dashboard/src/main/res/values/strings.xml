@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Feature Dashboard: Welcome and titles -->
+    <string name="feature_dashboard_welcome_title">🚀 Mars Rover Mission Control</string>
+    <string name="feature_dashboard_mission_control">Mission Control Dashboard</string>
+    <string name="feature_dashboard_welcome_screen_tap">Welcome screen - tap to start new mission</string>
+
+    <!-- Feature Dashboard: Empty state -->
+    <string name="feature_dashboard_empty_title">Ready to deploy your first Mars rover mission?</string>
+    <string name="feature_dashboard_empty_subtitle">Tap the + button to get started</string>
+
+    <!-- Feature Dashboard: Mission actions and labels -->
+    <string name="feature_dashboard_mission_new">New Mission</string>
+    <string name="feature_dashboard_mission_result">Mission Result</string>
+    <string name="feature_dashboard_mission_completed_successfully">Mission Completed Successfully</string>
+    <string name="feature_dashboard_mission_failed">Mission Failed</string>
+    <string name="feature_dashboard_mission_instructions">Mission Instructions:</string>
+
+    <!-- Feature Dashboard: Results and formatting -->
+    <string name="feature_dashboard_rover_final_position">Final Position: %1$s</string>
+    <string name="feature_dashboard_completed_on">Completed on %1$s</string>
+
+    <!-- Feature Dashboard: Content Descriptions for Accessibility -->
+    <string name="feature_dashboard_cd_mission_fab">Start new mission</string>
+    <string name="feature_dashboard_cd_mission_success">Mission completed successfully</string>
+    <string name="feature_dashboard_cd_mission_failed">Mission failed</string>
+    <string name="feature_dashboard_cd_expand_input">Expand mission input</string>
+    <string name="feature_dashboard_cd_collapse_input">Collapse mission input</string>
+</resources>

@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.ui.dashboard.components
+package com.mustalk.seat.marsrover.feature.dashboard.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -13,8 +13,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import com.mustalk.seat.marsrover.R
 import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
+import com.mustalk.seat.marsrover.feature.dashboard.R
 
 /**
  * Floating Action Button for starting a new rover mission.
@@ -26,7 +26,7 @@ fun NewMissionFab(
     modifier: Modifier = Modifier,
     extended: Boolean = false,
 ) {
-    val contentDesc = stringResource(R.string.cd_mission_fab)
+    val contentDesc = stringResource(R.string.feature_dashboard_cd_mission_fab)
 
     if (extended) {
         ExtendedFloatingActionButton(
@@ -40,7 +40,7 @@ fun NewMissionFab(
                 contentDescription = null
             )
             Text(
-                text = stringResource(R.string.mission_new),
+                text = stringResource(R.string.feature_dashboard_mission_new),
                 style = MaterialTheme.typography.labelLarge
             )
         }

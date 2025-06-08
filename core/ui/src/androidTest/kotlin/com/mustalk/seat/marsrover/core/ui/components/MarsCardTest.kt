@@ -23,7 +23,7 @@ class MarsCardTest {
     @Test
     fun marsCard_displaysTitleCorrectly() {
         // Given
-        val title = getString(R.string.test_title_example)
+        val title = getString(R.string.core_ui_test_title_example)
 
         // When
         composeTestRule.setContent {
@@ -31,7 +31,7 @@ class MarsCardTest {
                 MarsCard(
                     title = title
                 ) {
-                    Text(getString(R.string.test_content_example))
+                    Text(getString(R.string.core_ui_test_content_example))
                 }
             }
         }
@@ -45,7 +45,7 @@ class MarsCardTest {
     @Test
     fun marsCard_displaysContentCorrectly() {
         // Given
-        val content = getString(R.string.test_content_example)
+        val content = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -65,8 +65,8 @@ class MarsCardTest {
     @Test
     fun marsCard_withTitleAndContent_displaysBoth() {
         // Given
-        val title = getString(R.string.test_title_example)
-        val content = getString(R.string.test_content_example)
+        val title = getString(R.string.core_ui_test_title_example)
+        val content = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -92,7 +92,7 @@ class MarsCardTest {
     @Test
     fun marsCard_withContentDescription_isAccessible() {
         // Given
-        val title = getString(R.string.test_title_example)
+        val title = getString(R.string.core_ui_test_title_example)
         val contentDesc = getString(R.string.core_ui_card_content_description)
 
         // When
@@ -102,7 +102,7 @@ class MarsCardTest {
                     title = title,
                     contentDescription = contentDesc
                 ) {
-                    Text(getString(R.string.test_content_example))
+                    Text(getString(R.string.core_ui_test_content_example))
                 }
             }
         }
@@ -116,8 +116,8 @@ class MarsCardTest {
     @Test
     fun marsPrimaryCard_displaysCorrectly() {
         // Given
-        val title = getString(R.string.test_title_example)
-        val content = getString(R.string.test_content_example)
+        val title = getString(R.string.core_ui_test_title_example)
+        val content = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -143,8 +143,8 @@ class MarsCardTest {
     @Test
     fun marsSecondaryCard_displaysCorrectly() {
         // Given
-        val title = getString(R.string.test_title_example)
-        val content = getString(R.string.test_content_example)
+        val title = getString(R.string.core_ui_test_title_example)
+        val content = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -170,7 +170,7 @@ class MarsCardTest {
     @Test
     fun marsCard_withoutTitle_displaysOnlyContent() {
         // Given
-        val content = getString(R.string.test_content_example)
+        val content = getString(R.string.core_ui_test_content_example)
 
         // When
         composeTestRule.setContent {
@@ -190,7 +190,7 @@ class MarsCardTest {
     @Test
     fun marsCard_rendersInLightTheme() {
         // Given
-        val title = getString(R.string.test_title_example)
+        val title = getString(R.string.core_ui_test_title_example)
 
         // When
         composeTestRule.setContent {
@@ -198,7 +198,7 @@ class MarsCardTest {
                 MarsCard(
                     title = title
                 ) {
-                    Text(getString(R.string.test_content_example))
+                    Text(getString(R.string.core_ui_test_content_example))
                 }
             }
         }
@@ -212,7 +212,7 @@ class MarsCardTest {
     @Test
     fun marsCard_rendersInDarkTheme() {
         // Given
-        val title = getString(R.string.test_title_example)
+        val title = getString(R.string.core_ui_test_title_example)
 
         // When
         composeTestRule.setContent {
@@ -220,7 +220,7 @@ class MarsCardTest {
                 MarsCard(
                     title = title
                 ) {
-                    Text(getString(R.string.test_content_example))
+                    Text(getString(R.string.core_ui_test_content_example))
                 }
             }
         }
@@ -234,7 +234,7 @@ class MarsCardTest {
     @Test
     fun marsCard_multipleTextElements_displaysAll() {
         // Given
-        val title = getString(R.string.test_title_example)
+        val title = getString(R.string.core_ui_test_title_example)
 
         // When
         composeTestRule.setContent {
@@ -242,9 +242,9 @@ class MarsCardTest {
                 MarsCard(
                     title = title
                 ) {
-                    Text(getString(R.string.action_start))
-                    Text(getString(R.string.action_execute))
-                    Text(getString(R.string.action_cancel))
+                    Text(getString(R.string.core_ui_action_start))
+                    Text(getString(R.string.core_ui_action_execute))
+                    Text(getString(R.string.core_ui_action_cancel))
                 }
             }
         }
@@ -255,15 +255,15 @@ class MarsCardTest {
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText(getString(R.string.action_start))
+            .onNodeWithText(getString(R.string.core_ui_action_start))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText(getString(R.string.action_execute))
+            .onNodeWithText(getString(R.string.core_ui_action_execute))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText(getString(R.string.action_cancel))
+            .onNodeWithText(getString(R.string.core_ui_action_cancel))
             .assertIsDisplayed()
     }
 }

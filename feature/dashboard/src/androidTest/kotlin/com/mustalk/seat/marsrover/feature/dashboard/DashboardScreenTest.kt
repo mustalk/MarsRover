@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.ui.dashboard
+package com.mustalk.seat.marsrover.feature.dashboard
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -6,20 +6,39 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.mustalk.seat.marsrover.core.testing.android.di.TestDispatchersModule
+import com.mustalk.seat.marsrover.core.testing.jvm.data.DashboardTestData
 import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import com.mustalk.seat.marsrover.core.ui.R as CoreUiR
 
+@HiltAndroidTest
+@UninstallModules(TestDispatchersModule::class)
 @RunWith(AndroidJUnit4::class)
 class DashboardScreenTest {
-    @get:Rule
+    @get:Rule(order = 0)
+    val hiltRule = HiltAndroidRule(this)
+
+    @get:Rule(order = 1)
     val composeTestRule = createComposeRule()
+
+    @Before
+    fun setup() {
+        hiltRule.inject()
+    }
 
     @Test
     fun dashboardScreen_emptyState_displaysWelcomeMessage() {
         // Given
         val uiState = DashboardUiState()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         // When
         composeTestRule.setContent {
@@ -37,28 +56,31 @@ class DashboardScreenTest {
 
         // Then
         composeTestRule
-            .onNodeWithText("🚀 Mars Rover Mission Control")
+            .onNodeWithText(context.getString(R.string.feature_dashboard_welcome_title))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Ready to deploy your first Mars rover mission?")
+            .onNodeWithText(context.getString(R.string.feature_dashboard_empty_title))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Tap the + button to get started")
+            .onNodeWithText(context.getString(R.string.feature_dashboard_empty_subtitle))
             .assertIsDisplayed()
     }
 
     @Test
     fun dashboardScreen_withMissionResult_displaysMissionCard() {
         // Given
+        val testData = DashboardTestData.SuccessfulMissions.StandardSuccess
         val missionResult =
             MissionResult(
-                finalPosition = "1 3 N",
-                isSuccess = true,
-                originalInput = """{"test": "input"}"""
+                finalPosition = testData.FINAL_POSITION,
+                isSuccess = testData.IS_SUCCESS,
+                timestamp = testData.TIMESTAMP,
+                originalInput = testData.ORIGINAL_INPUT
             )
         val uiState = DashboardUiState(lastMissionResult = missionResult)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         // When
         composeTestRule.setContent {
@@ -76,27 +98,35 @@ class DashboardScreenTest {
 
         // Then
         composeTestRule
-            .onNodeWithText("Mission Result")
+            .onNodeWithText(context.getString(R.string.feature_dashboard_mission_result))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Mission Completed Successfully")
+            .onNodeWithText(context.getString(R.string.feature_dashboard_mission_completed_successfully))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Final Position: 1 3 N")
-            .assertIsDisplayed()
+            .onNodeWithText(
+                context.getString(
+                    R.string.feature_dashboard_rover_final_position,
+                    testData.FINAL_POSITION
+                )
+            ).assertIsDisplayed()
     }
 
     @Test
     fun dashboardScreen_withFailedMission_displaysErrorState() {
         // Given
+        val testData = DashboardTestData.FailedMissions.StandardFailure
         val missionResult =
             MissionResult(
-                finalPosition = "Error: Invalid JSON",
-                isSuccess = false
+                finalPosition = testData.FINAL_POSITION,
+                isSuccess = testData.IS_SUCCESS,
+                timestamp = testData.TIMESTAMP,
+                originalInput = testData.ORIGINAL_INPUT
             )
         val uiState = DashboardUiState(lastMissionResult = missionResult)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         // When
         composeTestRule.setContent {
@@ -114,18 +144,23 @@ class DashboardScreenTest {
 
         // Then
         composeTestRule
-            .onNodeWithText("Mission Failed")
+            .onNodeWithText(context.getString(R.string.feature_dashboard_mission_failed))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Final Position: Error: Invalid JSON")
-            .assertIsDisplayed()
+            .onNodeWithText(
+                context.getString(
+                    R.string.feature_dashboard_rover_final_position,
+                    testData.FINAL_POSITION
+                )
+            ).assertIsDisplayed()
     }
 
     @Test
     fun dashboardScreen_loadingState_displaysLoader() {
         // Given
         val uiState = DashboardUiState(isLoading = true)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         // When
         composeTestRule.setContent {
@@ -143,14 +178,16 @@ class DashboardScreenTest {
 
         // Then
         composeTestRule
-            .onNodeWithText("Processing mission data…")
+            .onNodeWithText(context.getString(CoreUiR.string.core_ui_loading_mission_data))
             .assertIsDisplayed()
     }
 
     @Test
     fun dashboardScreen_withError_displaysErrorToast() {
         // Given
-        val uiState = DashboardUiState(errorMessage = "Connection failed")
+        val errorMessage = DashboardTestData.ErrorMessages.CONNECTION_FAILED
+        val uiState = DashboardUiState(errorMessage = errorMessage)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         // When
         composeTestRule.setContent {
@@ -168,11 +205,11 @@ class DashboardScreenTest {
 
         // Then
         composeTestRule
-            .onNodeWithText("Mission Failed")
+            .onNodeWithText(context.getString(CoreUiR.string.core_ui_toast_mission_failed))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Connection failed")
+            .onNodeWithText(errorMessage)
             .assertIsDisplayed()
     }
 
@@ -180,6 +217,7 @@ class DashboardScreenTest {
     fun dashboardScreen_fab_isClickable() {
         // Given
         val uiState = DashboardUiState()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
         var fabClicked = false
 
         // When
@@ -198,7 +236,7 @@ class DashboardScreenTest {
 
         // Then
         composeTestRule
-            .onNodeWithContentDescription("Start new mission")
+            .onNodeWithContentDescription(context.getString(R.string.feature_dashboard_cd_mission_fab))
             .assertIsDisplayed()
             .performClick()
 
@@ -209,6 +247,7 @@ class DashboardScreenTest {
     fun dashboardScreen_emptyState_showsExtendedFab() {
         // Given
         val uiState = DashboardUiState()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         // When
         composeTestRule.setContent {
@@ -226,19 +265,21 @@ class DashboardScreenTest {
 
         // Then - Extended FAB should show text
         composeTestRule
-            .onNodeWithText("New Mission")
+            .onNodeWithText(context.getString(R.string.feature_dashboard_mission_new))
             .assertIsDisplayed()
     }
 
     @Test
     fun dashboardScreen_withMissionResult_showsRegularFab() {
         // Given
+        val testData = DashboardTestData.SuccessfulMissions.SimpleSuccess
         val missionResult =
             MissionResult(
-                finalPosition = "2 2 E",
-                isSuccess = true
+                finalPosition = testData.FINAL_POSITION,
+                isSuccess = testData.IS_SUCCESS
             )
         val uiState = DashboardUiState(lastMissionResult = missionResult)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         // When
         composeTestRule.setContent {
@@ -256,24 +297,26 @@ class DashboardScreenTest {
 
         // Then - Regular FAB should not show text
         composeTestRule
-            .onNodeWithText("New Mission")
+            .onNodeWithText(context.getString(R.string.feature_dashboard_mission_new))
             .assertDoesNotExist()
 
-        // But should still be clickable
+        // But should still be clickable using content description
         composeTestRule
-            .onNodeWithContentDescription("Start new mission")
+            .onNodeWithContentDescription(context.getString(R.string.feature_dashboard_cd_mission_fab))
             .assertIsDisplayed()
     }
 
     @Test
     fun dashboardScreen_welcomeHeader_displaysCorrectly() {
         // Given
+        val testData = DashboardTestData.SuccessfulMissions.SimpleSuccess
         val missionResult =
             MissionResult(
-                finalPosition = "0 0 N",
-                isSuccess = true
+                finalPosition = testData.FINAL_POSITION,
+                isSuccess = testData.IS_SUCCESS
             )
         val uiState = DashboardUiState(lastMissionResult = missionResult)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         // When
         composeTestRule.setContent {
@@ -291,25 +334,26 @@ class DashboardScreenTest {
 
         // Then
         composeTestRule
-            .onNodeWithText("🚀 Mars Rover Mission Control")
+            .onNodeWithText(context.getString(R.string.feature_dashboard_welcome_title))
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Mission Control Dashboard")
+            .onNodeWithText(context.getString(R.string.feature_dashboard_mission_control))
             .assertIsDisplayed()
     }
 
     @Test
     fun dashboardScreen_missionWithOriginalInput_displaysInputPreview() {
         // Given
-        val longInput = """{"topRightCorner": {"x": 5, "y": 5}, "roverPosition": {"x": 1, "y": 2}, "roverDirection": "N", "movements": "LMLMLMLMM"}"""
+        val testData = DashboardTestData.LongInputTest
         val missionResult =
             MissionResult(
-                finalPosition = "1 3 N",
-                isSuccess = true,
-                originalInput = longInput
+                finalPosition = testData.FINAL_POSITION,
+                isSuccess = testData.IS_SUCCESS,
+                originalInput = testData.LONG_INPUT
             )
         val uiState = DashboardUiState(lastMissionResult = missionResult)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
 
         // When
         composeTestRule.setContent {
@@ -327,13 +371,42 @@ class DashboardScreenTest {
 
         // Then - Should display Mission Instructions label
         composeTestRule
-            .onNodeWithText("Mission Instructions:")
+            .onNodeWithText(context.getString(R.string.feature_dashboard_mission_instructions))
             .assertIsDisplayed()
 
-        // And should display truncated input (first 50 characters + "...")
-        val expectedTruncated = longInput.take(50) + "..."
+        // And should display truncated input using structured test data (first 50 characters + "...")
         composeTestRule
-            .onNodeWithText(expectedTruncated)
+            .onNodeWithText(testData.EXPECTED_TRUNCATED)
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun dashboardScreen_multipleErrorScenarios_displaysCorrectly() {
+        // Given - Test multiple error scenarios
+        val networkErrorState = DashboardUiState(errorMessage = DashboardTestData.ErrorMessages.PROCESSING_FAILED)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
+        // When
+        composeTestRule.setContent {
+            MarsRoverTheme {
+                DashboardContent(
+                    uiState = networkErrorState,
+                    onNewMissionClick = { },
+                    onErrorDismiss = { }
+                )
+            }
+        }
+
+        // Wait for UI to be fully rendered
+        composeTestRule.waitForIdle()
+
+        // Then - Using string resources and structured error message
+        composeTestRule
+            .onNodeWithText(context.getString(CoreUiR.string.core_ui_toast_mission_failed))
+            .assertIsDisplayed()
+
+        composeTestRule
+            .onNodeWithText(DashboardTestData.ErrorMessages.PROCESSING_FAILED)
             .assertIsDisplayed()
     }
 }

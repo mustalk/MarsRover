@@ -28,6 +28,15 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 lint.targetSdk = 35
                 testOptions.targetSdk = 35
                 defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+                // Configure packaging to exclude conflicting META-INF files
+                packaging {
+                    resources {
+                        excludes.add("/META-INF/{AL2.0,LGPL2.1}")
+                        excludes.add("META-INF/LICENSE.md")
+                        excludes.add("META-INF/LICENSE-notice.md")
+                    }
+                }
             }
             extensions.configure<LibraryAndroidComponentsExtension> {
                 disableUnnecessaryAndroidTests(target)

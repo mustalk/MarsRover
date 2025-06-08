@@ -29,5 +29,5 @@ dependencies {
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.ui.test.junit4)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
 }

@@ -1,6 +1,4 @@
-@file:Suppress("TopLevelPropertyNaming")
-
-package com.mustalk.seat.marsrover.presentation.ui.dashboard
+package com.mustalk.seat.marsrover.feature.dashboard
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -32,15 +30,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.mustalk.seat.marsrover.R
 import com.mustalk.seat.marsrover.core.common.constants.Constants
 import com.mustalk.seat.marsrover.core.ui.components.MarsCard
 import com.mustalk.seat.marsrover.core.ui.components.MarsLottieLoader
 import com.mustalk.seat.marsrover.core.ui.components.MarsToast
 import com.mustalk.seat.marsrover.core.ui.components.MarsToastType
 import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
-import com.mustalk.seat.marsrover.presentation.ui.dashboard.components.MissionResultCard
-import com.mustalk.seat.marsrover.presentation.ui.dashboard.components.NewMissionFab
+import com.mustalk.seat.marsrover.feature.dashboard.components.MissionResultCard
+import com.mustalk.seat.marsrover.feature.dashboard.components.NewMissionFab
+import com.mustalk.seat.marsrover.core.ui.R as CoreUiR
 
 /**
  * Main Dashboard screen that displays mission results and provides access to create new missions.
@@ -94,8 +92,8 @@ internal fun DashboardContent(
         ) {
             // Add Mars background image
             Image(
-                painter = painterResource(id = R.drawable.mars_background),
-                contentDescription = null,
+                painter = painterResource(id = CoreUiR.drawable.core_ui_mars_background),
+                contentDescription = stringResource(CoreUiR.string.core_ui_cd_mars_background),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
@@ -103,7 +101,7 @@ internal fun DashboardContent(
             when {
                 uiState.isLoading -> {
                     MarsLottieLoader(
-                        message = stringResource(R.string.loading_mission_data),
+                        message = stringResource(CoreUiR.string.core_ui_loading_mission_data),
                         isVisible = true,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -155,7 +153,7 @@ internal fun DashboardContent(
                             .align(Alignment.TopCenter)
                 ) {
                     MarsToast(
-                        title = stringResource(R.string.toast_mission_failed),
+                        title = stringResource(CoreUiR.string.core_ui_toast_mission_failed),
                         message = error,
                         type = MarsToastType.Error,
                         onClick = onErrorDismiss,
@@ -180,7 +178,7 @@ private fun WelcomeHeader(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.welcome_title),
+            text = stringResource(R.string.feature_dashboard_welcome_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -188,7 +186,7 @@ private fun WelcomeHeader(modifier: Modifier = Modifier) {
         )
 
         Text(
-            text = stringResource(R.string.dashboard_mission_control),
+            text = stringResource(R.string.feature_dashboard_mission_control),
             style = MaterialTheme.typography.titleMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -221,14 +219,14 @@ private fun EmptyDashboardState(
                             Modifier.fillMaxWidth()
                         }
                     ).clickable { onNewMissionClick() },
-            contentDescription = stringResource(R.string.welcome_screen_tap)
+            contentDescription = stringResource(R.string.feature_dashboard_welcome_screen_tap)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.welcome_title),
+                    text = stringResource(R.string.feature_dashboard_welcome_title),
                     style = MaterialTheme.typography.headlineSmall,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
@@ -236,7 +234,7 @@ private fun EmptyDashboardState(
                 )
 
                 Text(
-                    text = stringResource(R.string.dashboard_mission_control),
+                    text = stringResource(R.string.feature_dashboard_mission_control),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -244,14 +242,14 @@ private fun EmptyDashboardState(
                 )
 
                 Text(
-                    text = stringResource(R.string.dashboard_empty_title),
+                    text = stringResource(R.string.feature_dashboard_empty_title),
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
-                    text = stringResource(R.string.dashboard_empty_subtitle),
+                    text = stringResource(R.string.feature_dashboard_empty_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant

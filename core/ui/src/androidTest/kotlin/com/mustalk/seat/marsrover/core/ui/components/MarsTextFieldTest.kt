@@ -31,7 +31,7 @@ class MarsTextFieldTest {
     @Test
     fun marsTextField_displaysLabelCorrectly() {
         // Given
-        val label = getString(R.string.test_label_example)
+        val label = getString(R.string.core_ui_test_label_example)
 
         // When
         composeTestRule.setContent {
@@ -53,8 +53,8 @@ class MarsTextFieldTest {
     @Test
     fun marsTextField_displaysPlaceholderWhenEmpty() {
         // Given
-        val label = getString(R.string.test_label_example)
-        val placeholder = getString(R.string.test_placeholder_example)
+        val label = getString(R.string.core_ui_test_label_example)
+        val placeholder = getString(R.string.core_ui_test_placeholder_example)
 
         // When
         composeTestRule.setContent {
@@ -82,8 +82,8 @@ class MarsTextFieldTest {
     @Test
     fun marsTextField_acceptsTextInput() {
         // Given
-        val label = getString(R.string.test_label_example)
-        val inputText = getString(R.string.test_value_example)
+        val label = getString(R.string.core_ui_test_label_example)
+        val inputText = getString(R.string.core_ui_test_value_example)
         var currentValue = ""
 
         // When
@@ -109,14 +109,14 @@ class MarsTextFieldTest {
     @Test
     fun marsTextField_showsErrorMessage() {
         // Given
-        val label = getString(R.string.test_label_example)
-        val errorMessage = getString(R.string.toast_message_invalid_json)
+        val label = getString(R.string.core_ui_test_label_example)
+        val errorMessage = getString(R.string.core_ui_toast_message_invalid_json)
 
         // When
         composeTestRule.setContent {
             MarsRoverTheme {
                 MarsTextField(
-                    value = getString(R.string.test_value_example),
+                    value = getString(R.string.core_ui_test_value_example),
                     onValueChange = { },
                     label = label,
                     errorMessage = errorMessage
@@ -133,8 +133,8 @@ class MarsTextFieldTest {
     @Test
     fun marsTextField_outlinedVariant_rendersCorrectly() {
         // Given
-        val label = getString(R.string.test_label_example)
-        val value = getString(R.string.test_value_example)
+        val label = getString(R.string.core_ui_test_label_example)
+        val value = getString(R.string.core_ui_test_value_example)
 
         // When
         composeTestRule.setContent {
@@ -161,8 +161,8 @@ class MarsTextFieldTest {
     @Test
     fun marsTextField_filledVariant_rendersCorrectly() {
         // Given
-        val label = getString(R.string.test_label_example)
-        val value = getString(R.string.test_value_example)
+        val label = getString(R.string.core_ui_test_label_example)
+        val value = getString(R.string.core_ui_test_value_example)
 
         // When
         composeTestRule.setContent {
@@ -189,8 +189,8 @@ class MarsTextFieldTest {
     @Test
     fun marsTextField_readOnlyState_doesNotAcceptInput() {
         // Given
-        val label = getString(R.string.test_label_example)
-        val initialValue = getString(R.string.test_value_example)
+        val label = getString(R.string.core_ui_test_label_example)
+        val initialValue = getString(R.string.core_ui_test_value_example)
 
         // When
         composeTestRule.setContent {
@@ -228,7 +228,7 @@ class MarsTextFieldTest {
     @Test
     fun marsTextField_withContentDescription_isAccessible() {
         // Given
-        val label = getString(R.string.test_label_example)
+        val label = getString(R.string.core_ui_test_label_example)
         val contentDesc = getString(R.string.core_ui_textfield_content_description)
 
         // When
@@ -258,21 +258,21 @@ class MarsTextFieldTest {
                 MarsTextField(
                     value = text,
                     onValueChange = { text = it },
-                    label = getString(R.string.test_label_example),
-                    placeholder = getString(R.string.test_placeholder_example)
+                    label = getString(R.string.core_ui_test_label_example),
+                    placeholder = getString(R.string.core_ui_test_placeholder_example)
                 )
             }
         }
 
         // Then
-        val inputText = getString(R.string.test_value_example)
+        val inputText = getString(R.string.core_ui_test_value_example)
         composeTestRule
-            .onNodeWithText(getString(R.string.test_label_example))
+            .onNodeWithText(getString(R.string.core_ui_test_label_example))
             .performClick()
             .performTextInput(inputText)
 
         composeTestRule
-            .onNodeWithText(getString(R.string.test_label_example))
+            .onNodeWithText(getString(R.string.core_ui_test_label_example))
             .assertTextContains(inputText)
     }
 
@@ -280,7 +280,7 @@ class MarsTextFieldTest {
     fun marsTextField_errorAndNormalState_togglesCorrectly() {
         // Given
         var hasError by mutableStateOf(false)
-        val errorMessage = getString(R.string.test_error_message)
+        val errorMessage = getString(R.string.core_ui_test_error_message)
 
         // When
         composeTestRule.setContent {
@@ -288,7 +288,7 @@ class MarsTextFieldTest {
                 MarsTextField(
                     value = "",
                     onValueChange = { },
-                    label = getString(R.string.test_label_example),
+                    label = getString(R.string.core_ui_test_label_example),
                     errorMessage = if (hasError) errorMessage else null
                 )
             }
@@ -319,7 +319,7 @@ class MarsTextFieldTest {
     @Test
     fun marsTextField_numberKeyboard_configuresCorrectly() {
         // Given
-        val label = getString(R.string.test_label_example)
+        val label = getString(R.string.core_ui_test_label_example)
 
         // When
         composeTestRule.setContent {

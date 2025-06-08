@@ -2,13 +2,6 @@ plugins {
     `kotlin-dsl`
 }
 
-// Repositories are defined in build-logic/settings.gradle.kts and inherited.
-// Defining them here would conflict with RepositoriesMode.FAIL_ON_PROJECT_REPOS.
-// repositories {
-//     mavenCentral()
-//     google()
-// }
-
 // Register the convention plugins so they can be used by ID
 gradlePlugin {
     plugins {
@@ -27,6 +20,10 @@ gradlePlugin {
         register("androidLibraryCompose") {
             id = "marsrover.android.library.compose"
             implementationClass = "AndroidLibraryComposeConventionPlugin"
+        }
+        register("androidFeature") {
+            id = "marsrover.android.feature"
+            implementationClass = "AndroidFeatureConventionPlugin"
         }
         register("jvmLibrary") {
             id = "marsrover.jvm.library"

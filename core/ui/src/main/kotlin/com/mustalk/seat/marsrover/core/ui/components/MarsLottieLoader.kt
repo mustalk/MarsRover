@@ -40,7 +40,7 @@ import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
  */
 @Composable
 fun MarsLottieLoader(
-    message: String = stringResource(R.string.loading_mission_execution),
+    message: String = stringResource(R.string.core_ui_loading_mission_execution),
     modifier: Modifier = Modifier,
     isVisible: Boolean = true,
     animationDurationMs: Int = UiConstants.Animation.LOADING_DURATION_MS.toInt(),
@@ -103,7 +103,7 @@ fun MarsLottieLoader(
 
                     // Secondary text
                     Text(
-                        text = stringResource(R.string.loading_please_wait),
+                        text = stringResource(R.string.core_ui_loading_please_wait),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
@@ -120,7 +120,7 @@ fun MarsLottieLoader(
  */
 @Composable
 fun MarsLottieLoaderCompact(
-    message: String = stringResource(R.string.loading_mission_process),
+    message: String = stringResource(R.string.core_ui_loading_mission_process),
     modifier: Modifier = Modifier,
     isVisible: Boolean = true,
     animationSizeDp: Int = UiConstants.Animation.LOTTIE_ANIMATION_SIZE_COMPACT_DP,
@@ -171,7 +171,7 @@ fun MarsLottieLoaderCompact(
  * Full-screen Mars Lottie loader overlay.
  */
 @Composable
-fun MarsFullScreenLottieLoader(message: String = stringResource(R.string.loading_mission_execution)) {
+fun MarsFullScreenLottieLoader(message: String = stringResource(R.string.core_ui_loading_mission_execution)) {
     MarsLottieLoader(
         message = message,
         modifier = Modifier.fillMaxSize()

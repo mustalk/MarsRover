@@ -73,9 +73,9 @@ fun MarsToast(
         } else {
             val defaultContentDescription =
                 when (type) {
-                    MarsToastType.Error -> stringResource(R.string.cd_error_toast)
-                    MarsToastType.Warning -> stringResource(R.string.cd_warning_toast)
-                    MarsToastType.Info -> stringResource(R.string.cd_info_toast)
+                    MarsToastType.Error -> stringResource(R.string.core_ui_cd_error_toast)
+                    MarsToastType.Warning -> stringResource(R.string.core_ui_cd_warning_toast)
+                    MarsToastType.Info -> stringResource(R.string.core_ui_cd_info_toast)
                 }
             modifier.semantics { this.contentDescription = defaultContentDescription }
         }
@@ -110,9 +110,9 @@ fun MarsToast(
                 imageVector = icon,
                 contentDescription =
                     when (type) {
-                        MarsToastType.Error -> stringResource(R.string.cd_error_icon)
-                        MarsToastType.Warning -> stringResource(R.string.cd_warning_icon)
-                        MarsToastType.Info -> stringResource(R.string.cd_info_icon)
+                        MarsToastType.Error -> stringResource(R.string.core_ui_cd_error_icon)
+                        MarsToastType.Warning -> stringResource(R.string.core_ui_cd_warning_icon)
+                        MarsToastType.Info -> stringResource(R.string.core_ui_cd_info_icon)
                     },
                 tint = contentColor,
                 modifier = Modifier.size(24.dp)

@@ -20,6 +20,15 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             extensions.configure<ApplicationExtension> {
                 configureKotlinAndroid(this)
                 defaultConfig.targetSdk = 35
+
+                // Configure packaging to exclude conflicting META-INF files
+                packaging {
+                    resources {
+                        excludes.add("/META-INF/{AL2.0,LGPL2.1}")
+                        excludes.add("META-INF/LICENSE.md")
+                        excludes.add("META-INF/LICENSE-notice.md")
+                    }
+                }
             }
         }
     }

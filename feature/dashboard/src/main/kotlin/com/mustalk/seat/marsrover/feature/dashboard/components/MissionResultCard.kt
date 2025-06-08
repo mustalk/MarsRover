@@ -1,6 +1,4 @@
-@file:Suppress("TopLevelPropertyNaming")
-
-package com.mustalk.seat.marsrover.presentation.ui.dashboard.components
+package com.mustalk.seat.marsrover.feature.dashboard.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,11 +32,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mustalk.seat.marsrover.R
 import com.mustalk.seat.marsrover.core.common.constants.Constants
 import com.mustalk.seat.marsrover.core.ui.components.MarsCard
 import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
-import com.mustalk.seat.marsrover.presentation.ui.dashboard.MissionResult
+import com.mustalk.seat.marsrover.feature.dashboard.MissionResult
+import com.mustalk.seat.marsrover.feature.dashboard.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -59,9 +57,9 @@ fun MissionResultCard(
     val formattedDate = dateFormatter.format(Date(missionResult.timestamp))
 
     MarsCard(
-        title = stringResource(R.string.mission_result),
+        title = stringResource(R.string.feature_dashboard_mission_result),
         modifier = modifier,
-        contentDescription = stringResource(R.string.cd_mission_card)
+        contentDescription = stringResource(com.mustalk.seat.marsrover.core.ui.R.string.core_ui_cd_mission_card)
     ) {
         MissionStatusRow(isSuccess = missionResult.isSuccess)
 
@@ -72,7 +70,11 @@ fun MissionResultCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = stringResource(R.string.rover_final_position, missionResult.finalPosition),
+                text =
+                    stringResource(
+                        R.string.feature_dashboard_rover_final_position,
+                        missionResult.finalPosition
+                    ),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
@@ -86,7 +88,7 @@ fun MissionResultCard(
             // Completed timestamp - right aligned, placed after mission instructions
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = stringResource(R.string.completed_on, formattedDate),
+                text = stringResource(R.string.feature_dashboard_completed_on, formattedDate),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth(),
@@ -120,9 +122,9 @@ private fun MissionStatusRow(
                 },
             contentDescription =
                 if (isSuccess) {
-                    stringResource(R.string.cd_mission_success)
+                    stringResource(R.string.feature_dashboard_cd_mission_success)
                 } else {
-                    stringResource(R.string.cd_mission_failed)
+                    stringResource(R.string.feature_dashboard_cd_mission_failed)
                 },
             tint =
                 if (isSuccess) {
@@ -138,9 +140,9 @@ private fun MissionStatusRow(
         Text(
             text =
                 if (isSuccess) {
-                    stringResource(R.string.mission_completed_successfully)
+                    stringResource(R.string.feature_dashboard_mission_completed_successfully)
                 } else {
-                    stringResource(R.string.mission_failed)
+                    stringResource(R.string.feature_dashboard_mission_failed)
                 },
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
@@ -175,7 +177,7 @@ private fun ExpandableInputSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(R.string.mission_instructions),
+                text = stringResource(R.string.feature_dashboard_mission_instructions),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -191,9 +193,9 @@ private fun ExpandableInputSection(
                         imageVector = if (isInputExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                         contentDescription =
                             if (isInputExpanded) {
-                                stringResource(R.string.cd_collapse_input)
+                                stringResource(R.string.feature_dashboard_cd_collapse_input)
                             } else {
-                                stringResource(R.string.cd_expand_input)
+                                stringResource(R.string.feature_dashboard_cd_expand_input)
                             },
                         tint = MaterialTheme.colorScheme.primary
                     )

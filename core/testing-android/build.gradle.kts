@@ -15,10 +15,10 @@ dependencies {
     api(project(":core:model"))
 
     // Essential testing libraries - using api so they're available to dependent modules
-    api(libs.kotlinx.coroutines.test)
     api(libs.junit)
     api(libs.mockk)
     api(libs.truth)
+    api(libs.kotlinx.coroutines.test)
     api(libs.mockwebserver)
 
     // Android testing dependencies - using api for easy access

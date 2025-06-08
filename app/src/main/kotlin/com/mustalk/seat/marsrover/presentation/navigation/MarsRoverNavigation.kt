@@ -7,9 +7,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.mustalk.seat.marsrover.presentation.ui.dashboard.DashboardScreen
-import com.mustalk.seat.marsrover.presentation.ui.dashboard.DashboardViewModel
-import com.mustalk.seat.marsrover.presentation.ui.dashboard.MissionResult
+import com.mustalk.seat.marsrover.feature.dashboard.DashboardScreen
+import com.mustalk.seat.marsrover.feature.dashboard.DashboardViewModel
+import com.mustalk.seat.marsrover.feature.dashboard.MissionResult
 import com.mustalk.seat.marsrover.presentation.ui.mission.NewMissionScreen
 
 /**

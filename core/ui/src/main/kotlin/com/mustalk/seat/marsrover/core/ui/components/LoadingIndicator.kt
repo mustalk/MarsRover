@@ -41,7 +41,7 @@ import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 @Composable
 fun MarsLoadingIndicator(
     modifier: Modifier = Modifier,
-    message: String = stringResource(R.string.loading_mission_process),
+    message: String = stringResource(R.string.core_ui_loading_mission_process),
     size: Dp = 48.dp,
     strokeWidth: Dp = 4.dp,
     color: Color = MaterialTheme.colorScheme.primary,
@@ -63,7 +63,7 @@ fun MarsLoadingIndicator(
         if (contentDescription != null) {
             modifier.semantics { this.contentDescription = contentDescription }
         } else {
-            val defaultContentDescription = stringResource(R.string.cd_loading)
+            val defaultContentDescription = stringResource(R.string.core_ui_cd_loading)
             modifier.semantics { this.contentDescription = defaultContentDescription }
         }
 
@@ -101,7 +101,7 @@ fun MarsLoadingIndicator(
  */
 @Composable
 fun MarsFullScreenLoader(
-    message: String = stringResource(R.string.loading_mission_process),
+    message: String = stringResource(R.string.core_ui_loading_mission_process),
     modifier: Modifier = Modifier,
 ) {
     Box(
