@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.ui.mission.components
+package com.mustalk.seat.marsrover.feature.mission.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,14 +29,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.mustalk.seat.marsrover.R
+import com.mustalk.seat.marsrover.core.common.constants.Constants
 import com.mustalk.seat.marsrover.core.ui.components.MarsButton
 import com.mustalk.seat.marsrover.core.ui.components.MarsButtonVariant
 import com.mustalk.seat.marsrover.core.ui.components.MarsCard
 import com.mustalk.seat.marsrover.core.ui.components.MarsTextField
 import com.mustalk.seat.marsrover.core.ui.components.MarsTextFieldVariant
 import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
-import com.mustalk.seat.marsrover.presentation.ui.mission.NewMissionUiState
+import com.mustalk.seat.marsrover.feature.mission.NewMissionUiState
+import com.mustalk.seat.marsrover.feature.mission.R
 
 /**
  * Form component for builder mission parameter inputs.
@@ -103,8 +104,8 @@ fun BuilderInputsForm(
 private fun PlateauConfigSection(
     width: String,
     height: String,
-    widthError: String?,
-    heightError: String?,
+    widthError: Int?,
+    heightError: Int?,
     onWidthChange: (String) -> Unit,
     onHeightChange: (String) -> Unit,
     onWidthFocusLost: () -> Unit = {},
@@ -112,11 +113,11 @@ private fun PlateauConfigSection(
     modifier: Modifier = Modifier,
 ) {
     MarsCard(
-        title = stringResource(R.string.plateau_size),
+        title = stringResource(R.string.feature_mission_plateau_size),
         modifier = modifier
     ) {
         Text(
-            text = stringResource(R.string.plateau_configuration_description),
+            text = stringResource(R.string.feature_mission_plateau_configuration_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -130,8 +131,8 @@ private fun PlateauConfigSection(
             MarsTextField(
                 value = width,
                 onValueChange = onWidthChange,
-                label = stringResource(R.string.plateau_width),
-                errorMessage = widthError,
+                label = stringResource(R.string.feature_mission_plateau_width),
+                errorMessage = widthError?.let { stringResource(it) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 variant = MarsTextFieldVariant.Outlined,
                 onFocusChanged = { focusState ->
@@ -143,8 +144,8 @@ private fun PlateauConfigSection(
             MarsTextField(
                 value = height,
                 onValueChange = onHeightChange,
-                label = stringResource(R.string.plateau_height),
-                errorMessage = heightError,
+                label = stringResource(R.string.feature_mission_plateau_height),
+                errorMessage = heightError?.let { stringResource(it) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 variant = MarsTextFieldVariant.Outlined,
                 onFocusChanged = { focusState ->
@@ -161,9 +162,9 @@ private fun RoverPositionSection(
     startX: String,
     startY: String,
     direction: String,
-    startXError: String?,
-    startYError: String?,
-    directionError: String?,
+    startXError: Int?,
+    startYError: Int?,
+    directionError: Int?,
     onStartXChange: (String) -> Unit,
     onStartYChange: (String) -> Unit,
     onDirectionChange: (String) -> Unit,
@@ -172,11 +173,11 @@ private fun RoverPositionSection(
     modifier: Modifier = Modifier,
 ) {
     MarsCard(
-        title = stringResource(R.string.rover_position),
+        title = stringResource(R.string.feature_mission_rover_position),
         modifier = modifier
     ) {
         Text(
-            text = stringResource(R.string.rover_start_position_description),
+            text = stringResource(R.string.feature_mission_rover_start_position_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -191,8 +192,8 @@ private fun RoverPositionSection(
             MarsTextField(
                 value = startX,
                 onValueChange = onStartXChange,
-                label = stringResource(R.string.rover_start_x),
-                errorMessage = startXError,
+                label = stringResource(R.string.feature_mission_rover_start_x),
+                errorMessage = startXError?.let { stringResource(it) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 variant = MarsTextFieldVariant.Outlined,
                 onFocusChanged = { focusState ->
@@ -204,8 +205,8 @@ private fun RoverPositionSection(
             MarsTextField(
                 value = startY,
                 onValueChange = onStartYChange,
-                label = stringResource(R.string.rover_start_y),
-                errorMessage = startYError,
+                label = stringResource(R.string.feature_mission_rover_start_y),
+                errorMessage = startYError?.let { stringResource(it) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 variant = MarsTextFieldVariant.Outlined,
                 onFocusChanged = { focusState ->
@@ -219,7 +220,7 @@ private fun RoverPositionSection(
 
         // Direction selection
         Text(
-            text = stringResource(R.string.rover_direction),
+            text = stringResource(R.string.feature_mission_rover_direction),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Medium
         )
@@ -236,7 +237,7 @@ private fun RoverPositionSection(
 private fun DirectionSelector(
     selectedDirection: String,
     onDirectionSelected: (String) -> Unit,
-    error: String?,
+    error: Int?,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -245,7 +246,7 @@ private fun DirectionSelector(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            listOf("N", "E").forEach { direction ->
+            listOf(Constants.Validation.DIRECTION_NORTH, Constants.Validation.DIRECTION_EAST).forEach { direction ->
                 Row(
                     modifier =
                         Modifier
@@ -264,8 +265,8 @@ private fun DirectionSelector(
                     Text(
                         text =
                             when (direction) {
-                                "N" -> stringResource(R.string.direction_north)
-                                "E" -> stringResource(R.string.direction_east)
+                                Constants.Validation.DIRECTION_NORTH -> stringResource(R.string.feature_mission_direction_north)
+                                Constants.Validation.DIRECTION_EAST -> stringResource(R.string.feature_mission_direction_east)
                                 else -> direction
                             },
                         style = MaterialTheme.typography.bodyMedium
@@ -281,7 +282,7 @@ private fun DirectionSelector(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            listOf("S", "W").forEach { direction ->
+            listOf(Constants.Validation.DIRECTION_SOUTH, Constants.Validation.DIRECTION_WEST).forEach { direction ->
                 Row(
                     modifier =
                         Modifier
@@ -300,8 +301,8 @@ private fun DirectionSelector(
                     Text(
                         text =
                             when (direction) {
-                                "S" -> stringResource(R.string.direction_south)
-                                "W" -> stringResource(R.string.direction_west)
+                                Constants.Validation.DIRECTION_SOUTH -> stringResource(R.string.feature_mission_direction_south)
+                                Constants.Validation.DIRECTION_WEST -> stringResource(R.string.feature_mission_direction_west)
                                 else -> direction
                             },
                         style = MaterialTheme.typography.bodyMedium
@@ -313,7 +314,7 @@ private fun DirectionSelector(
         if (error != null) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = error,
+                text = stringResource(error),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 16.dp)
@@ -325,7 +326,7 @@ private fun DirectionSelector(
 @Composable
 private fun MovementCommandsSection(
     commands: String,
-    commandsError: String?,
+    commandsError: Int?,
     onCommandsChange: (String) -> Unit,
     onCommandsFocusLost: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -343,11 +344,11 @@ private fun MovementCommandsSection(
     }
 
     MarsCard(
-        title = stringResource(R.string.rover_movements),
+        title = stringResource(R.string.feature_mission_rover_movements),
         modifier = modifier
     ) {
         Text(
-            text = stringResource(R.string.movement_commands_description),
+            text = stringResource(R.string.feature_mission_movement_commands_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -357,9 +358,21 @@ private fun MovementCommandsSection(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             listOf(
-                Triple("L", stringResource(R.string.action_turn_left), stringResource(R.string.cd_add_left_turn)),
-                Triple("R", stringResource(R.string.action_turn_right), stringResource(R.string.cd_add_right_turn)),
-                Triple("M", stringResource(R.string.action_move_forward), stringResource(R.string.cd_add_move_forward))
+                Triple(
+                    Constants.Validation.MOVEMENT_LEFT,
+                    stringResource(R.string.feature_mission_action_turn_left),
+                    stringResource(R.string.feature_mission_cd_add_left_turn)
+                ),
+                Triple(
+                    Constants.Validation.MOVEMENT_RIGHT,
+                    stringResource(R.string.feature_mission_action_turn_right),
+                    stringResource(R.string.feature_mission_cd_add_right_turn)
+                ),
+                Triple(
+                    Constants.Validation.MOVEMENT_FORWARD,
+                    stringResource(R.string.feature_mission_action_move_forward),
+                    stringResource(R.string.feature_mission_cd_add_move_forward)
+                )
             ).forEach { (command, label, contentDesc) ->
                 MarsButton(
                     text = command,
@@ -388,9 +401,9 @@ private fun MovementCommandsSection(
                 textFieldValue = it
                 onCommandsChange(it.text)
             },
-            label = stringResource(R.string.movement_commands_label),
-            placeholder = stringResource(R.string.movement_commands_placeholder),
-            errorMessage = commandsError,
+            label = stringResource(R.string.feature_mission_movement_commands_label),
+            placeholder = stringResource(R.string.feature_mission_movement_commands_placeholder),
+            errorMessage = commandsError?.let { stringResource(it) },
             variant = MarsTextFieldVariant.Outlined,
             onFocusChanged = { focusState ->
                 if (!focusState.isFocused) onCommandsFocusLost()
@@ -401,14 +414,14 @@ private fun MovementCommandsSection(
         Spacer(modifier = Modifier.height(2.dp))
 
         MarsButton(
-            text = stringResource(R.string.action_clear),
+            text = stringResource(R.string.feature_mission_action_clear),
             onClick = {
                 textFieldValue = TextFieldValue("")
                 onCommandsChange("")
                 focusManager.clearFocus()
             },
             variant = MarsButtonVariant.Secondary,
-            contentDescription = stringResource(R.string.cd_clear_commands),
+            contentDescription = stringResource(R.string.feature_mission_cd_clear_commands),
             modifier = Modifier.fillMaxWidth()
         )
     }

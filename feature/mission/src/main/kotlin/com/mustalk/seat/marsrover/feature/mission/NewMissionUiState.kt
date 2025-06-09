@@ -1,7 +1,8 @@
 @file:Suppress("TopLevelPropertyNaming")
 
-package com.mustalk.seat.marsrover.presentation.ui.mission
+package com.mustalk.seat.marsrover.feature.mission
 
+import androidx.annotation.StringRes
 import com.mustalk.seat.marsrover.core.common.constants.Constants
 
 /**
@@ -21,13 +22,13 @@ data class NewMissionUiState(
     val roverStartY: String = "2",
     val roverStartDirection: String = "N",
     val movementCommands: String = "LMLMLMLMM",
-    // Validation errors for builder inputs
-    val plateauWidthError: String? = null,
-    val plateauHeightError: String? = null,
-    val roverStartXError: String? = null,
-    val roverStartYError: String? = null,
-    val roverStartDirectionError: String? = null,
-    val movementCommandsError: String? = null,
+    // Validation errors for builder inputs (using resource IDs)
+    @StringRes val plateauWidthError: Int? = null,
+    @StringRes val plateauHeightError: Int? = null,
+    @StringRes val roverStartXError: Int? = null,
+    @StringRes val roverStartYError: Int? = null,
+    @StringRes val roverStartDirectionError: Int? = null,
+    @StringRes val movementCommandsError: Int? = null,
     // Mission execution state
     val isLoading: Boolean = false,
     val successMessage: String? = null,

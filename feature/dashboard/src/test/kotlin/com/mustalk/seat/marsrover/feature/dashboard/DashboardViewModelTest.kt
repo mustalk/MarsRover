@@ -4,7 +4,6 @@ import com.google.common.truth.Truth.assertThat
 import com.mustalk.seat.marsrover.core.testing.jvm.data.DashboardTestData
 import com.mustalk.seat.marsrover.core.testing.jvm.util.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
@@ -68,7 +67,6 @@ class DashboardViewModelTest {
                 )
 
             viewModel.updateMissionResult(missionResult)
-            advanceUntilIdle()
 
             val updatedState = viewModel.uiState.value
             assertThat(updatedState.lastMissionResult).isEqualTo(missionResult)
@@ -134,7 +132,6 @@ class DashboardViewModelTest {
             assertThat(viewModel.uiState.value.errorMessage).isEqualTo(DashboardTestData.ErrorMessages.PREVIOUS_ERROR)
 
             viewModel.updateMissionResult(missionResult)
-            advanceUntilIdle()
 
             val updatedState = viewModel.uiState.value
             assertThat(updatedState.lastMissionResult).isEqualTo(missionResult)
@@ -155,7 +152,6 @@ class DashboardViewModelTest {
                 )
 
             viewModel.updateMissionResult(successResult)
-            advanceUntilIdle()
 
             val updatedState = viewModel.uiState.value
             assertThat(updatedState.lastMissionResult).isEqualTo(successResult)
@@ -178,7 +174,6 @@ class DashboardViewModelTest {
                 )
 
             viewModel.updateMissionResult(failureResult)
-            advanceUntilIdle()
 
             val updatedState = viewModel.uiState.value
             assertThat(updatedState.lastMissionResult).isEqualTo(failureResult)
@@ -219,7 +214,6 @@ class DashboardViewModelTest {
                 )
 
             viewModel.updateMissionResult(missionResult)
-            advanceUntilIdle()
 
             val updatedState = viewModel.uiState.value
             assertThat(updatedState.lastMissionResult).isEqualTo(missionResult)

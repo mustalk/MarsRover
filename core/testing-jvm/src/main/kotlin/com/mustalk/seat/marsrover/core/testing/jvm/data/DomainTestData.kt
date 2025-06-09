@@ -38,6 +38,7 @@ object DomainTestData {
 
         // Test commands
         const val STANDARD_MOVEMENTS = "LMLMLMLMM"
+        const val DIRECTION_NORTH = "N"
         const val INVALID_COMMANDS = "MXL1R@M"
         const val BOUNDARY_TEST_COMMANDS = "MMMMSMMM"
         const val SINGLE_MOVE = "M"

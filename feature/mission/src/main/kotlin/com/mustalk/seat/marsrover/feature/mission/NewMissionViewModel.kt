@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.ui.mission
+package com.mustalk.seat.marsrover.feature.mission
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,91 +31,91 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions") // Acceptable for ViewModel with proper delegation
 @HiltViewModel
 class NewMissionViewModel
-    @Inject
-    constructor(
-        private val executeRoverMissionUseCase: ExecuteRoverMissionUseCase,
-        private val executeNetworkMissionUseCase: ExecuteNetworkMissionUseCase,
-    ) : ViewModel() {
-        private val _uiState = MutableStateFlow(NewMissionUiState())
-        val uiState: StateFlow<NewMissionUiState> = _uiState.asStateFlow()
+@Inject
+constructor(
+    private val executeRoverMissionUseCase: ExecuteRoverMissionUseCase,
+    private val executeNetworkMissionUseCase: ExecuteNetworkMissionUseCase,
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(NewMissionUiState())
+    val uiState: StateFlow<NewMissionUiState> = _uiState.asStateFlow()
 
-        private val stateManager =
-            StateManager(
-                updateState = { _uiState.value = it },
-                getCurrentState = { _uiState.value }
-            )
+    private val stateManager =
+        StateManager(
+            updateState = { _uiState.value = it },
+            getCurrentState = { _uiState.value }
+        )
 
-        private val fieldUpdateHandler =
-            FieldUpdateHandler(
-                updateState = { _uiState.value = it },
-                getCurrentState = { _uiState.value }
-            )
+    private val fieldUpdateHandler =
+        FieldUpdateHandler(
+            updateState = { _uiState.value = it },
+            getCurrentState = { _uiState.value }
+        )
 
-        private val validationHandler =
-            ValidationHandler(
-                updateState = { _uiState.value = it },
-                getCurrentState = { _uiState.value }
-            )
+    private val validationHandler =
+        ValidationHandler(
+            updateState = { _uiState.value = it },
+            getCurrentState = { _uiState.value }
+        )
 
-        private val missionExecutor =
-            MissionExecutor(
-                executeRoverMissionUseCase = executeRoverMissionUseCase,
-                executeNetworkMissionUseCase = executeNetworkMissionUseCase,
-                stateManager = stateManager,
-                getCurrentState = { _uiState.value },
-                scope = viewModelScope
-            )
+    private val missionExecutor =
+        MissionExecutor(
+            executeRoverMissionUseCase = executeRoverMissionUseCase,
+            executeNetworkMissionUseCase = executeNetworkMissionUseCase,
+            stateManager = stateManager,
+            getCurrentState = { _uiState.value },
+            scope = viewModelScope
+        )
 
-        // Primary ViewModel functions
+    // Primary ViewModel functions
 
-        /**
-         * Switches between JSON and Builder input modes.
-         * Clears any existing error messages when switching modes.
-         */
-        fun switchInputMode(mode: InputMode) = stateManager.switchInputMode(mode)
+    /**
+     * Switches between JSON and Builder input modes.
+     * Clears any existing error messages when switching modes.
+     */
+    fun switchInputMode(mode: InputMode) = stateManager.switchInputMode(mode)
 
-        /**
-         * Clears all success and error messages from the UI state.
-         */
-        fun clearMessages() = stateManager.clearMessages()
+    /**
+     * Clears all success and error messages from the UI state.
+     */
+    fun clearMessages() = stateManager.clearMessages()
 
-        /**
-         * Executes the mission based on the current input mode:
-         * - JSON mode: Uses local execution with ExecuteRoverMissionUseCase
-         * - Builder mode: Uses network simulation with ExecuteNetworkMissionUseCase
-         */
-        fun executeMission() {
-            viewModelScope.launch {
-                missionExecutor.executeMission()
-            }
+    /**
+     * Executes the mission based on the current input mode:
+     * - JSON mode: Uses local execution with ExecuteRoverMissionUseCase
+     * - Builder mode: Uses network simulation with ExecuteNetworkMissionUseCase
+     */
+    fun executeMission() {
+        viewModelScope.launch {
+            missionExecutor.executeMission()
         }
-
-        // Field update functions - delegated to handler
-        fun updateJsonInput(json: String) = fieldUpdateHandler.updateJsonInput(json)
-
-        fun updatePlateauWidth(width: String) = fieldUpdateHandler.updatePlateauWidth(width)
-
-        fun updatePlateauHeight(height: String) = fieldUpdateHandler.updatePlateauHeight(height)
-
-        fun updateRoverStartX(x: String) = fieldUpdateHandler.updateRoverStartX(x)
-
-        fun updateRoverStartY(y: String) = fieldUpdateHandler.updateRoverStartY(y)
-
-        fun updateRoverStartDirection(direction: String) = fieldUpdateHandler.updateRoverStartDirection(direction)
-
-        fun updateMovementCommands(commands: String) = fieldUpdateHandler.updateMovementCommands(commands)
-
-        // Validation functions - delegated to handler
-        fun validatePlateauWidth() = validationHandler.validatePlateauWidth()
-
-        fun validatePlateauHeight() = validationHandler.validatePlateauHeight()
-
-        fun validateRoverStartX() = validationHandler.validateRoverStartX()
-
-        fun validateRoverStartY() = validationHandler.validateRoverStartY()
-
-        fun validateMovementCommands() = validationHandler.validateMovementCommands()
     }
+
+    // Field update functions - delegated to handler
+    fun updateJsonInput(json: String) = fieldUpdateHandler.updateJsonInput(json)
+
+    fun updatePlateauWidth(width: String) = fieldUpdateHandler.updatePlateauWidth(width)
+
+    fun updatePlateauHeight(height: String) = fieldUpdateHandler.updatePlateauHeight(height)
+
+    fun updateRoverStartX(x: String) = fieldUpdateHandler.updateRoverStartX(x)
+
+    fun updateRoverStartY(y: String) = fieldUpdateHandler.updateRoverStartY(y)
+
+    fun updateRoverStartDirection(direction: String) = fieldUpdateHandler.updateRoverStartDirection(direction)
+
+    fun updateMovementCommands(commands: String) = fieldUpdateHandler.updateMovementCommands(commands)
+
+    // Validation functions - delegated to handler
+    fun validatePlateauWidth() = validationHandler.validatePlateauWidth()
+
+    fun validatePlateauHeight() = validationHandler.validatePlateauHeight()
+
+    fun validateRoverStartX() = validationHandler.validateRoverStartX()
+
+    fun validateRoverStartY() = validationHandler.validateRoverStartY()
+
+    fun validateMovementCommands() = validationHandler.validateMovementCommands()
+}
 
 /**
  * Handles field updates for the New Mission screen.
@@ -206,7 +206,7 @@ private class FieldUpdateHandler(
 
 /**
  * Handles field validation for the New Mission screen.
- * Validates user input and sets appropriate error messages.
+ * Validates user input and sets appropriate resource IDs for error messages.
  */
 private class ValidationHandler(
     private val updateState: (NewMissionUiState) -> Unit,
@@ -220,7 +220,7 @@ private class ValidationHandler(
                 widthValue == null -> {
                     updateState(
                         getCurrentState().copy(
-                            plateauWidthError = "Must be a valid number"
+                            plateauWidthError = R.string.feature_mission_error_valid_number
                         )
                     )
                 }
@@ -228,7 +228,7 @@ private class ValidationHandler(
                 widthValue <= 0 -> {
                     updateState(
                         getCurrentState().copy(
-                            plateauWidthError = "Must be a positive number"
+                            plateauWidthError = R.string.feature_mission_error_positive_number
                         )
                     )
                 }
@@ -244,7 +244,7 @@ private class ValidationHandler(
                 heightValue == null -> {
                     updateState(
                         getCurrentState().copy(
-                            plateauHeightError = "Must be a valid number"
+                            plateauHeightError = R.string.feature_mission_error_valid_number
                         )
                     )
                 }
@@ -252,7 +252,7 @@ private class ValidationHandler(
                 heightValue <= 0 -> {
                     updateState(
                         getCurrentState().copy(
-                            plateauHeightError = "Must be a positive number"
+                            plateauHeightError = R.string.feature_mission_error_positive_number
                         )
                     )
                 }
@@ -268,7 +268,7 @@ private class ValidationHandler(
                 xValue == null -> {
                     updateState(
                         getCurrentState().copy(
-                            roverStartXError = "Must be a valid number"
+                            roverStartXError = R.string.feature_mission_error_valid_number
                         )
                     )
                 }
@@ -276,7 +276,7 @@ private class ValidationHandler(
                 xValue < 0 -> {
                     updateState(
                         getCurrentState().copy(
-                            roverStartXError = "Must be a non-negative number"
+                            roverStartXError = R.string.feature_mission_error_non_negative_number
                         )
                     )
                 }
@@ -292,7 +292,7 @@ private class ValidationHandler(
                 yValue == null -> {
                     updateState(
                         getCurrentState().copy(
-                            roverStartYError = "Must be a valid number"
+                            roverStartYError = R.string.feature_mission_error_valid_number
                         )
                     )
                 }
@@ -300,7 +300,7 @@ private class ValidationHandler(
                 yValue < 0 -> {
                     updateState(
                         getCurrentState().copy(
-                            roverStartYError = "Must be a non-negative number"
+                            roverStartYError = R.string.feature_mission_error_non_negative_number
                         )
                     )
                 }
@@ -314,7 +314,7 @@ private class ValidationHandler(
             if (commands.any { it !in Constants.Validation.VALID_MOVEMENT_CHARS }) {
                 updateState(
                     getCurrentState().copy(
-                        movementCommandsError = "Must contain only L, R, M characters"
+                        movementCommandsError = R.string.feature_mission_error_invalid_commands
                     )
                 )
             }

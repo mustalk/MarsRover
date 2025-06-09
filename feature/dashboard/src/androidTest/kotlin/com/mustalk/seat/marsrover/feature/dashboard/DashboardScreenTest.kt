@@ -7,12 +7,10 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.mustalk.seat.marsrover.core.testing.android.di.TestDispatchersModule
 import com.mustalk.seat.marsrover.core.testing.jvm.data.DashboardTestData
 import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -20,7 +18,6 @@ import org.junit.runner.RunWith
 import com.mustalk.seat.marsrover.core.ui.R as CoreUiR
 
 @HiltAndroidTest
-@UninstallModules(TestDispatchersModule::class)
 @RunWith(AndroidJUnit4::class)
 class DashboardScreenTest {
     @get:Rule(order = 0)

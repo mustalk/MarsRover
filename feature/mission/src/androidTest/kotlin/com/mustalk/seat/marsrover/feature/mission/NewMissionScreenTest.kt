@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.ui.mission
+package com.mustalk.seat.marsrover.feature.mission
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +12,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.mustalk.seat.marsrover.core.testing.jvm.data.MarsRoverTestData
 import com.mustalk.seat.marsrover.core.ui.theme.MarsRoverTheme
 import org.junit.Ignore
 import org.junit.Rule
@@ -32,6 +34,8 @@ class NewMissionScreenTest {
     @Ignore("Flaky in CI - works locally but fails in GitHub Actions emulator, needs investigation")
     fun newMissionContent_initialState_showsJsonMode() {
         // Given
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
         composeTestRule.setContent {
             MarsRoverTheme {
                 NewMissionContent(
@@ -55,18 +59,20 @@ class NewMissionScreenTest {
         composeTestRule.waitForIdle()
 
         // Then
-        composeTestRule.onNodeWithText("Choose input method").assertIsDisplayed()
-        composeTestRule.onNodeWithText("JSON").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Builder").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Mission JSON Configuration").assertIsDisplayed()
-        composeTestRule.onNodeWithContentDescription("Execute mission with current parameters").assertIsDisplayed()
-        composeTestRule.onNodeWithContentDescription("Cancel and return to previous screen").assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_input_mode_selector_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_input_mode_json_short)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_input_mode_builder_short)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_json_configuration_title)).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.feature_mission_cd_execute_mission)).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.feature_mission_cd_cancel_mission)).assertIsDisplayed()
     }
 
     @Test
     @Ignore("Flaky in CI - works locally but fails in GitHub Actions emulator, needs investigation")
     fun newMissionContent_switchToBuilderMode_showsBuilderInputs() {
         // Given
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
         composeTestRule.setContent {
             MarsRoverTheme {
                 NewMissionContent(
@@ -90,19 +96,21 @@ class NewMissionScreenTest {
         composeTestRule.waitForIdle()
 
         // Then
-        composeTestRule.onNodeWithText("Plateau Size").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Rover Position").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Rover Movements").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Width").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Height").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Start X").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Start Y").assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_plateau_size)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_rover_position)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_rover_movements)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_plateau_width)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_plateau_height)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_rover_start_x)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_rover_start_y)).assertIsDisplayed()
     }
 
     @Test
     fun newMissionContent_jsonMode_canEnterJson() {
         // Given
         var currentJson by mutableStateOf("")
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
         composeTestRule.setContent {
             MarsRoverTheme {
                 NewMissionContent(
@@ -126,15 +134,20 @@ class NewMissionScreenTest {
         }
 
         // When
-        val testJson = """{"test": "value"}"""
-        composeTestRule.onNodeWithText("Enter mission JSON").performTextReplacement(testJson)
+        val testJson = MarsRoverTestData.JsonParserTestData.ValidInput.JSON
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_input_json_label)).performTextReplacement(testJson)
 
-        // Note: In a real test we would verify the state change, but this tests the UI interaction
+        // Then
+        composeTestRule.runOnIdle {
+            assert(currentJson == testJson)
+        }
     }
 
     @Test
     fun newMissionContent_executeButton_isEnabledByDefault() {
         // Given
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
         composeTestRule.setContent {
             MarsRoverTheme {
                 NewMissionContent(
@@ -158,12 +171,14 @@ class NewMissionScreenTest {
         composeTestRule.waitForIdle()
 
         // Then - using content description for more reliability
-        composeTestRule.onNodeWithContentDescription("Execute mission with current parameters").assertIsEnabled()
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.feature_mission_cd_execute_mission)).assertIsEnabled()
     }
 
     @Test
     fun newMissionContent_cancelButton_isEnabled() {
         // Given
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
         composeTestRule.setContent {
             MarsRoverTheme {
                 NewMissionContent(
@@ -187,13 +202,15 @@ class NewMissionScreenTest {
         composeTestRule.waitForIdle()
 
         // Then - using content description for more reliability
-        composeTestRule.onNodeWithContentDescription("Cancel and return to previous screen").assertIsEnabled()
+        composeTestRule.onNodeWithContentDescription(context.getString(R.string.feature_mission_cd_cancel_mission)).assertIsEnabled()
     }
 
     @Test
     @Ignore("Flaky in CI - works locally but fails in GitHub Actions emulator, needs investigation")
     fun newMissionContent_segmentedButtonsWork() {
         // Given
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
         composeTestRule.setContent {
             var currentMode by remember { mutableStateOf(InputMode.JSON) }
 
@@ -219,18 +236,18 @@ class NewMissionScreenTest {
         composeTestRule.waitForIdle()
 
         // Initially should show JSON mode
-        composeTestRule.onNodeWithText("Mission JSON Configuration").assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_json_configuration_title)).assertIsDisplayed()
 
         // When clicking Builder button
-        composeTestRule.onNodeWithText("Builder").performClick()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_input_mode_builder_short)).performClick()
 
         // Advance time for state change and wait
         composeTestRule.mainClock.advanceTimeBy(1000)
         composeTestRule.waitForIdle()
 
         // Then should show builder inputs
-        composeTestRule.onNodeWithText("Plateau Size").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Rover Position").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Rover Movements").assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_plateau_size)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_rover_position)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(context.getString(R.string.feature_mission_rover_movements)).assertIsDisplayed()
     }
 }

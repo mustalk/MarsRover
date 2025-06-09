@@ -25,6 +25,17 @@ object Constants {
 
         val VALID_DIRECTIONS = listOf("N", "E", "S", "W")
         val VALID_MOVEMENT_CHARS = listOf('L', 'R', 'M')
+
+        // Individual direction characters for UI components
+        const val DIRECTION_NORTH = "N"
+        const val DIRECTION_EAST = "E"
+        const val DIRECTION_SOUTH = "S"
+        const val DIRECTION_WEST = "W"
+
+        // Individual movement characters for UI components
+        const val MOVEMENT_LEFT = "L"
+        const val MOVEMENT_RIGHT = "R"
+        const val MOVEMENT_FORWARD = "M"
     }
 
     /**

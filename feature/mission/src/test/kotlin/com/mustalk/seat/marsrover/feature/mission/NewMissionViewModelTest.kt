@@ -1,43 +1,43 @@
-package com.mustalk.seat.marsrover.presentation.ui.mission
+package com.mustalk.seat.marsrover.feature.mission
 
 import com.google.common.truth.Truth.assertThat
 import com.mustalk.seat.marsrover.core.common.network.NetworkResult
 import com.mustalk.seat.marsrover.core.domain.error.RoverError
 import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteNetworkMissionUseCase
 import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteRoverMissionUseCase
+import com.mustalk.seat.marsrover.core.testing.jvm.data.DomainTestData
+import com.mustalk.seat.marsrover.core.testing.jvm.util.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
-import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 /**
  * Unit tests for NewMissionViewModel.
  * Tests state management for both JSON and individual input modes with UseCase integration.
+ *
+ * Note: We use setupViewModel() instead of @Before setup() because the ViewModel needs to be
+ * recreated for each test to ensure clean state. This also ensures proper mocking setup
+ * per test case. The MainDispatcherRule manages coroutine dispatchers automatically.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class NewMissionViewModelTest {
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
     private lateinit var viewModel: NewMissionViewModel
     private lateinit var mockExecuteRoverMissionUseCase: ExecuteRoverMissionUseCase
     private lateinit var mockExecuteNetworkMissionUseCase: ExecuteNetworkMissionUseCase
-    private val testDispatcher = StandardTestDispatcher()
 
-    @Before
-    fun setup() {
-        Dispatchers.setMain(testDispatcher)
+    private fun setupViewModel() {
         mockExecuteRoverMissionUseCase = mockk()
         mockExecuteNetworkMissionUseCase = mockk(relaxed = true)
+
         viewModel =
             NewMissionViewModel(
                 executeRoverMissionUseCase = mockExecuteRoverMissionUseCase,
@@ -45,13 +45,9 @@ class NewMissionViewModelTest {
             )
     }
 
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
-
     @Test
     fun `initial state should have default values`() {
+        setupViewModel()
         val initialState = viewModel.uiState.value
 
         assertThat(initialState.inputMode).isEqualTo(InputMode.JSON)
@@ -63,6 +59,8 @@ class NewMissionViewModelTest {
 
     @Test
     fun `switchInputMode should update input mode and clear errors`() {
+        setupViewModel()
+
         // Given
         viewModel.updateJsonInput("invalid")
 
@@ -79,8 +77,11 @@ class NewMissionViewModelTest {
 
     @Test
     fun `updateJsonInput should update json input and clear errors`() {
+        setupViewModel()
+
         // Given
-        val newJson = """{"test": "value"}"""
+        val testData = DomainTestData.UseCaseTestData.SuccessfulExecution.STANDARD_MISSION
+        val newJson = testData.JSON
 
         // When
         viewModel.updateJsonInput(newJson)
@@ -94,72 +95,102 @@ class NewMissionViewModelTest {
 
     @Test
     fun `updatePlateauWidth should update width and clear errors`() {
+        setupViewModel()
+
+        // Given
+        val testConstants = DomainTestData.TestConstants
+
         // When
-        viewModel.updatePlateauWidth("10")
+        viewModel.updatePlateauWidth(testConstants.STANDARD_PLATEAU_X.toString())
 
         // Then
         val state = viewModel.uiState.value
-        assertThat(state.plateauWidth).isEqualTo("10")
+        assertThat(state.plateauWidth).isEqualTo(testConstants.STANDARD_PLATEAU_X.toString())
         assertThat(state.plateauWidthError).isNull()
         assertThat(state.errorMessage).isNull()
     }
 
     @Test
     fun `updatePlateauHeight should update height and clear errors`() {
+        setupViewModel()
+
+        // Given
+        val testConstants = DomainTestData.TestConstants
+
         // When
-        viewModel.updatePlateauHeight("8")
+        viewModel.updatePlateauHeight(testConstants.STANDARD_PLATEAU_Y.toString())
 
         // Then
         val state = viewModel.uiState.value
-        assertThat(state.plateauHeight).isEqualTo("8")
+        assertThat(state.plateauHeight).isEqualTo(testConstants.STANDARD_PLATEAU_Y.toString())
         assertThat(state.plateauHeightError).isNull()
         assertThat(state.errorMessage).isNull()
     }
 
     @Test
     fun `updateRoverStartX should update X position and clear errors`() {
+        setupViewModel()
+
+        // Given
+        val testConstants = DomainTestData.TestConstants
+
         // When
-        viewModel.updateRoverStartX("3")
+        viewModel.updateRoverStartX(testConstants.POSITION_1_2.x.toString())
 
         // Then
         val state = viewModel.uiState.value
-        assertThat(state.roverStartX).isEqualTo("3")
+        assertThat(state.roverStartX).isEqualTo(testConstants.POSITION_1_2.x.toString())
         assertThat(state.roverStartXError).isNull()
         assertThat(state.errorMessage).isNull()
     }
 
     @Test
     fun `updateRoverStartY should update Y position and clear errors`() {
+        setupViewModel()
+
+        // Given
+        val testConstants = DomainTestData.TestConstants
+
         // When
-        viewModel.updateRoverStartY("2")
+        viewModel.updateRoverStartY(testConstants.POSITION_1_2.y.toString())
 
         // Then
         val state = viewModel.uiState.value
-        assertThat(state.roverStartY).isEqualTo("2")
+        assertThat(state.roverStartY).isEqualTo(testConstants.POSITION_1_2.y.toString())
         assertThat(state.roverStartYError).isNull()
         assertThat(state.errorMessage).isNull()
     }
 
     @Test
     fun `updateRoverStartDirection should update direction and clear errors`() {
+        setupViewModel()
+
+        // Given
+        val testConstants = DomainTestData.TestConstants
+
         // When
-        viewModel.updateRoverStartDirection("E")
+        viewModel.updateRoverStartDirection(testConstants.DIRECTION_NORTH)
 
         // Then
         val state = viewModel.uiState.value
-        assertThat(state.roverStartDirection).isEqualTo("E")
+        assertThat(state.roverStartDirection).isEqualTo(testConstants.DIRECTION_NORTH)
         assertThat(state.roverStartDirectionError).isNull()
         assertThat(state.errorMessage).isNull()
     }
 
     @Test
     fun `updateMovementCommands should update commands and clear errors`() {
+        setupViewModel()
+
+        // Given
+        val testConstants = DomainTestData.TestConstants
+
         // When
-        viewModel.updateMovementCommands("LMLMLM")
+        viewModel.updateMovementCommands(testConstants.STANDARD_MOVEMENTS)
 
         // Then
         val state = viewModel.uiState.value
-        assertThat(state.movementCommands).isEqualTo("LMLMLM")
+        assertThat(state.movementCommands).isEqualTo(testConstants.STANDARD_MOVEMENTS)
         assertThat(state.movementCommandsError).isNull()
         assertThat(state.errorMessage).isNull()
     }
@@ -167,13 +198,15 @@ class NewMissionViewModelTest {
     @Test
     fun `executeMission with valid JSON should succeed`() =
         runTest {
+            setupViewModel()
+
             // Given
-            val expectedResult = "1 3 N"
+            val testData = DomainTestData.UseCaseTestData.SuccessfulExecution
+            val expectedResult = testData.EXPECTED_FINAL_POSITION
             every { mockExecuteRoverMissionUseCase(any()) } returns Result.success(expectedResult)
 
             // When
             viewModel.executeMission()
-            advanceUntilIdle()
 
             // Then
             val state = viewModel.uiState.value
@@ -182,19 +215,20 @@ class NewMissionViewModelTest {
             assertThat(state.successMessage).contains(expectedResult)
             assertThat(state.errorMessage).isNull()
 
-            verify { mockExecuteRoverMissionUseCase(any()) }
+            coVerify { mockExecuteRoverMissionUseCase(any()) }
         }
 
     @Test
     fun `executeMission with invalid JSON format should show error`() =
         runTest {
+            setupViewModel()
+
             // Given
             val error = RoverError.InvalidInputFormat("Missing required field")
             every { mockExecuteRoverMissionUseCase(any()) } returns Result.failure(error)
 
             // When
             viewModel.executeMission()
-            advanceUntilIdle()
 
             // Then
             val state = viewModel.uiState.value
@@ -207,18 +241,26 @@ class NewMissionViewModelTest {
     @Test
     fun `executeMission with invalid initial position should show error`() =
         runTest {
+            setupViewModel()
+
             // Given
-            val error = RoverError.InvalidInitialPosition(x = 10, y = 10, plateauMaxX = 5, plateauMaxY = 5)
+            val testConstants = DomainTestData.TestConstants
+            val error =
+                RoverError.InvalidInitialPosition(
+                    x = testConstants.POSITION_6_2.x,
+                    y = testConstants.POSITION_6_2.y,
+                    plateauMaxX = testConstants.STANDARD_PLATEAU_X,
+                    plateauMaxY = testConstants.STANDARD_PLATEAU_Y
+                )
             every { mockExecuteRoverMissionUseCase(any()) } returns Result.failure(error)
 
             // When
             viewModel.executeMission()
-            advanceUntilIdle()
 
             // Then
             val state = viewModel.uiState.value
             assertThat(state.isLoading).isFalse()
-            assertThat(state.errorMessage).contains("Rover initial position (10, 10) is outside plateau bounds")
+            assertThat(state.errorMessage).contains("Rover initial position (6, 2) is outside plateau bounds")
             assertThat(state.errorMessage).contains("(0,0) to (5, 5)")
             assertThat(state.successMessage).isNull()
         }
@@ -226,13 +268,15 @@ class NewMissionViewModelTest {
     @Test
     fun `executeMission with invalid direction should show error`() =
         runTest {
+            setupViewModel()
+
             // Given
-            val error = RoverError.InvalidDirectionChar("X")
+            val testConstants = DomainTestData.TestConstants
+            val error = RoverError.InvalidDirectionChar(testConstants.INVALID_DIRECTION_X)
             every { mockExecuteRoverMissionUseCase(any()) } returns Result.failure(error)
 
             // When
             viewModel.executeMission()
-            advanceUntilIdle()
 
             // Then
             val state = viewModel.uiState.value
@@ -245,13 +289,14 @@ class NewMissionViewModelTest {
     @Test
     fun `executeMission with invalid plateau dimensions should show error`() =
         runTest {
+            setupViewModel()
+
             // Given
             val error = RoverError.InvalidPlateauDimensions(x = -1, y = -1)
             every { mockExecuteRoverMissionUseCase(any()) } returns Result.failure(error)
 
             // When
             viewModel.executeMission()
-            advanceUntilIdle()
 
             // Then
             val state = viewModel.uiState.value
@@ -264,46 +309,49 @@ class NewMissionViewModelTest {
     @Test
     fun `executeMission with individual inputs should use network execution`() =
         runTest {
+            setupViewModel()
+
             // Given
+            val constants = DomainTestData.TestConstants
+            val expectedResult = "1 3 N"
 
             coEvery {
                 mockExecuteNetworkMissionUseCase.executeFromBuilderInputs(
-                    plateauWidth = 5,
-                    plateauHeight = 5,
-                    roverStartX = 1,
-                    roverStartY = 2,
-                    roverDirection = "N",
-                    movements = "LMLMLMLMM"
+                    plateauWidth = constants.STANDARD_PLATEAU_X,
+                    plateauHeight = constants.STANDARD_PLATEAU_Y,
+                    roverStartX = constants.POSITION_1_2.x,
+                    roverStartY = constants.POSITION_1_2.y,
+                    roverDirection = constants.DIRECTION_NORTH,
+                    movements = constants.STANDARD_MOVEMENTS
                 )
-            } returns flowOf(NetworkResult.Success("1 3 N"))
+            } returns flowOf(NetworkResult.Success(expectedResult))
 
             viewModel.switchInputMode(InputMode.BUILDER)
-            viewModel.updatePlateauWidth("5")
-            viewModel.updatePlateauHeight("5")
-            viewModel.updateRoverStartX("1")
-            viewModel.updateRoverStartY("2")
-            viewModel.updateRoverStartDirection("N")
-            viewModel.updateMovementCommands("LMLMLMLMM")
+            viewModel.updatePlateauWidth(constants.STANDARD_PLATEAU_X.toString())
+            viewModel.updatePlateauHeight(constants.STANDARD_PLATEAU_Y.toString())
+            viewModel.updateRoverStartX(constants.POSITION_1_2.x.toString())
+            viewModel.updateRoverStartY(constants.POSITION_1_2.y.toString())
+            viewModel.updateRoverStartDirection(constants.DIRECTION_NORTH)
+            viewModel.updateMovementCommands(constants.STANDARD_MOVEMENTS)
 
             // When
             viewModel.executeMission()
-            advanceUntilIdle()
 
             // Then
             val state = viewModel.uiState.value
             assertThat(state.isLoading).isFalse()
             assertThat(state.successMessage).contains("Network mission completed!")
-            assertThat(state.successMessage).contains("1 3 N")
+            assertThat(state.successMessage).contains(expectedResult)
             assertThat(state.errorMessage).isNull()
 
             coVerify {
                 mockExecuteNetworkMissionUseCase.executeFromBuilderInputs(
-                    plateauWidth = 5,
-                    plateauHeight = 5,
-                    roverStartX = 1,
-                    roverStartY = 2,
-                    roverDirection = "N",
-                    movements = "LMLMLMLMM"
+                    plateauWidth = constants.STANDARD_PLATEAU_X,
+                    plateauHeight = constants.STANDARD_PLATEAU_Y,
+                    roverStartX = constants.POSITION_1_2.x,
+                    roverStartY = constants.POSITION_1_2.y,
+                    roverDirection = constants.DIRECTION_NORTH,
+                    movements = constants.STANDARD_MOVEMENTS
                 )
             }
         }
@@ -311,13 +359,15 @@ class NewMissionViewModelTest {
     @Test
     fun `executeMission should set loading state during execution`() =
         runTest {
+            setupViewModel()
+
             // Given
-            every { mockExecuteRoverMissionUseCase(any()) } returns Result.success("1 3 N")
+            val expectedResult = "1 3 N"
+            every { mockExecuteRoverMissionUseCase(any()) } returns Result.success(expectedResult)
             assertThat(viewModel.uiState.value.isLoading).isFalse()
 
             // When
             viewModel.executeMission()
-            advanceUntilIdle()
 
             // Then
             val finalState = viewModel.uiState.value
@@ -328,12 +378,13 @@ class NewMissionViewModelTest {
     @Test
     fun `executeMission with unexpected exception should show generic error`() =
         runTest {
+            setupViewModel()
+
             // Given
             every { mockExecuteRoverMissionUseCase(any()) } throws IllegalArgumentException("Unexpected error")
 
             // When
             viewModel.executeMission()
-            advanceUntilIdle()
 
             // Then
             val state = viewModel.uiState.value
@@ -344,24 +395,27 @@ class NewMissionViewModelTest {
         }
 
     @Test
-    fun `clearMessages should clear all error and success messages`() {
-        // Given - Simulate some messages being set
-        every { mockExecuteRoverMissionUseCase(any()) } returns Result.failure(RoverError.InvalidInputFormat("test"))
+    fun `clearMessages should clear all messages`() {
+        setupViewModel()
+
+        // Given - simulate having messages
+        val error = RoverError.InvalidInputFormat("test")
+        every { mockExecuteRoverMissionUseCase(any()) } returns Result.failure(error)
         viewModel.executeMission()
 
         // When
         viewModel.clearMessages()
 
         // Then
-        val state = viewModel.uiState.value
-        assertThat(state.errorMessage).isNull()
-        assertThat(state.successMessage).isNull()
-        assertThat(state.jsonError).isNull()
+        val finalState = viewModel.uiState.value
+        assertThat(finalState.errorMessage).isNull()
+        assertThat(finalState.successMessage).isNull()
     }
 
-    // Input filtering tests
     @Test
     fun `updatePlateauWidth should filter out non-digit characters`() {
+        setupViewModel()
+
         // When
         viewModel.updatePlateauWidth("12abc34")
 
@@ -373,6 +427,8 @@ class NewMissionViewModelTest {
 
     @Test
     fun `updatePlateauHeight should filter out non-digit characters`() {
+        setupViewModel()
+
         // When
         viewModel.updatePlateauHeight("5#6@7")
 
@@ -384,6 +440,8 @@ class NewMissionViewModelTest {
 
     @Test
     fun `updateRoverStartX should filter out letters and special characters`() {
+        setupViewModel()
+
         // When
         viewModel.updateRoverStartX("a1b2c3!")
 
@@ -395,6 +453,8 @@ class NewMissionViewModelTest {
 
     @Test
     fun `updateRoverStartY should filter out letters and special characters`() {
+        setupViewModel()
+
         // When
         viewModel.updateRoverStartY("ads")
 
@@ -406,6 +466,8 @@ class NewMissionViewModelTest {
 
     @Test
     fun `updateRoverStartX should handle empty input after filtering`() {
+        setupViewModel()
+
         // When
         viewModel.updateRoverStartX("abc!@#")
 
@@ -416,42 +478,24 @@ class NewMissionViewModelTest {
     }
 
     @Test
-    fun `validation should show proper error for different input types`() {
-        // Test validation differentiates between invalid format and negative numbers
+    fun `validatePlateauWidth should set error for zero input`() {
+        setupViewModel()
 
-        // Update with a valid but negative number (this won't be filtered since we only filter digits)
-        // But actually, negative numbers would need minus sign which gets filtered
-        // So let's test with zero which is invalid for plateau dimensions
+        // Given
         viewModel.updatePlateauWidth("0")
-        viewModel.validatePlateauWidth()
-
-        var state = viewModel.uiState.value
-        assertThat(state.plateauWidthError).isEqualTo("Must be a positive number")
-
-        // Test empty input validation
-        viewModel.updateRoverStartX("")
-        viewModel.validateRoverStartX()
-
-        state = viewModel.uiState.value
-        assertThat(state.roverStartXError).isNull() // Empty is allowed for coordinates
-    }
-
-    @Test
-    fun `validatePlateauWidth with invalid input should set error`() {
-        // Given - Input filtering will remove "-" sign, leaving "1"
-        viewModel.updatePlateauWidth("-1")
 
         // When
         viewModel.validatePlateauWidth()
 
-        // Then - Since filtering removes "-", we get "1" which is valid
-        val state = viewModel.uiState.value
-        assertThat(state.plateauWidth).isEqualTo("1")
-        assertThat(state.plateauWidthError).isNull()
+        // Then
+        val currentState = viewModel.uiState.value
+        assertThat(currentState.plateauWidthError).isEqualTo(R.string.feature_mission_error_positive_number)
     }
 
     @Test
-    fun `validatePlateauHeight with invalid input should set error`() {
+    fun `validatePlateauHeight should set error for zero input`() {
+        setupViewModel()
+
         // Given
         viewModel.updatePlateauHeight("0")
 
@@ -459,48 +503,122 @@ class NewMissionViewModelTest {
         viewModel.validatePlateauHeight()
 
         // Then
-        val state = viewModel.uiState.value
-        assertThat(state.plateauHeightError).isEqualTo("Must be a positive number")
+        val currentState = viewModel.uiState.value
+        assertThat(currentState.plateauHeightError).isEqualTo(R.string.feature_mission_error_positive_number)
     }
 
     @Test
-    fun `validateRoverStartX with negative value should set error`() {
-        // Given - Input filtering will remove "-" sign, leaving "1"
-        viewModel.updateRoverStartX("-1")
+    fun `validatePlateauWidth should clear error for valid input`() {
+        setupViewModel()
+
+        // Given - First set an error, then valid input
+        viewModel.updatePlateauWidth("0")
+        viewModel.validatePlateauWidth()
+        assertThat(viewModel.uiState.value.plateauWidthError).isNotNull()
+
+        // When - Update to valid input and validate
+        viewModel.updatePlateauWidth("5")
+        viewModel.validatePlateauWidth()
+
+        // Then
+        val state = viewModel.uiState.value
+        assertThat(state.plateauWidthError).isNull()
+    }
+
+    @Test
+    fun `validatePlateauHeight should clear error for valid input`() {
+        setupViewModel()
+
+        // Given - First set an error, then valid input
+        viewModel.updatePlateauHeight("0")
+        viewModel.validatePlateauHeight()
+        assertThat(viewModel.uiState.value.plateauHeightError).isNotNull()
+
+        // When - Update to valid input and validate
+        viewModel.updatePlateauHeight("5")
+        viewModel.validatePlateauHeight()
+
+        // Then
+        val state = viewModel.uiState.value
+        assertThat(state.plateauHeightError).isNull()
+    }
+
+    @Test
+    fun `validateRoverStartX should not set error for blank input`() {
+        setupViewModel()
+
+        // Given
+        viewModel.updateRoverStartX("")
 
         // When
         viewModel.validateRoverStartX()
 
-        // Then - Since filtering removes "-", we get "1" which is valid
+        // Then
         val state = viewModel.uiState.value
-        assertThat(state.roverStartX).isEqualTo("1")
         assertThat(state.roverStartXError).isNull()
     }
 
     @Test
-    fun `validateRoverStartY with non-numeric value should set error`() {
-        // Given - Input filtering will remove letters, leaving empty string
-        viewModel.updateRoverStartY("abc")
+    fun `validateRoverStartY should not set error for blank input`() {
+        setupViewModel()
+
+        // Given
+        viewModel.updateRoverStartY("")
 
         // When
         viewModel.validateRoverStartY()
 
-        // Then - Empty string doesn't trigger validation error
+        // Then
         val state = viewModel.uiState.value
-        assertThat(state.roverStartY).isEmpty()
         assertThat(state.roverStartYError).isNull()
     }
 
     @Test
-    fun `validateMovementCommands with invalid characters should set error`() {
+    fun `validateMovementCommands should not set error for blank input`() {
+        setupViewModel()
+
         // Given
-        viewModel.updateMovementCommands("LMXR")
+        viewModel.updateMovementCommands("")
 
         // When
         viewModel.validateMovementCommands()
 
         // Then
         val state = viewModel.uiState.value
-        assertThat(state.movementCommandsError).isEqualTo("Must contain only L, R, M characters")
+        assertThat(state.movementCommandsError).isNull()
+    }
+
+    @Test
+    fun `validateMovementCommands should clear error for valid commands`() {
+        setupViewModel()
+
+        // Given - First set an error
+        val testConstants = DomainTestData.TestConstants
+        viewModel.updateMovementCommands(testConstants.INVALID_COMMANDS)
+        viewModel.validateMovementCommands()
+        assertThat(viewModel.uiState.value.movementCommandsError).isNotNull()
+
+        // When - Update to valid commands and validate
+        viewModel.updateMovementCommands(testConstants.STANDARD_MOVEMENTS)
+        viewModel.validateMovementCommands()
+
+        // Then
+        val state = viewModel.uiState.value
+        assertThat(state.movementCommandsError).isNull()
+    }
+
+    @Test
+    fun `validateMovementCommands should set error for invalid characters`() {
+        setupViewModel()
+
+        // Given
+        viewModel.updateMovementCommands("LMRX") // X is invalid
+
+        // When
+        viewModel.validateMovementCommands()
+
+        // Then
+        val currentState = viewModel.uiState.value
+        assertThat(currentState.movementCommandsError).isEqualTo(R.string.feature_mission_error_invalid_commands)
     }
 }

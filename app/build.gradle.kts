@@ -48,6 +48,7 @@ dependencies {
 
     // Feature modules
     implementation(project(":feature:dashboard"))
+    implementation(project(":feature:mission"))
 
     // UI and Core AndroidX (using version catalog)
     implementation(libs.androidx.core.ktx)
