@@ -47,6 +47,7 @@ object DomainTestData {
         const val FOUR_LEFT_TURNS = "LLLL"
         const val TINY_PLATEAU_COMMANDS = "MRLM"
         const val EMPTY_COMMANDS = ""
+        const val STANDARD_FINAL_POSITION = "1 3 N"
 
         // Error messages
         const val INVALID_JSON_MESSAGE = "Invalid JSON"

@@ -68,18 +68,18 @@
     <string name="feature_mission_error_invalid_commands">Must contain only L, R, M characters</string>
     <string name="feature_mission_error_invalid_format">Invalid number format in input fields</string>
 
-    <!-- Mission Execution Messages -->
-    <string name="feature_mission_json_parsing_error">JSON parsing error: %1$s</string>
-    <string name="feature_mission_execution_error">Mission execution error: %1$s</string>
-    <string name="feature_mission_network_error">Network error: %1$s</string>
-    <string name="feature_mission_invalid_parameters">Invalid input parameters: %1$s</string>
-    <string name="feature_mission_completed">Mission completed! Final position: %1$s</string>
-    <string name="feature_mission_network_completed">Network mission completed! Final position: %1$s</string>
+    <!-- Mission Execution Messages (localized with parameters) -->
+    <string name="feature_mission_success">Mission completed! Final position: %1$s</string>
+    <string name="feature_mission_network_success">Network mission completed! Final position: %1$s</string>
+    <string name="feature_mission_error_json_parsing">JSON parsing error: %1$s</string>
+    <string name="feature_mission_error_mission_execution">Mission execution error: %1$s</string>
+    <string name="feature_mission_error_network">Network error: %1$s</string>
+    <string name="feature_mission_error_invalid_parameters">Invalid input parameters: %1$s</string>
 
-    <!-- Error Mapping Messages -->
-    <string name="feature_mission_invalid_json_format">Invalid JSON format: %1$s</string>
-    <string name="feature_mission_position_out_of_bounds">Rover initial position (%1$d, %2$d) is outside plateau bounds (0,0) to (%3$d, %4$d)</string>
-    <string name="feature_mission_invalid_direction">Invalid direction \'%1$s\'. Must be N, E, S, or W</string>
-    <string name="feature_mission_invalid_plateau_dimensions">Invalid plateau dimensions (%1$d, %2$d). Both must be non-negative and within limits</string>
-    <string name="feature_mission_execution_failed">Mission execution failed: %1$s</string>
+    <!-- Detailed Error Messages -->
+    <string name="feature_mission_error_invalid_json_format">Invalid JSON format: %1$s</string>
+    <string name="feature_mission_error_position_out_of_bounds">Rover initial position (%1$d, %2$d) is outside plateau bounds (0,0) to (%3$d, %4$d)</string>
+    <string name="feature_mission_error_invalid_direction">Invalid direction \'%1$s\'. Must be N, E, S, or W</string>
+    <string name="feature_mission_error_invalid_plateau_dimensions">Invalid plateau dimensions (%1$d, %2$d). Both must be non-negative and within limits</string>
+    <string name="feature_mission_error_unknown">Mission execution failed: %1$s</string>
 </resources>

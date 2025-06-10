@@ -1,6 +1,7 @@
 plugins {
     id("marsrover.android.library")
     id("marsrover.android.library.compose")
+    id("marsrover.android.hilt")
 }
 
 android {

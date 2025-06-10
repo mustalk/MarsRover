@@ -7,6 +7,7 @@ import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteNetworkMissionUseCa
 import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteRoverMissionUseCase
 import com.mustalk.seat.marsrover.core.testing.jvm.data.DomainTestData
 import com.mustalk.seat.marsrover.core.testing.jvm.util.MainDispatcherRule
+import com.mustalk.seat.marsrover.core.ui.resource.StringResourceProvider
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -33,15 +34,90 @@ class NewMissionViewModelTest {
     private lateinit var viewModel: NewMissionViewModel
     private lateinit var mockExecuteRoverMissionUseCase: ExecuteRoverMissionUseCase
     private lateinit var mockExecuteNetworkMissionUseCase: ExecuteNetworkMissionUseCase
+    private lateinit var mockStringResourceProvider: StringResourceProvider
 
     private fun setupViewModel() {
+        setupMocks()
+        setupStringResourceProviderMocks()
+        createViewModel()
+    }
+
+    private fun setupMocks() {
         mockExecuteRoverMissionUseCase = mockk()
         mockExecuteNetworkMissionUseCase = mockk(relaxed = true)
+        mockStringResourceProvider = mockk(relaxed = true)
+    }
 
+    private fun setupStringResourceProviderMocks() {
+        setupSuccessMessageMocks()
+        setupSingleParameterErrorMocks()
+        setupMultiParameterErrorMocks()
+        setupSimpleMessageMocks()
+    }
+
+    private fun setupSuccessMessageMocks() {
+        every { mockStringResourceProvider.getString(R.string.feature_mission_success, any()) } answers {
+            val formatArgs = invocation.args[1] as Array<*>
+            "Mission completed! Final position: ${formatArgs[0]}"
+        }
+        every { mockStringResourceProvider.getString(R.string.feature_mission_network_success, any()) } answers {
+            val formatArgs = invocation.args[1] as Array<*>
+            "Network mission completed! Final position: ${formatArgs[0]}"
+        }
+    }
+
+    private fun setupSingleParameterErrorMocks() {
+        every { mockStringResourceProvider.getString(R.string.feature_mission_error_json_parsing, any()) } answers {
+            val formatArgs = invocation.args[1] as Array<*>
+            "JSON parsing error: ${formatArgs[0]}"
+        }
+        every { mockStringResourceProvider.getString(R.string.feature_mission_error_mission_execution, any()) } answers {
+            val formatArgs = invocation.args[1] as Array<*>
+            "Mission execution error: ${formatArgs[0]}"
+        }
+        every { mockStringResourceProvider.getString(R.string.feature_mission_error_network, any()) } answers {
+            val formatArgs = invocation.args[1] as Array<*>
+            "Network error: ${formatArgs[0]}"
+        }
+        every { mockStringResourceProvider.getString(R.string.feature_mission_error_invalid_parameters, any()) } answers {
+            val formatArgs = invocation.args[1] as Array<*>
+            "Invalid input parameters: ${formatArgs[0]}"
+        }
+        every { mockStringResourceProvider.getString(R.string.feature_mission_error_invalid_json_format, any()) } answers {
+            val formatArgs = invocation.args[1] as Array<*>
+            "Invalid JSON format: ${formatArgs[0]}"
+        }
+        every { mockStringResourceProvider.getString(R.string.feature_mission_error_invalid_direction, any()) } answers {
+            val formatArgs = invocation.args[1] as Array<*>
+            "Invalid direction '${formatArgs[0]}'. Must be N, E, S, or W"
+        }
+        every { mockStringResourceProvider.getString(R.string.feature_mission_error_unknown, any()) } answers {
+            val formatArgs = invocation.args[1] as Array<*>
+            "Mission execution failed: ${formatArgs[0]}"
+        }
+    }
+
+    private fun setupMultiParameterErrorMocks() {
+        every { mockStringResourceProvider.getString(R.string.feature_mission_error_position_out_of_bounds, any(), any(), any(), any()) } answers {
+            val formatArgs = invocation.args[1] as Array<*>
+            "Rover initial position (${formatArgs[0]}, ${formatArgs[1]}) is outside plateau bounds (0,0) to (${formatArgs[2]}, ${formatArgs[3]})"
+        }
+        every { mockStringResourceProvider.getString(R.string.feature_mission_error_invalid_plateau_dimensions, any(), any()) } answers {
+            val formatArgs = invocation.args[1] as Array<*>
+            "Invalid plateau dimensions (${formatArgs[0]}, ${formatArgs[1]}). Both must be non-negative and within limits"
+        }
+    }
+
+    private fun setupSimpleMessageMocks() {
+        every { mockStringResourceProvider.getString(R.string.feature_mission_error_invalid_format) } returns "Invalid number format in input fields"
+    }
+
+    private fun createViewModel() {
         viewModel =
             NewMissionViewModel(
                 executeRoverMissionUseCase = mockExecuteRoverMissionUseCase,
-                executeNetworkMissionUseCase = mockExecuteNetworkMissionUseCase
+                executeNetworkMissionUseCase = mockExecuteNetworkMissionUseCase,
+                stringResourceProvider = mockStringResourceProvider
             )
     }
 
@@ -80,8 +156,8 @@ class NewMissionViewModelTest {
         setupViewModel()
 
         // Given
-        val testData = DomainTestData.UseCaseTestData.SuccessfulExecution.STANDARD_MISSION
-        val newJson = testData.JSON
+        val testData = DomainTestData.UseCaseTestData.SuccessfulExecution
+        val newJson = testData.STANDARD_MISSION.JSON
 
         // When
         viewModel.updateJsonInput(newJson)
@@ -211,8 +287,7 @@ class NewMissionViewModelTest {
             // Then
             val state = viewModel.uiState.value
             assertThat(state.isLoading).isFalse()
-            assertThat(state.successMessage).contains("Mission completed!")
-            assertThat(state.successMessage).contains(expectedResult)
+            assertThat(state.successMessage).isEqualTo("Mission completed! Final position: $expectedResult")
             assertThat(state.errorMessage).isNull()
 
             coVerify { mockExecuteRoverMissionUseCase(any()) }
@@ -233,8 +308,7 @@ class NewMissionViewModelTest {
             // Then
             val state = viewModel.uiState.value
             assertThat(state.isLoading).isFalse()
-            assertThat(state.errorMessage).contains("Invalid JSON format")
-            assertThat(state.errorMessage).contains("Missing required field")
+            assertThat(state.errorMessage).isEqualTo("Invalid JSON format: Missing required field")
             assertThat(state.successMessage).isNull()
         }
 
@@ -260,8 +334,7 @@ class NewMissionViewModelTest {
             // Then
             val state = viewModel.uiState.value
             assertThat(state.isLoading).isFalse()
-            assertThat(state.errorMessage).contains("Rover initial position (6, 2) is outside plateau bounds")
-            assertThat(state.errorMessage).contains("(0,0) to (5, 5)")
+            assertThat(state.errorMessage).isEqualTo("Rover initial position (6, 2) is outside plateau bounds (0,0) to (5, 5)")
             assertThat(state.successMessage).isNull()
         }
 
@@ -281,8 +354,7 @@ class NewMissionViewModelTest {
             // Then
             val state = viewModel.uiState.value
             assertThat(state.isLoading).isFalse()
-            assertThat(state.errorMessage).contains("Invalid direction 'X'")
-            assertThat(state.errorMessage).contains("Must be N, E, S, or W")
+            assertThat(state.errorMessage).isEqualTo("Invalid direction 'X'. Must be N, E, S, or W")
             assertThat(state.successMessage).isNull()
         }
 
@@ -301,8 +373,7 @@ class NewMissionViewModelTest {
             // Then
             val state = viewModel.uiState.value
             assertThat(state.isLoading).isFalse()
-            assertThat(state.errorMessage).contains("Invalid plateau dimensions (-1, -1)")
-            assertThat(state.errorMessage).contains("Both must be non-negative")
+            assertThat(state.errorMessage).isEqualTo("Invalid plateau dimensions (-1, -1). Both must be non-negative and within limits")
             assertThat(state.successMessage).isNull()
         }
 
@@ -313,7 +384,7 @@ class NewMissionViewModelTest {
 
             // Given
             val constants = DomainTestData.TestConstants
-            val expectedResult = "1 3 N"
+            val expectedResult = constants.STANDARD_FINAL_POSITION
 
             coEvery {
                 mockExecuteNetworkMissionUseCase.executeFromBuilderInputs(
@@ -340,8 +411,7 @@ class NewMissionViewModelTest {
             // Then
             val state = viewModel.uiState.value
             assertThat(state.isLoading).isFalse()
-            assertThat(state.successMessage).contains("Network mission completed!")
-            assertThat(state.successMessage).contains(expectedResult)
+            assertThat(state.successMessage).isEqualTo("Network mission completed! Final position: $expectedResult")
             assertThat(state.errorMessage).isNull()
 
             coVerify {
@@ -362,7 +432,8 @@ class NewMissionViewModelTest {
             setupViewModel()
 
             // Given
-            val expectedResult = "1 3 N"
+            val constants = DomainTestData.TestConstants
+            val expectedResult = constants.STANDARD_FINAL_POSITION
             every { mockExecuteRoverMissionUseCase(any()) } returns Result.success(expectedResult)
             assertThat(viewModel.uiState.value.isLoading).isFalse()
 
@@ -372,7 +443,7 @@ class NewMissionViewModelTest {
             // Then
             val finalState = viewModel.uiState.value
             assertThat(finalState.isLoading).isFalse()
-            assertThat(finalState.successMessage).isNotNull()
+            assertThat(finalState.successMessage).isEqualTo("Mission completed! Final position: $expectedResult")
         }
 
     @Test
@@ -389,8 +460,7 @@ class NewMissionViewModelTest {
             // Then
             val state = viewModel.uiState.value
             assertThat(state.isLoading).isFalse()
-            assertThat(state.errorMessage).contains("Invalid input parameters")
-            assertThat(state.errorMessage).contains("Unexpected error")
+            assertThat(state.errorMessage).isEqualTo("Invalid input parameters: Unexpected error")
             assertThat(state.successMessage).isNull()
         }
 
