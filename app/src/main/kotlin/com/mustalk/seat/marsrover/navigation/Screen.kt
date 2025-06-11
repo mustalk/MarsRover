@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.navigation
+package com.mustalk.seat.marsrover.navigation
 
 /**
  * Sealed class defining all screen routes in the Mars Rover app.

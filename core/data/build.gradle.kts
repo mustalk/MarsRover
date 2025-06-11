@@ -21,8 +21,4 @@ dependencies {
 
     // Test dependencies
     testImplementation(project(":core:testing-jvm"))
-
-    // Hilt for dependency injection (already applied by plugin)
-    // implementation(libs.hilt.android)
-    // ksp(libs.hilt.compiler)
 }

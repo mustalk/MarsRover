@@ -47,8 +47,16 @@ internal fun Project.configureAndroidCompose(commonExtension: CommonExtension<*,
             "androidTestImplementation"(platform(bom))
 
             // Core Compose dependencies for all modules using Compose
-            "implementation"(libs.library("androidx-ui-tooling-preview"))
-            "debugImplementation"(libs.library("androidx-ui-tooling"))
+            "implementation"(libs.library("androidx-compose-ui"))
+            "implementation"(libs.library("androidx-compose-ui-graphics"))
+            "implementation"(libs.library("androidx-compose-ui-tooling-preview"))
+
+            // Debug dependencies automatically added for all Compose modules
+            "debugImplementation"(libs.library("androidx-compose-ui-tooling"))
+            "debugImplementation"(libs.library("androidx-compose-ui-test-manifest"))
+
+            // Android Test dependencies for Compose UI testing
+            "androidTestImplementation"(libs.bundle("androidx-compose-ui-test"))
         }
     }
 

@@ -9,26 +9,16 @@ android {
 }
 
 dependencies {
-    // Compose BOM
-    implementation(platform(libs.androidx.compose.bom))
+    // Core Android dependencies
+    api(libs.androidx.material3)
 
-    // Core Compose dependencies
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
+    // Lifecycle - expose to consuming modules
+    api(libs.androidx.lifecycle.runtime.ktx)
+    api(libs.androidx.activity.compose)
 
-    // Lifecycle
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
+    // Lottie for animations - expose to consuming modules
+    api(libs.lottie.compose)
 
-    // Lottie for animations
-    implementation(libs.lottie.compose)
-
-    // Testing
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-
+    // Android testing dependencies - expose to consuming modules
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
 }

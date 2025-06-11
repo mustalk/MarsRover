@@ -1,4 +1,4 @@
-package com.mustalk.seat.marsrover.presentation.navigation
+package com.mustalk.seat.marsrover.navigation
 
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally

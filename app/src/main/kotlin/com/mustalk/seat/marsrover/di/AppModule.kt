@@ -1,13 +1,11 @@
-package com.mustalk.seat.marsrover.core.di
+package com.mustalk.seat.marsrover.di
 
 import com.mustalk.seat.marsrover.core.domain.parser.JsonParser
 import com.mustalk.seat.marsrover.core.domain.repository.MarsRoverRepository
 import com.mustalk.seat.marsrover.core.domain.service.RoverMovementService
-import com.mustalk.seat.marsrover.core.domain.service.RoverMovementServiceImpl
 import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteNetworkMissionUseCase
 import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteRoverMissionUseCase
 import com.mustalk.seat.marsrover.core.domain.validator.InputValidator
-import com.mustalk.seat.marsrover.core.domain.validator.InputValidatorImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,7 +27,9 @@ object AppModule {
      */
     @Provides
     @Singleton
-    fun provideInputValidator(): InputValidator = InputValidatorImpl()
+    fun provideInputValidator(): InputValidator =
+        com.mustalk.seat.marsrover.core.domain.validator
+            .InputValidatorImpl()
 
     /**
      * Provides RoverMovementService implementation.
@@ -37,7 +37,9 @@ object AppModule {
      */
     @Provides
     @Singleton
-    fun provideRoverMovementService(): RoverMovementService = RoverMovementServiceImpl()
+    fun provideRoverMovementService(): RoverMovementService =
+        com.mustalk.seat.marsrover.core.domain.service
+            .RoverMovementServiceImpl()
 
     /**
      * Provides ExecuteRoverMissionUseCase for injection.

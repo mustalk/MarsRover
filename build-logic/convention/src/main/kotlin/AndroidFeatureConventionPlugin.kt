@@ -32,15 +32,8 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 "implementation"(project(":core:common"))
                 "implementation"(project(":core:ui"))
 
-                // UI and Core AndroidX
+                // AndroidX Core (not provided by core modules)
                 "implementation"(libs.library("androidx-core-ktx"))
-                "implementation"(libs.library("androidx-lifecycle-runtime-ktx"))
-                "implementation"(libs.library("androidx-activity-compose"))
-                "implementation"(platform(libs.library("androidx-compose-bom")))
-                "implementation"(libs.library("androidx-ui"))
-                "implementation"(libs.library("androidx-ui-graphics"))
-                "implementation"(libs.library("androidx-ui-tooling-preview"))
-                "implementation"(libs.library("androidx-material3"))
 
                 // Navigation (common to all features)
                 "implementation"(libs.library("androidx-navigation-compose"))
@@ -56,12 +49,6 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 // Android testing infrastructure
                 "androidTestImplementation"(project(":core:testing-jvm"))
                 "androidTestImplementation"(project(":core:testing-android"))
-                "androidTestImplementation"(platform(libs.library("androidx-compose-bom")))
-                "androidTestImplementation"(libs.library("androidx-ui-test-junit4"))
-
-                // Debug tools (common for all features)
-                "debugImplementation"(libs.library("androidx-ui-tooling"))
-                "debugImplementation"(libs.library("androidx-ui-test-manifest"))
             }
         }
     }

@@ -21,3 +21,5 @@ fun VersionCatalog.version(alias: String): String = findVersion(alias).get().toS
  * Extension to safely get library references from the catalog.
  */
 fun VersionCatalog.library(alias: String) = findLibrary(alias).get()
+
+fun VersionCatalog.bundle(alias: String) = findBundle(alias).get()

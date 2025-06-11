@@ -45,6 +45,10 @@ gradlePlugin {
             id = "marsrover.quality.gate"
             implementationClass = "QualityGateConventionPlugin"
         }
+        register("appUtils") {
+            id = "marsrover.app.utils"
+            implementationClass = "AppUtilsConventionPlugin"
+        }
     }
 }
 

@@ -69,7 +69,7 @@ fun DashboardScreen(
 }
 
 @Composable
-internal fun DashboardContent(
+fun DashboardContent(
     uiState: DashboardUiState,
     onNewMissionClick: () -> Unit,
     onErrorDismiss: () -> Unit,
