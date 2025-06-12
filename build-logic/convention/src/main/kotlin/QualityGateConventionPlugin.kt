@@ -35,7 +35,7 @@ class QualityGateConventionPlugin : Plugin<Project> {
     private fun Project.createCodeStyleTasks() {
         tasks.register("runDetekt") {
             description = "Runs Detekt code analysis."
-            group = "codestyle"
+            group = "code-quality"
             dependsOn("detekt")
             doLast {
                 logger.lifecycle("Detekt analysis completed.")
@@ -44,7 +44,7 @@ class QualityGateConventionPlugin : Plugin<Project> {
 
         tasks.register("runSpotlessCheck") {
             description = "Runs Spotless code style check."
-            group = "codestyle"
+            group = "code-quality"
             dependsOn("spotlessCheck")
             doLast {
                 logger.lifecycle("Spotless check completed.")
@@ -53,7 +53,7 @@ class QualityGateConventionPlugin : Plugin<Project> {
 
         tasks.register("runSpotlessFormat") {
             description = "Runs Spotless code formatting."
-            group = "codestyle"
+            group = "code-quality"
             dependsOn("spotlessApply")
             doLast {
                 logger.lifecycle("Spotless formatting completed.")

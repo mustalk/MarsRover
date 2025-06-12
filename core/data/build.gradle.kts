@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.marsrover.android.library)
+    alias(libs.plugins.marsrover.android.library.jacoco)
     alias(libs.plugins.marsrover.android.hilt)
     alias(libs.plugins.kotlin.serialization)
 }

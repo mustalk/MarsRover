@@ -15,6 +15,10 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             with(pluginManager) {
                 apply("com.android.application")
                 apply("org.jetbrains.kotlin.android")
+
+                // Apply quality plugins to all Android application modules
+                apply("marsrover.quality.detekt")
+                apply("marsrover.quality.spotless")
             }
 
             extensions.configure<ApplicationExtension> {

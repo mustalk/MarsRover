@@ -45,9 +45,25 @@ gradlePlugin {
             id = "marsrover.quality.gate"
             implementationClass = "QualityGateConventionPlugin"
         }
-        register("appUtils") {
-            id = "marsrover.app.utils"
-            implementationClass = "AppUtilsConventionPlugin"
+        register("projectUtils") {
+            id = "marsrover.project.utils"
+            implementationClass = "ProjectUtilsConventionPlugin"
+        }
+        register("androidApplicationJacoco") {
+            id = "marsrover.android.application.jacoco"
+            implementationClass = "AndroidApplicationJacocoConventionPlugin"
+        }
+        register("AndroidLibraryJacoco") {
+            id = "marsrover.android.library.jacoco"
+            implementationClass = "AndroidLibraryJacocoConventionPlugin"
+        }
+        register("jvmLibraryJacoco") {
+            id = "marsrover.jvm.library.jacoco"
+            implementationClass = "JvmLibraryJacocoConventionPlugin"
+        }
+        register("rootTesting") {
+            id = "marsrover.root.testing"
+            implementationClass = "RootTestingConventionPlugin"
         }
     }
 }

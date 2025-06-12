@@ -16,6 +16,10 @@ class JvmLibraryConventionPlugin : Plugin<Project> {
         with(target) {
             apply(plugin = "org.jetbrains.kotlin.jvm")
 
+            // Apply quality plugins to all JVM library modules
+            apply(plugin = "marsrover.quality.detekt")
+            apply(plugin = "marsrover.quality.spotless")
+
             configureKotlinJvm()
             dependencies {
                 "testImplementation"(libs.library("junit"))

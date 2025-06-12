@@ -8,10 +8,8 @@ data class RoverMissionInstructions(
     /** The configuration for the plateau's top-right corner. */
     val plateauTopRightX: Int,
     val plateauTopRightY: Int,
-
     /** The initial position of the rover. */
     val initialRoverPosition: Position,
-
     /** The initial direction of the rover. */
     val initialRoverDirection: String,
     /** The sequence of movement commands for the rover. */

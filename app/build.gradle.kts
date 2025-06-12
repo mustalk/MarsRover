@@ -1,9 +1,8 @@
 plugins {
     alias(libs.plugins.marsrover.android.application)
     alias(libs.plugins.marsrover.android.application.compose)
+    alias(libs.plugins.marsrover.android.application.jacoco)
     alias(libs.plugins.marsrover.android.hilt)
-    alias(libs.plugins.marsrover.quality.gate)
-    alias(libs.plugins.marsrover.app.utils)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -13,7 +12,7 @@ android {
     defaultConfig {
         applicationId = "com.mustalk.seat.marsrover"
         versionCode = 2
-        versionName = "1.0.1"
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "com.mustalk.seat.marsrover.core.testing.android.MarsTestRunner"
     }

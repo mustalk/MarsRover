@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.marsrover.android.feature)
+    alias(libs.plugins.marsrover.android.library.jacoco)
 }
 
 android {

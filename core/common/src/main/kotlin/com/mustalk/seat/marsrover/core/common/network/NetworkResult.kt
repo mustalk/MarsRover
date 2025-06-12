@@ -8,6 +8,7 @@ import com.mustalk.seat.marsrover.core.common.exceptions.NetworkException
  *
  * @param T The type of data on success
  */
+@Suppress("TooGenericExceptionCaught")
 sealed class NetworkResult<out T> {
     /**
      * Represents a successful network operation.

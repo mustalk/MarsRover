@@ -19,9 +19,9 @@ name: Android CI/CD
 
 on:
   push:
-    branches: [ main, 'feat/**', 'chore/**', 'bugfix/**', 'test/**', 'refactor/**', 'hotfix/**' ]
+    branches: [ main, 'integration/**', 'feat/**', 'chore/**', 'bugfix/**', 'test/**', 'refactor/**', 'hotfix/**' ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, 'integration/multi-module']
 
 # Automatically cancel previous runs for the same branch
 # Uses head ref (branch name) for both push and PR events to ensure proper cancellation
@@ -31,18 +31,25 @@ concurrency:
 
 permissions:
   contents: write
-  pull-requests: read
+  pull-requests: write
   actions: read
+  checks: write
 
 jobs:
   android-test:
+    name: "Code quality, tests and build"
     # Skip Android tests for CI and documentation branches, as they typically don't include app code changes.
     if: |
       (github.event_name == 'push' && !startsWith(github.ref_name, 'ci/') && !startsWith(github.ref_name, 'docs/')) ||
       (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'ci/') && !startsWith(github.head_ref, 'docs/'))
-    runs-on: ubuntu-latest
-    env:
-      SEGMENT_DOWNLOAD_TIMEOUT_MINS: 15
+    # Switched from ubuntu-latest to macos-13 (Intel) for increased RAM (14GB vs 7GB) and CPU cores (4 vs 2),
+    # This is crucial for Android emulator & Gradle stability, addressing hang issues
+    # experienced on runners with less RAM (e.g., 7GB on ubuntu-latest/ARM macos-latest).
+    runs-on: macos-13
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        api-level: [ 35 ]
 
     steps:
       # Checkout the repository
@@ -50,11 +57,6 @@ jobs:
         uses: actions/checkout@v4
         # Documentation: Checks out the code for the workflow to execute
         # See: https://docs.github.com/en/actions/reference/actions#checkout
-
-      # Check disk space before build
-      - name: Check disk space before build
-        run: df -h
-        # Documentation: Checks available disk space to ensure sufficient space for build and test processes
 
       # Set up JDK 17
       - name: Set up JDK 17
@@ -77,9 +79,10 @@ jobs:
         with:
           gradle-version: wrapper
           # Allow caching for all branches.
-          # Write access to the cache is limited to 'main' branches, we do this to avoid feature branches from invalidating the existing cache.
+          # Write access to the cache is limited to 'main' && 'integration/multi-module' branches,
+          #   we do this to avoid feature branches from invalidating the existing cache.
           # This way we have faster builds on overall. Other branches have read-only access to the cache.
-          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+          cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/integration/multi-module' && github.ref != 'refs/heads/refactor/multi-module-arch' }}
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
         # Documentation: Sets up Gradle wrapper with caching for faster builds
         # See: https://github.com/gradle/actions/blob/main/docs/setup-gradle.md
@@ -93,52 +96,29 @@ jobs:
             echo "Gradle cache missing"
           fi
 
-      # Performs static code analysis using Detekt and Ktlint
-      - name: Run Code Analysis (Parallel)
-        run: |
-          ./gradlew detekt --stacktrace --parallel --configuration-cache &        # Run Detekt in the background (starts daemon)
-          ./gradlew ktlintCheck --stacktrace --parallel --configuration-cache &   # Run ktlint check in the background (uses existing daemon)
-          wait                                                                    # Wait for both processes to finish
-        # Documentation: Runs Detekt and ktlint checks concurrently to analyze code quality and formatting
-        # See: https://detekt.github.io/detekt/
-        # See: https://github.com/pinterest/ktlint
+      # Run code analysis across all modules
+      - name: Run Code Analysis (All Modules)
+        run: ./gradlew detekt spotlessCheck --configuration-cache --parallel --daemon --continue -PskipQualityGate=true
+        # Documentation: Runs detekt and spotless across all modules with --continue to run on all modules
+        # This ensures quality checks run on all modules, not just :app
 
-      # Runs unit tests
-      - name: Run Unit Tests
-        run: ./gradlew test --configuration-cache
-        # Documentation: Executes unit tests using Gradle for automated testing
-        # See: https://docs.gradle.org/current/userguide/java_testing.html
+      # Runs unit tests across ALL modules (both Android and JVM)
+      - name: Run Unit Tests (All Modules)
+        run: ./gradlew testAllModules --configuration-cache --parallel --daemon
+        # Documentation: Executes ALL unit tests using dynamic module detection
+        # This automatically runs both Android (testDebugUnitTest) and JVM (test) module tests
 
       # Build debug APK
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --configuration-cache
+        run: ./gradlew assembleDebug --configuration-cache --daemon
         # Documentation: Builds debug APK for testing and distribution
-        # See: https://developer.android.com/studio/build/building-cmdline
 
-      # Check disk space before emulator setup
-      - name: Check disk space before emulator setup
-        run: df -h
-
-        # Delete unnecessary installed tools on the CI env
-        #- name: Delete unnecessary tools
-        #  uses: jlumbroso/free-disk-space@v1.3.1
-        #  with:
-        #    android: false # Don't remove Android tools
-        #    tool-cache: true # Remove image tool cache - rm -rf "$AGENT_TOOLSDIRECTORY"
-        #    dotnet: true # rm -rf /usr/share/dotnet
-        #    haskell: true # rm -rf /opt/ghc...
-        #    swap-storage: true # rm -f /mnt/swapfile (4GiB)
-        #    docker-images: false # Takes 16s, enable if needed in the future
-        #    large-packages: false # includes google-cloud-sdk and it's slow
-        # Documentation: Commented out to save 40s ish build time. Frees 14GB but we have 34GB available which is sufficient.
-        # Re-enable if disk space becomes an issue (< 10GB available).
-
-      # Setup Android emulator for UI tests
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
+        # Setup Android emulator for UI tests
+        #- name: Enable KVM # Enable if using ubuntu-latest runner
+        #  run: |
+        #    echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        #    sudo udevadm control --reload-rules
+        #    sudo udevadm trigger --name-match=kvm
         # Documentation: Enables Kernel-based Virtual Machine (KVM) for Android emulator acceleration
         # See: https://developer.android.com/studio/run/emulator-acceleration
 
@@ -150,7 +130,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-api-35
+          key: avd-api-${{ matrix.api-level }}
         # Documentation: Caches Android Virtual Device (AVD) data to optimize emulator startup
         # See: https://developer.android.com/studio/run/managing-avds.html
 
@@ -158,31 +138,85 @@ jobs:
       - name: Run UI Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: ${{ matrix.api-level }}
           arch: x86_64
           force-avd-creation: false
-          emulator-options: -snapshot avd-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -memory 4096
+          emulator-options: -snapshot avd-snapshot -no-metrics -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           disk-size: 6000M # 6GB storage for emulator
           heap-size: 1024M # 1GB heap for app processes
-          ram-size: 4096M # 4GB total RAM for emulator
-          script: ./gradlew connectedCheck --configuration-cache
-        # Documentation: Runs instrumented tests on an optimized Android emulator options setup
-        # See: https://developer.android.com/training/testing/unit-testing/instrumented-unit-testing
+          ram-size: 3072M # 3GB total RAM for emulator
+          script: ./gradlew connectedDebugAndroidTest --configuration-cache --daemon
+        env:
+          GRADLE_OPTS: "-Xmx3g -Xms1g -XX:MetaspaceSize=512m -XX:MaxMetaspaceSize=1g"
+        # Documentation: Memory optimization for concurrent emulator (3GB) + Gradle daemon (3GB) execution
+        # MetaSpace settings prevent OOM during test compilation and execution
 
-      # Upload test reports and analysis results
-      - name: Upload Test Reports
-        uses: actions/upload-artifact@v4
-        if: always() # Always upload even if the job fails
+      # Generate overall aggregated coverage report using existing test data
+      - name: Generate Overall Aggregated Coverage Report
+        continue-on-error: true
+        run: ./gradlew generateOverallCoverageReport --configuration-cache --no-daemon --max-workers=2
+        env:
+          GRADLE_OPTS: "-Xmx8g -Xms3g -XX:MetaspaceSize=1g -XX:MaxMetaspaceSize=2g -XX:+UseG1GC -XX:G1HeapRegionSize=16m"
+          # Documentation: Large heap for memory-intensive JaCoCo aggregation across all modules
+          # G1GC optimizes large heap performance, limited workers prevent memory overcommitment
+          # Generates overall aggregated coverage report using existing unit + UI test execution data and combines
+          #   all modules (JVM + Android)
+
+      # Display overall aggregated test coverage
+      - name: JaCoCo Code Coverage Report
+        if: hashFiles('build/reports/jacoco/overall-aggregate/jacocoOverallAggregatedReport.xml') != ''
+        id: jacoco_reporter
+        uses: PavanMudigonda/jacoco-reporter@v5.0
         with:
-          name: test-reports-${{ github.run_id }}
+          coverage_results_path: build/reports/jacoco/overall-aggregate/jacocoOverallAggregatedReport.xml
+          coverage_report_name: Overall Coverage Report (All Modules)
+          coverage_report_title: JaCoCo Overall Coverage
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: false
+          minimum_coverage: 40
+          fail_below_threshold: false
+          publish_only_summary: true
+
+      # Upload test reports from all modules
+      - name: Upload Unit Test Reports (XML)
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results-${{ github.run_id }}
+          path: '**/build/test-results/test*UnitTest/**.xml'
+          # Documentation: Uploads JVM test results for analysis and reporting
+
+      # Upload static analysis reports
+      - name: Upload Analysis Reports
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: analysis-reports-${{ github.run_id }}
           path: |
-            app/build/reports/tests/
-            app/build/reports/androidTests/connected/debug/
-            app/build/reports/detekt/
-            app/build/reports/ktlint/
-        # Documentation: Uploads test reports as artifacts for analysis
-        # See: https://github.com/actions/upload-artifact
+            **/build/reports/detekt/
+            **/build/reports/spotless/
+        # Documentation: Uploads analysis reports as artifacts for review
+
+      # Upload UI test reports
+      - name: Upload UI Test Reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-reports-api-${{ matrix.api-level }}-${{ github.run_id }}
+          path: '**/build/reports/androidTests/connected/'
+          # Documentation: Uploads ui test reports for analysis
+
+      # Upload aggregated coverage reports
+      - name: Upload Aggregated Coverage Reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggregated-coverage-reports-${{ github.run_id }}
+          path: '**/build/reports/jacoco/'
+          if-no-files-found: error
+          compression-level: 1
+          # Documentation: Uploads aggregated coverage reports (XML + HTML) for review
 
       # Upload debug APK
       - name: Upload Debug APK
@@ -192,10 +226,9 @@ jobs:
           name: debug-apk-${{ github.run_id }}
           path: app/build/outputs/apk/debug/*.apk
         # Documentation: Uploads debug APK as artifact for testing
-        # See: https://github.com/actions/upload-artifact
 
   android-deploy:
-    needs: android-test
+    needs: [ android-test ]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
 

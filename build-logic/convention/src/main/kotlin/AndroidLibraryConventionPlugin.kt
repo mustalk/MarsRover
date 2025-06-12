@@ -17,6 +17,10 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             apply(plugin = "com.android.library")
             apply(plugin = "org.jetbrains.kotlin.android")
 
+            // Apply quality plugins to all Android library modules
+            apply(plugin = "marsrover.quality.detekt")
+            apply(plugin = "marsrover.quality.spotless")
+
             /**
              * Shared configuration can be set up here.
              * This block is intentionally left as a placeholder

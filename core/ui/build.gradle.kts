@@ -1,7 +1,8 @@
 plugins {
-    id("marsrover.android.library")
-    id("marsrover.android.library.compose")
-    id("marsrover.android.hilt")
+    alias(libs.plugins.marsrover.android.library)
+    alias(libs.plugins.marsrover.android.library.compose)
+    alias(libs.plugins.marsrover.android.library.jacoco)
+    alias(libs.plugins.marsrover.android.hilt)
 }
 
 android {

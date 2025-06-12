@@ -128,6 +128,48 @@ The project emphasizes on a robust testing strategy, with 180+ total tests:
 * **Hilt for Testing:**
     * `HiltTestRunner` and `@HiltAndroidTest` are configured to enable dependency injection in UI tests, allowing for more realistic test scenarios.
 
+### Test Coverage with Jacoco
+
+The project includes advanced test coverage reporting using Jacoco with three-tier reporting:
+
+#### Generate Coverage Reports
+
+```bash
+# Generate overall coverage report (combines all modules)
+./gradlew jacocoOverallAggregatedReport
+
+# Generate JVM-only coverage (domain logic)
+./gradlew jacocoJvmAggregatedReport
+
+# Generate Android-only coverage (UI and app logic)
+./gradlew jacocoAndroidAggregatedReport
+
+# Generate coverage from existing test data (CI optimized)
+./gradlew generateOverallCoverageReport
+```
+
+#### View Coverage Reports
+
+- **Overall Coverage HTML**: `build/reports/jacoco/overall-aggregate/html/index.html`
+- **Overall Coverage XML**: `build/reports/jacoco/overall-aggregate/jacocoOverallAggregatedReport.xml`
+- **JVM Coverage HTML**: `build/reports/jacoco/jvm-aggregate/html/index.html`
+- **Android Coverage HTML**: `build/reports/jacoco/android-aggregate/html/index.html`
+
+#### Coverage Features
+
+- ✅ **Three-tier reporting** - JVM, Android, and Overall coverage
+- ✅ **Smart module filtering** - Only includes modules with relevant test sources
+- ✅ **Multi-module coverage** across all `:core` and `:feature` modules
+- ✅ **Excludes generated code** (Hilt, Compose, Android framework)
+- ✅ **CI/CD integration** with memory-optimized step separation
+- ✅ **Configuration cache compatible** for faster builds
+- ✅ **SonarQube ready** - XML reports compatible with external tools
+
+#### Coverage Minimums
+
+- Overall coverage: 40%
+- Changed files: 60%
+
 ## Code Quality Tools
 
 The project integrates the following tools to maintain code quality and consistency:
@@ -172,7 +214,7 @@ The project utilizes GitHub Actions for an integrated Continuous Integration and
 * **Key Optimizations & Features in the Pipeline:**
     * Optimized Gradle cache strategy.
     * Emulator memory optimization and resource monitoring during UI tests.
-    * Automated Git tagging and comprehensive GitHub Release management.
+    * Automated Git tagging and GitHub Release management.
 
 * **Important Note:** The current CD process distributes debug APKs and is primarily intended for testing, demonstration, and internal review. For
   production releases, a more robust strategy involving release builds, code signing, and potentially direct store distribution (e.g., Google Play)

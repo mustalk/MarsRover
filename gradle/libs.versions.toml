@@ -42,6 +42,7 @@ truth = "1.4.4"
 coroutinesTest = "1.8.0"
 mockWebServer = "4.12.0"
 testRunner = "1.6.2"
+jacoco = "0.8.13"
 
 # Code analysis tools
 detekt-plugin = "1.23.8"
@@ -127,12 +128,16 @@ spotless = { id = "com.diffplug.spotless", version.ref = "spotless-plugin" }
 # Convention plugins defined by this project
 marsrover-android-application = { id = "marsrover.android.application" }
 marsrover-android-application-compose = { id = "marsrover.android.application.compose" }
+marsrover-android-application-jacoco = { id = "marsrover.android.application.jacoco" }
 marsrover-android-library = { id = "marsrover.android.library" }
 marsrover-android-library-compose = { id = "marsrover.android.library.compose" }
+marsrover-android-library-jacoco = { id = "marsrover.android.library.jacoco" }
 marsrover-android-feature = { id = "marsrover.android.feature" }
 marsrover-jvm-library = { id = "marsrover.jvm.library" }
+marsrover-jvm-library-jacoco = { id = "marsrover.jvm.library.jacoco" }
+marsrover-root-testing = { id = "marsrover.root.testing" }
 marsrover-android-hilt = { id = "marsrover.android.hilt" }
 marsrover-quality-detekt = { id = "marsrover.quality.detekt" }
 marsrover-quality-spotless = { id = "marsrover.quality.spotless" }
 marsrover-quality-gate = { id = "marsrover.quality.gate" }
-marsrover-app-utils = { id = "marsrover.app.utils" }
+marsrover-project-utils = { id = "marsrover.project.utils" }
