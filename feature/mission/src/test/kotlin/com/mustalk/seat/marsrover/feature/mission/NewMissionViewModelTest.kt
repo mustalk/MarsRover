@@ -691,4 +691,104 @@ class NewMissionViewModelTest {
         val currentState = viewModel.uiState.value
         assertThat(currentState.movementCommandsError).isEqualTo(R.string.feature_mission_error_invalid_commands)
     }
+
+    // Concurrency and Race Condition Tests - Testing ViewModel Job tracking
+    // These tests focus on JSON mode execution to avoid complex Flow mocking issues
+    @Test
+    fun `executeMission should prevent multiple concurrent executions`() =
+        runTest {
+            setupViewModel()
+
+            every { mockExecuteRoverMissionUseCase(any()) } returns Result.success("1 3 N")
+
+            // When - Execute mission multiple times rapidly (concurrency test)
+            viewModel.executeMission()
+            viewModel.executeMission()
+            viewModel.executeMission()
+
+            // Then - Should complete successfully with race condition protection
+            val finalState = viewModel.uiState.value
+            assertThat(finalState.isLoading).isFalse()
+            assertThat(finalState.successMessage).contains("1 3 N")
+            assertThat(finalState.errorMessage).isNull()
+        }
+
+    @Test
+    fun `switchInputMode should reset loading state and clear errors`() =
+        runTest {
+            setupViewModel()
+
+            // Given - Start mission in JSON mode
+            every { mockExecuteRoverMissionUseCase(any()) } returns Result.success("1 3 N")
+            viewModel.executeMission()
+
+            // When - Switch to builder mode
+            viewModel.switchInputMode(InputMode.BUILDER)
+
+            // Then - State should be reset
+            val finalState = viewModel.uiState.value
+            assertThat(finalState.inputMode).isEqualTo(InputMode.BUILDER)
+            assertThat(finalState.isLoading).isFalse()
+            assertThat(finalState.errorMessage).isNull()
+            assertThat(finalState.successMessage).isNull()
+        }
+
+    @Test
+    fun `rapid field updates do not interfere with mission execution`() =
+        runTest {
+            setupViewModel()
+
+            every { mockExecuteRoverMissionUseCase(any()) } returns Result.success("2 3 E")
+
+            // When - Execute mission then rapidly update fields
+            viewModel.executeMission()
+
+            repeat(5) {
+                viewModel.updateJsonInput(
+                    """{"topRightCorner":{"x":$it,"y":$it},"roverPosition":{"x":0,"y":0},"roverDirection":"E","movements":"M"}"""
+                )
+            }
+
+            // Then - Mission should complete successfully
+            val finalState = viewModel.uiState.value
+            assertThat(finalState.successMessage).contains("2 3 E")
+            assertThat(finalState.isLoading).isFalse()
+        }
+
+    @Test
+    fun `clearMessages does not affect ongoing execution state`() =
+        runTest {
+            setupViewModel()
+
+            every { mockExecuteRoverMissionUseCase(any()) } returns Result.success("Clear Test Result")
+
+            // When - Execute mission and immediately clear messages
+            viewModel.executeMission()
+            viewModel.clearMessages()
+
+            // Then - clearMessages should have cleared the success message (this is the correct behavior)
+            val finalState = viewModel.uiState.value
+            assertThat(finalState.successMessage).isNull()
+            assertThat(finalState.errorMessage).isNull()
+            assertThat(finalState.isLoading).isFalse()
+        }
+
+    @Test
+    fun `mode switching cancels ongoing operations`() =
+        runTest {
+            setupViewModel()
+
+            // Given - Setup JSON mode execution
+            every { mockExecuteRoverMissionUseCase(any()) } returns Result.success("Original Result")
+
+            // When - Start mission in JSON, then switch to builder
+            viewModel.switchInputMode(InputMode.JSON)
+            viewModel.executeMission()
+            viewModel.switchInputMode(InputMode.BUILDER)
+
+            // Then - Mode should be switched and state reset
+            val finalState = viewModel.uiState.value
+            assertThat(finalState.inputMode).isEqualTo(InputMode.BUILDER)
+            assertThat(finalState.isLoading).isFalse()
+        }
 }

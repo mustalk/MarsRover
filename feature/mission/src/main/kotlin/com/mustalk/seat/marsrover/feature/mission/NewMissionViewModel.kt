@@ -12,7 +12,7 @@ import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteNetworkMissionUseCa
 import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteRoverMissionUseCase
 import com.mustalk.seat.marsrover.core.ui.resource.StringResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,6 +28,10 @@ import javax.inject.Inject
  * Execution strategy:
  * - JSON input mode: Uses local execution (ExecuteRoverMissionUseCase)
  * - Builder input mode: Uses network API execution (ExecuteNetworkMissionUseCase)
+ *
+ * Concurrency handling:
+ * - Uses Job tracking to prevent race conditions in mission execution
+ * - Cancels previous mission execution before starting new one
  */
 @Suppress("TooManyFunctions") // Acceptable for ViewModel with proper delegation
 @HiltViewModel
@@ -41,32 +45,27 @@ class NewMissionViewModel
         private val _uiState = MutableStateFlow(NewMissionUiState())
         val uiState: StateFlow<NewMissionUiState> = _uiState.asStateFlow()
 
-        private val stateManager =
-            StateManager(
-                updateState = { _uiState.value = it },
-                getCurrentState = { _uiState.value }
-            )
+        // Job tracking for concurrency control
+        private var missionJob: Job? = null
 
+        // Simplified state management - consolidated from separate StateManager class
+        private fun updateState(newState: NewMissionUiState) {
+            _uiState.value = newState
+        }
+
+        private fun getCurrentState(): NewMissionUiState = _uiState.value
+
+        // Delegated handlers for complex operations
         private val fieldUpdateHandler =
             FieldUpdateHandler(
-                updateState = { _uiState.value = it },
-                getCurrentState = { _uiState.value }
+                updateState = ::updateState,
+                getCurrentState = ::getCurrentState
             )
 
         private val validationHandler =
             ValidationHandler(
-                updateState = { _uiState.value = it },
-                getCurrentState = { _uiState.value }
-            )
-
-        private val missionExecutor =
-            MissionExecutor(
-                executeRoverMissionUseCase = executeRoverMissionUseCase,
-                executeNetworkMissionUseCase = executeNetworkMissionUseCase,
-                stringResourceProvider = stringResourceProvider,
-                stateManager = stateManager,
-                getCurrentState = { _uiState.value },
-                scope = viewModelScope
+                updateState = ::updateState,
+                getCurrentState = ::getCurrentState
             )
 
         // Primary ViewModel functions
@@ -74,24 +73,227 @@ class NewMissionViewModel
         /**
          * Switches between JSON and Builder input modes.
          * Clears any existing error messages when switching modes.
+         * Cancels any ongoing mission execution.
          */
-        fun switchInputMode(mode: InputMode) = stateManager.switchInputMode(mode)
+        fun switchInputMode(mode: InputMode) {
+            // Cancel any ongoing mission when switching modes
+            missionJob?.cancel()
+            missionJob = null
+
+            updateState(
+                getCurrentState().copy(
+                    inputMode = mode,
+                    errorMessage = null,
+                    successMessage = null,
+                    jsonError = null,
+                    isLoading = false
+                )
+            )
+        }
 
         /**
          * Clears all success and error messages from the UI state.
          */
-        fun clearMessages() = stateManager.clearMessages()
+        fun clearMessages() {
+            updateState(
+                getCurrentState().copy(
+                    errorMessage = null,
+                    successMessage = null,
+                    jsonError = null
+                )
+            )
+        }
 
         /**
-         * Executes the mission based on the current input mode:
+         * Executes the mission based on the current input mode.
+         * Implements proper concurrency control to prevent race conditions.
+         *
+         * - Cancels any previous mission execution before starting new one
+         * - Tracks mission Job to enable proper cancellation
          * - JSON mode: Uses local execution with ExecuteRoverMissionUseCase
          * - Builder mode: Uses network simulation with ExecuteNetworkMissionUseCase
          */
         fun executeMission() {
-            viewModelScope.launch {
-                missionExecutor.executeMission()
+            // Cancel any ongoing mission to prevent race conditions
+            missionJob?.cancel()
+
+            // Set loading state immediately
+            updateState(
+                getCurrentState().copy(
+                    isLoading = true,
+                    errorMessage = null,
+                    successMessage = null
+                )
+            )
+
+            // Start new mission execution with Job tracking
+            missionJob =
+                viewModelScope.launch {
+                    try {
+                        when (getCurrentState().inputMode) {
+                            InputMode.JSON -> executeJsonMission()
+                            InputMode.BUILDER -> executeBuilderMission()
+                        }
+                    } catch (e: JsonParsingException) {
+                        setErrorState(
+                            stringResourceProvider.getString(
+                                R.string.feature_mission_error_json_parsing,
+                                e.message ?: "Unknown error"
+                            )
+                        )
+                    } catch (e: MissionExecutionException) {
+                        setErrorState(
+                            stringResourceProvider.getString(
+                                R.string.feature_mission_error_mission_execution,
+                                e.message ?: "Unknown error"
+                            )
+                        )
+                    } catch (e: NetworkException) {
+                        setErrorState(
+                            stringResourceProvider.getString(
+                                R.string.feature_mission_error_network,
+                                e.message ?: "Unknown error"
+                            )
+                        )
+                    } catch (e: NumberFormatException) {
+                        setErrorState(stringResourceProvider.getString(R.string.feature_mission_error_invalid_format))
+                    } catch (e: IllegalArgumentException) {
+                        setErrorState(
+                            stringResourceProvider.getString(
+                                R.string.feature_mission_error_invalid_parameters,
+                                e.message ?: "Unknown error"
+                            )
+                        )
+                    } finally {
+                        // Clear job reference when mission completes
+                        if (missionJob?.isCompleted == true) {
+                            missionJob = null
+                        }
+                    }
+                }
+        }
+
+        /**
+         * Simplified state management methods - consolidated from StateManager class
+         */
+        private fun setSuccessState(message: String) {
+            updateState(
+                getCurrentState().copy(
+                    isLoading = false,
+                    successMessage = message,
+                    errorMessage = null
+                )
+            )
+        }
+
+        private fun setErrorState(message: String) {
+            updateState(
+                getCurrentState().copy(
+                    isLoading = false,
+                    errorMessage = message,
+                    successMessage = null
+                )
+            )
+        }
+
+        /**
+         * Executes mission using JSON input mode (local execution).
+         */
+        private suspend fun executeJsonMission() {
+            val result = executeRoverMissionUseCase(getCurrentState().jsonInput)
+
+            result.fold(
+                onSuccess = { finalPosition ->
+                    setSuccessState(
+                        stringResourceProvider.getString(R.string.feature_mission_success, finalPosition)
+                    )
+                },
+                onFailure = { error ->
+                    val errorMessage = mapRoverErrorToMessage(error)
+                    setErrorState(errorMessage)
+                }
+            )
+        }
+
+        /**
+         * Executes mission using builder input mode (network API simulation).
+         * Uses Job tracking to enable proper cancellation.
+         */
+        private suspend fun executeBuilderMission() {
+            val state = getCurrentState()
+
+            executeNetworkMissionUseCase
+                .executeFromBuilderInputs(
+                    plateauWidth = state.plateauWidth.toIntOrNull() ?: 0,
+                    plateauHeight = state.plateauHeight.toIntOrNull() ?: 0,
+                    roverStartX = state.roverStartX.toIntOrNull() ?: 0,
+                    roverStartY = state.roverStartY.toIntOrNull() ?: 0,
+                    roverDirection = state.roverStartDirection,
+                    movements = state.movementCommands
+                ).onEach { networkResult ->
+                    handleNetworkResult(networkResult)
+                }.launchIn(viewModelScope) // Use viewModelScope for proper lifecycle handling
+        }
+
+        private fun handleNetworkResult(networkResult: NetworkResult<String>) {
+            when (networkResult) {
+                is NetworkResult.Success -> {
+                    setSuccessState(
+                        stringResourceProvider.getString(R.string.feature_mission_network_success, networkResult.data)
+                    )
+                }
+
+                is NetworkResult.Error -> {
+                    setErrorState(
+                        stringResourceProvider.getString(
+                            R.string.feature_mission_error_network,
+                            networkResult.message
+                        )
+                    )
+                }
+
+                is NetworkResult.Loading -> {
+                    updateState(
+                        getCurrentState().copy(
+                            isLoading = true,
+                            errorMessage = null,
+                            successMessage = null
+                        )
+                    )
+                }
             }
         }
+
+        /**
+         * Maps RoverError to user-friendly error message.
+         */
+        private fun mapRoverErrorToMessage(error: Throwable): String =
+            when (error) {
+                is RoverError.InvalidInputFormat ->
+                    stringResourceProvider.getString(R.string.feature_mission_error_invalid_json_format, error.details)
+
+                is RoverError.InvalidInitialPosition ->
+                    stringResourceProvider.getString(
+                        R.string.feature_mission_error_position_out_of_bounds,
+                        error.x,
+                        error.y,
+                        error.plateauMaxX,
+                        error.plateauMaxY
+                    )
+
+                is RoverError.InvalidDirectionChar ->
+                    stringResourceProvider.getString(R.string.feature_mission_error_invalid_direction, error.char)
+
+                is RoverError.InvalidPlateauDimensions ->
+                    stringResourceProvider.getString(
+                        R.string.feature_mission_error_invalid_plateau_dimensions,
+                        error.x,
+                        error.y
+                    )
+
+                else ->
+                    stringResourceProvider.getString(R.string.feature_mission_error_unknown, error.message ?: "Unknown error")
+            }
 
         // Field update functions - delegated to handler
         fun updateJsonInput(json: String) = fieldUpdateHandler.updateJsonInput(json)
@@ -118,6 +320,12 @@ class NewMissionViewModel
         fun validateRoverStartY() = validationHandler.validateRoverStartY()
 
         fun validateMovementCommands() = validationHandler.validateMovementCommands()
+
+        override fun onCleared() {
+            super.onCleared()
+            // Cancel any ongoing mission when ViewModel is cleared
+            missionJob?.cancel()
+        }
     }
 
 /**
@@ -323,210 +531,4 @@ private class ValidationHandler(
             }
         }
     }
-}
-
-/**
- * Handles state updates for the New Mission screen.
- * Manages loading, success, error, and mode switching states.
- */
-private class StateManager(
-    private val updateState: (NewMissionUiState) -> Unit,
-    private val getCurrentState: () -> NewMissionUiState,
-) {
-    fun switchInputMode(mode: InputMode) {
-        updateState(
-            getCurrentState().copy(
-                inputMode = mode,
-                errorMessage = null,
-                successMessage = null,
-                jsonError = null
-            )
-        )
-    }
-
-    fun setLoadingState() {
-        updateState(
-            getCurrentState().copy(
-                isLoading = true,
-                errorMessage = null,
-                successMessage = null
-            )
-        )
-    }
-
-    fun setSuccessState(message: String) {
-        updateState(
-            getCurrentState().copy(
-                isLoading = false,
-                successMessage = message,
-                errorMessage = null
-            )
-        )
-    }
-
-    fun setErrorState(message: String) {
-        updateState(
-            getCurrentState().copy(
-                isLoading = false,
-                errorMessage = message,
-                successMessage = null
-            )
-        )
-    }
-
-    fun clearMessages() {
-        updateState(
-            getCurrentState().copy(
-                errorMessage = null,
-                successMessage = null,
-                jsonError = null
-            )
-        )
-    }
-}
-
-/**
- * Handles mission execution logic.
- * Coordinates between JSON and Builder mode execution with proper error handling.
- */
-private class MissionExecutor(
-    private val executeRoverMissionUseCase: ExecuteRoverMissionUseCase,
-    private val executeNetworkMissionUseCase: ExecuteNetworkMissionUseCase,
-    private val stringResourceProvider: StringResourceProvider,
-    private val stateManager: StateManager,
-    private val getCurrentState: () -> NewMissionUiState,
-    private val scope: CoroutineScope,
-) {
-    suspend fun executeMission() {
-        stateManager.setLoadingState()
-
-        try {
-            when (getCurrentState().inputMode) {
-                InputMode.JSON -> executeJsonMission()
-                InputMode.BUILDER -> executeBuilderMission()
-            }
-        } catch (e: JsonParsingException) {
-            stateManager.setErrorState(
-                stringResourceProvider.getString(
-                    R.string.feature_mission_error_json_parsing,
-                    e.message ?: "Unknown error"
-                )
-            )
-        } catch (e: MissionExecutionException) {
-            stateManager.setErrorState(
-                stringResourceProvider.getString(
-                    R.string.feature_mission_error_mission_execution,
-                    e.message ?: "Unknown error"
-                )
-            )
-        } catch (e: NetworkException) {
-            stateManager.setErrorState(
-                stringResourceProvider.getString(
-                    R.string.feature_mission_error_network,
-                    e.message ?: "Unknown error"
-                )
-            )
-        } catch (e: NumberFormatException) {
-            stateManager.setErrorState(stringResourceProvider.getString(R.string.feature_mission_error_invalid_format))
-        } catch (e: IllegalArgumentException) {
-            stateManager.setErrorState(
-                stringResourceProvider.getString(
-                    R.string.feature_mission_error_invalid_parameters,
-                    e.message ?: "Unknown error"
-                )
-            )
-        }
-    }
-
-    /**
-     * Executes mission using JSON input mode (local execution).
-     */
-    private suspend fun executeJsonMission() {
-        val result = executeRoverMissionUseCase(getCurrentState().jsonInput)
-
-        result.fold(
-            onSuccess = { finalPosition ->
-                stateManager.setSuccessState(
-                    stringResourceProvider.getString(R.string.feature_mission_success, finalPosition)
-                )
-            },
-            onFailure = { error ->
-                val errorMessage = mapRoverErrorToMessage(error)
-                stateManager.setErrorState(errorMessage)
-            }
-        )
-    }
-
-    /**
-     * Executes mission using builder input mode (network API simulation).
-     */
-    private suspend fun executeBuilderMission() {
-        val state = getCurrentState()
-
-        executeNetworkMissionUseCase
-            .executeFromBuilderInputs(
-                plateauWidth = state.plateauWidth.toIntOrNull() ?: 0,
-                plateauHeight = state.plateauHeight.toIntOrNull() ?: 0,
-                roverStartX = state.roverStartX.toIntOrNull() ?: 0,
-                roverStartY = state.roverStartY.toIntOrNull() ?: 0,
-                roverDirection = state.roverStartDirection,
-                movements = state.movementCommands
-            ).onEach { networkResult ->
-                handleNetworkResult(networkResult)
-            }.launchIn(scope)
-    }
-
-    private fun handleNetworkResult(networkResult: NetworkResult<String>) {
-        when (networkResult) {
-            is NetworkResult.Success -> {
-                stateManager.setSuccessState(
-                    stringResourceProvider.getString(R.string.feature_mission_network_success, networkResult.data)
-                )
-            }
-
-            is NetworkResult.Error -> {
-                stateManager.setErrorState(
-                    stringResourceProvider.getString(
-                        R.string.feature_mission_error_network,
-                        networkResult.message
-                    )
-                )
-            }
-
-            is NetworkResult.Loading -> {
-                stateManager.setLoadingState()
-            }
-        }
-    }
-
-    /**
-     * Maps RoverError to user-friendly error message.
-     */
-    private fun mapRoverErrorToMessage(error: Throwable): String =
-        when (error) {
-            is RoverError.InvalidInputFormat ->
-                stringResourceProvider.getString(R.string.feature_mission_error_invalid_json_format, error.details)
-
-            is RoverError.InvalidInitialPosition ->
-                stringResourceProvider.getString(
-                    R.string.feature_mission_error_position_out_of_bounds,
-                    error.x,
-                    error.y,
-                    error.plateauMaxX,
-                    error.plateauMaxY
-                )
-
-            is RoverError.InvalidDirectionChar ->
-                stringResourceProvider.getString(R.string.feature_mission_error_invalid_direction, error.char)
-
-            is RoverError.InvalidPlateauDimensions ->
-                stringResourceProvider.getString(
-                    R.string.feature_mission_error_invalid_plateau_dimensions,
-                    error.x,
-                    error.y
-                )
-
-            else ->
-                stringResourceProvider.getString(R.string.feature_mission_error_unknown, error.message ?: "Unknown error")
-        }
 }
