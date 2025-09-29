@@ -1,24 +1,20 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.marsrover.android.application)
+    alias(libs.plugins.marsrover.android.application.compose)
+    alias(libs.plugins.marsrover.android.application.jacoco)
+    alias(libs.plugins.marsrover.android.hilt)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "com.mustalk.seat.marsrover"
-    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.mustalk.seat.marsrover"
-        minSdk = 24
-        targetSdk = 35
         versionCode = 2
-        versionName = "1.0.1"
+        versionName = "1.1.0"
 
-        testInstrumentationRunner = "com.mustalk.seat.marsrover.HiltTestRunner"
+        testInstrumentationRunner = "com.mustalk.seat.marsrover.core.testing.android.MarsTestRunner"
     }
 
     buildTypes {
@@ -27,72 +23,27 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
-    }
 }
 
 dependencies {
-    // UI and Core AndroidX
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
+    // Core modules (required for app-level DI wiring)
+    implementation(project(":core:model"))
+    implementation(project(":core:domain"))
+    implementation(project(":core:data"))
+    implementation(project(":core:common"))
+    implementation(project(":core:ui"))
 
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
+    // Feature modules
+    implementation(project(":feature:dashboard"))
+    implementation(project(":feature:mission"))
 
-    // System Splash Screen
+    // App-specific dependencies not provided by convention plugins or core modules
     implementation(libs.androidx.core.splashscreen)
 
-    // Dependency Injection
-    implementation(libs.hilt.android)
+    // App navigation (not provided by feature convention plugin)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.hilt.navigation.compose)
-    ksp(libs.hilt.compiler)
 
-    // Kotlinx Serialization
-    implementation(libs.kotlinx.serialization.json)
-
-    // Network
-    implementation(libs.okhttp)
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.kotlinx.serialization)
-    implementation(libs.logging.interceptor)
-
-    // Animation
-    implementation(libs.lottie.compose)
-
-    // ViewModel
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-
-    // Testing
-    testImplementation(libs.junit)
-    testImplementation(libs.mockk)
-    testImplementation(libs.truth)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockwebserver)
-
-    // Android Testing
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    androidTestImplementation(libs.hilt.android.testing)
-    kspAndroidTest(libs.hilt.compiler)
-
-    // Debug
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    // Android integration testing (provides all core testing dependencies via api)
+    androidTestImplementation(project(":core:testing-android"))
 }

@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -16,18 +17,26 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
-        mavenCentral()
-    }
-
-    // We want the version catalog to be available in all subprojects
-    versionCatalogs {
-        create("libs") {
-            // Renamed from libs.versions.toml to lib.versions.toml because of: https://github.com/gradle/gradle/issues/20282
-            from(files("gradle/lib.versions.toml"))
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
         }
+        mavenCentral()
     }
 }
 
 rootProject.name = "MarsRover"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
+include(":core:model")
+include(":core:domain")
+include(":core:data")
+include(":core:common")
+include(":core:ui")
+include(":core:testing-android")
+include(":core:testing-jvm")
+include(":feature:dashboard")
+include(":feature:mission")

@@ -1,0 +1,88 @@
+plugins {
+    `kotlin-dsl`
+}
+
+// Register the convention plugins so they can be used by ID
+gradlePlugin {
+    plugins {
+        register("androidApplication") {
+            id = "marsrover.android.application"
+            implementationClass = "AndroidApplicationConventionPlugin"
+        }
+        register("androidApplicationCompose") {
+            id = "marsrover.android.application.compose"
+            implementationClass = "AndroidApplicationComposeConventionPlugin"
+        }
+        register("androidLibrary") {
+            id = "marsrover.android.library"
+            implementationClass = "AndroidLibraryConventionPlugin"
+        }
+        register("androidLibraryCompose") {
+            id = "marsrover.android.library.compose"
+            implementationClass = "AndroidLibraryComposeConventionPlugin"
+        }
+        register("androidFeature") {
+            id = "marsrover.android.feature"
+            implementationClass = "AndroidFeatureConventionPlugin"
+        }
+        register("jvmLibrary") {
+            id = "marsrover.jvm.library"
+            implementationClass = "JvmLibraryConventionPlugin"
+        }
+        register("androidHilt") {
+            id = "marsrover.android.hilt"
+            implementationClass = "AndroidHiltConventionPlugin"
+        }
+        register("detektQuality") {
+            id = "marsrover.quality.detekt"
+            implementationClass = "DetektConventionPlugin"
+        }
+        register("spotlessQuality") {
+            id = "marsrover.quality.spotless"
+            implementationClass = "SpotlessConventionPlugin"
+        }
+        register("qualityGate") {
+            id = "marsrover.quality.gate"
+            implementationClass = "QualityGateConventionPlugin"
+        }
+        register("projectUtils") {
+            id = "marsrover.project.utils"
+            implementationClass = "ProjectUtilsConventionPlugin"
+        }
+        register("androidApplicationJacoco") {
+            id = "marsrover.android.application.jacoco"
+            implementationClass = "AndroidApplicationJacocoConventionPlugin"
+        }
+        register("AndroidLibraryJacoco") {
+            id = "marsrover.android.library.jacoco"
+            implementationClass = "AndroidLibraryJacocoConventionPlugin"
+        }
+        register("jvmLibraryJacoco") {
+            id = "marsrover.jvm.library.jacoco"
+            implementationClass = "JvmLibraryJacocoConventionPlugin"
+        }
+        register("rootTesting") {
+            id = "marsrover.root.testing"
+            implementationClass = "RootTestingConventionPlugin"
+        }
+    }
+}
+
+// Dependencies required to COMPILE the convention plugin classes themselves.
+// These are not dependencies FOR the modules applying the plugins, but FOR the plugins.
+dependencies {
+    compileOnly(gradleApi()) // Standard for Gradle plugin development
+
+    // AGP for ApplicationExtension, LibraryExtension, CommonExtension
+    compileOnly(libs.android.gradle.plugin)
+
+    // Kotlin Gradle Plugin for KotlinProjectExtension, KotlinAndroidProjectExtension
+    compileOnly(libs.kotlin.gradle.plugin)
+
+    // Compose Gradle Plugin for Compose Compiler configuration
+    compileOnly(libs.compose.gradle.plugin)
+
+    // Plugin dependencies needed for extension configuration
+    compileOnly(libs.detekt.gradle.plugin)
+    compileOnly(libs.spotless.gradle.plugin)
+}

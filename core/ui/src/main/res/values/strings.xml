@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Core UI: App-wide information -->
+    <string name="core_ui_app_name">MarsRover</string>
+
+    <!-- Core UI: Common Actions -->
+    <string name="core_ui_action_start">Start</string>
+    <string name="core_ui_action_cancel">Cancel</string>
+    <string name="core_ui_action_execute">Execute</string>
+    <string name="core_ui_action_retry">Retry</string>
+    <string name="core_ui_action_clear">Clear</string>
+
+    <!-- Core UI: Loading states -->
+    <string name="core_ui_loading_mission_process">Processing mission…</string>
+    <string name="core_ui_loading_mission_execution">Executing mission…</string>
+    <string name="core_ui_loading_mission_data">Processing mission data…</string>
+    <string name="core_ui_loading_rover_commands">Executing rover commands…</string>
+    <string name="core_ui_loading_validation">Validating plateau bounds…</string>
+    <string name="core_ui_loading_connection">Establishing Mars connection…</string>
+    <string name="core_ui_loading_please_wait">Please wait while we process your request</string>
+
+    <!-- Core UI: Content Descriptions for Accessibility -->
+    <string name="core_ui_cd_loading">Loading animation</string>
+    <string name="core_ui_cd_error_toast">Error notification</string>
+    <string name="core_ui_cd_warning_toast">Warning notification</string>
+    <string name="core_ui_cd_info_toast">Information notification</string>
+    <string name="core_ui_cd_error_icon">Error icon</string>
+    <string name="core_ui_cd_warning_icon">Warning icon</string>
+    <string name="core_ui_cd_info_icon">Information icon</string>
+    <string name="core_ui_cd_mission_card">Mission result card</string>
+    <string name="core_ui_cd_mars_background">Mars background image</string>
+    <string name="core_ui_cd_navigate_back">Navigate back</string>
+
+    <!-- Core UI: Generic component content descriptions -->
+    <string name="core_ui_button_content_description">Action button</string>
+    <string name="core_ui_card_content_description">Information card</string>
+    <string name="core_ui_textfield_content_description">Text input field</string>
+    <string name="core_ui_lottie_animation_content_description">Mission animation</string>
+
+    <!-- Core UI: Toast messages -->
+    <string name="core_ui_toast_mission_failed">Mission Failed</string>
+    <string name="core_ui_toast_boundary_warning">Boundary Warning</string>
+    <string name="core_ui_toast_mission_success">Mission Success</string>
+    <string name="core_ui_toast_connection_error">Connection Error</string>
+    <string name="core_ui_toast_message_invalid_json">Invalid JSON format</string>
+
+    <!-- Core UI: Error Messages (reusable) -->
+    <string name="core_ui_error_invalid_json">Invalid JSON format</string>
+    <string name="core_ui_error_mission_failed">Mission execution failed</string>
+    <string name="core_ui_error_unknown">An unexpected error occurred</string>
+
+    <!-- Core UI: Direction Labels (reusable) -->
+    <string name="core_ui_direction_north">North</string>
+    <string name="core_ui_direction_east">East</string>
+    <string name="core_ui_direction_south">South</string>
+    <string name="core_ui_direction_west">West</string>
+
+    <!-- Core UI: Generic labels -->
+    <string name="core_ui_label_loading">Loading…</string>
+    <string name="core_ui_label_error">Error</string>
+    <string name="core_ui_label_warning">Warning</string>
+    <string name="core_ui_label_success">Success</string>
+
+    <!-- Core UI: Generic test strings (reusable across components) -->
+    <string name="core_ui_test_content_example">Example content</string>
+    <string name="core_ui_test_title_example">Example Title</string>
+    <string name="core_ui_test_label_example">Example Label</string>
+    <string name="core_ui_test_value_example">Example Value</string>
+    <string name="core_ui_test_placeholder_example">Enter text here…</string>
+    <string name="core_ui_test_error_message">This field is required</string>
+    <string name="core_ui_test_message_long">This is a very long message that should still display correctly and wrap properly to multiple lines if needed for testing purposes</string>
+</resources>

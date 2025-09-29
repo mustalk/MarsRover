@@ -1,0 +1,534 @@
+package com.mustalk.seat.marsrover.feature.mission
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.mustalk.seat.marsrover.core.common.constants.Constants
+import com.mustalk.seat.marsrover.core.common.exceptions.JsonParsingException
+import com.mustalk.seat.marsrover.core.common.exceptions.MissionExecutionException
+import com.mustalk.seat.marsrover.core.common.exceptions.NetworkException
+import com.mustalk.seat.marsrover.core.common.network.NetworkResult
+import com.mustalk.seat.marsrover.core.domain.error.RoverError
+import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteNetworkMissionUseCase
+import com.mustalk.seat.marsrover.core.domain.usecase.ExecuteRoverMissionUseCase
+import com.mustalk.seat.marsrover.core.ui.resource.StringResourceProvider
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+/**
+ * ViewModel for the New Mission screen.
+ * Manages state for both JSON input and builder field input modes.
+ *
+ * Execution strategy:
+ * - JSON input mode: Uses local execution (ExecuteRoverMissionUseCase)
+ * - Builder input mode: Uses network API execution (ExecuteNetworkMissionUseCase)
+ *
+ * Concurrency handling:
+ * - Uses Job tracking to prevent race conditions in mission execution
+ * - Cancels previous mission execution before starting new one
+ */
+@Suppress("TooManyFunctions") // Acceptable for ViewModel with proper delegation
+@HiltViewModel
+class NewMissionViewModel
+    @Inject
+    constructor(
+        private val executeRoverMissionUseCase: ExecuteRoverMissionUseCase,
+        private val executeNetworkMissionUseCase: ExecuteNetworkMissionUseCase,
+        private val stringResourceProvider: StringResourceProvider,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(NewMissionUiState())
+        val uiState: StateFlow<NewMissionUiState> = _uiState.asStateFlow()
+
+        // Job tracking for concurrency control
+        private var missionJob: Job? = null
+
+        // Simplified state management - consolidated from separate StateManager class
+        private fun updateState(newState: NewMissionUiState) {
+            _uiState.value = newState
+        }
+
+        private fun getCurrentState(): NewMissionUiState = _uiState.value
+
+        // Delegated handlers for complex operations
+        private val fieldUpdateHandler =
+            FieldUpdateHandler(
+                updateState = ::updateState,
+                getCurrentState = ::getCurrentState
+            )
+
+        private val validationHandler =
+            ValidationHandler(
+                updateState = ::updateState,
+                getCurrentState = ::getCurrentState
+            )
+
+        // Primary ViewModel functions
+
+        /**
+         * Switches between JSON and Builder input modes.
+         * Clears any existing error messages when switching modes.
+         * Cancels any ongoing mission execution.
+         */
+        fun switchInputMode(mode: InputMode) {
+            // Cancel any ongoing mission when switching modes
+            missionJob?.cancel()
+            missionJob = null
+
+            updateState(
+                getCurrentState().copy(
+                    inputMode = mode,
+                    errorMessage = null,
+                    successMessage = null,
+                    jsonError = null,
+                    isLoading = false
+                )
+            )
+        }
+
+        /**
+         * Clears all success and error messages from the UI state.
+         */
+        fun clearMessages() {
+            updateState(
+                getCurrentState().copy(
+                    errorMessage = null,
+                    successMessage = null,
+                    jsonError = null
+                )
+            )
+        }
+
+        /**
+         * Executes the mission based on the current input mode.
+         * Implements proper concurrency control to prevent race conditions.
+         *
+         * - Cancels any previous mission execution before starting new one
+         * - Tracks mission Job to enable proper cancellation
+         * - JSON mode: Uses local execution with ExecuteRoverMissionUseCase
+         * - Builder mode: Uses network simulation with ExecuteNetworkMissionUseCase
+         */
+        fun executeMission() {
+            // Cancel any ongoing mission to prevent race conditions
+            missionJob?.cancel()
+
+            // Set loading state immediately
+            updateState(
+                getCurrentState().copy(
+                    isLoading = true,
+                    errorMessage = null,
+                    successMessage = null
+                )
+            )
+
+            // Start new mission execution with Job tracking
+            missionJob =
+                viewModelScope.launch {
+                    try {
+                        when (getCurrentState().inputMode) {
+                            InputMode.JSON -> executeJsonMission()
+                            InputMode.BUILDER -> executeBuilderMission()
+                        }
+                    } catch (e: JsonParsingException) {
+                        setErrorState(
+                            stringResourceProvider.getString(
+                                R.string.feature_mission_error_json_parsing,
+                                e.message ?: "Unknown error"
+                            )
+                        )
+                    } catch (e: MissionExecutionException) {
+                        setErrorState(
+                            stringResourceProvider.getString(
+                                R.string.feature_mission_error_mission_execution,
+                                e.message ?: "Unknown error"
+                            )
+                        )
+                    } catch (e: NetworkException) {
+                        setErrorState(
+                            stringResourceProvider.getString(
+                                R.string.feature_mission_error_network,
+                                e.message ?: "Unknown error"
+                            )
+                        )
+                    } catch (e: NumberFormatException) {
+                        setErrorState(stringResourceProvider.getString(R.string.feature_mission_error_invalid_format))
+                    } catch (e: IllegalArgumentException) {
+                        setErrorState(
+                            stringResourceProvider.getString(
+                                R.string.feature_mission_error_invalid_parameters,
+                                e.message ?: "Unknown error"
+                            )
+                        )
+                    } finally {
+                        // Clear job reference when mission completes
+                        if (missionJob?.isCompleted == true) {
+                            missionJob = null
+                        }
+                    }
+                }
+        }
+
+        /**
+         * Simplified state management methods - consolidated from StateManager class
+         */
+        private fun setSuccessState(message: String) {
+            updateState(
+                getCurrentState().copy(
+                    isLoading = false,
+                    successMessage = message,
+                    errorMessage = null
+                )
+            )
+        }
+
+        private fun setErrorState(message: String) {
+            updateState(
+                getCurrentState().copy(
+                    isLoading = false,
+                    errorMessage = message,
+                    successMessage = null
+                )
+            )
+        }
+
+        /**
+         * Executes mission using JSON input mode (local execution).
+         */
+        private suspend fun executeJsonMission() {
+            val result = executeRoverMissionUseCase(getCurrentState().jsonInput)
+
+            result.fold(
+                onSuccess = { finalPosition ->
+                    setSuccessState(
+                        stringResourceProvider.getString(R.string.feature_mission_success, finalPosition)
+                    )
+                },
+                onFailure = { error ->
+                    val errorMessage = mapRoverErrorToMessage(error)
+                    setErrorState(errorMessage)
+                }
+            )
+        }
+
+        /**
+         * Executes mission using builder input mode (network API simulation).
+         * Uses Job tracking to enable proper cancellation.
+         */
+        private suspend fun executeBuilderMission() {
+            val state = getCurrentState()
+
+            executeNetworkMissionUseCase
+                .executeFromBuilderInputs(
+                    plateauWidth = state.plateauWidth.toIntOrNull() ?: 0,
+                    plateauHeight = state.plateauHeight.toIntOrNull() ?: 0,
+                    roverStartX = state.roverStartX.toIntOrNull() ?: 0,
+                    roverStartY = state.roverStartY.toIntOrNull() ?: 0,
+                    roverDirection = state.roverStartDirection,
+                    movements = state.movementCommands
+                ).onEach { networkResult ->
+                    handleNetworkResult(networkResult)
+                }.launchIn(viewModelScope) // Use viewModelScope for proper lifecycle handling
+        }
+
+        private fun handleNetworkResult(networkResult: NetworkResult<String>) {
+            when (networkResult) {
+                is NetworkResult.Success -> {
+                    setSuccessState(
+                        stringResourceProvider.getString(R.string.feature_mission_network_success, networkResult.data)
+                    )
+                }
+
+                is NetworkResult.Error -> {
+                    setErrorState(
+                        stringResourceProvider.getString(
+                            R.string.feature_mission_error_network,
+                            networkResult.message
+                        )
+                    )
+                }
+
+                is NetworkResult.Loading -> {
+                    updateState(
+                        getCurrentState().copy(
+                            isLoading = true,
+                            errorMessage = null,
+                            successMessage = null
+                        )
+                    )
+                }
+            }
+        }
+
+        /**
+         * Maps RoverError to user-friendly error message.
+         */
+        private fun mapRoverErrorToMessage(error: Throwable): String =
+            when (error) {
+                is RoverError.InvalidInputFormat ->
+                    stringResourceProvider.getString(R.string.feature_mission_error_invalid_json_format, error.details)
+
+                is RoverError.InvalidInitialPosition ->
+                    stringResourceProvider.getString(
+                        R.string.feature_mission_error_position_out_of_bounds,
+                        error.x,
+                        error.y,
+                        error.plateauMaxX,
+                        error.plateauMaxY
+                    )
+
+                is RoverError.InvalidDirectionChar ->
+                    stringResourceProvider.getString(R.string.feature_mission_error_invalid_direction, error.char)
+
+                is RoverError.InvalidPlateauDimensions ->
+                    stringResourceProvider.getString(
+                        R.string.feature_mission_error_invalid_plateau_dimensions,
+                        error.x,
+                        error.y
+                    )
+
+                else ->
+                    stringResourceProvider.getString(R.string.feature_mission_error_unknown, error.message ?: "Unknown error")
+            }
+
+        // Field update functions - delegated to handler
+        fun updateJsonInput(json: String) = fieldUpdateHandler.updateJsonInput(json)
+
+        fun updatePlateauWidth(width: String) = fieldUpdateHandler.updatePlateauWidth(width)
+
+        fun updatePlateauHeight(height: String) = fieldUpdateHandler.updatePlateauHeight(height)
+
+        fun updateRoverStartX(x: String) = fieldUpdateHandler.updateRoverStartX(x)
+
+        fun updateRoverStartY(y: String) = fieldUpdateHandler.updateRoverStartY(y)
+
+        fun updateRoverStartDirection(direction: String) = fieldUpdateHandler.updateRoverStartDirection(direction)
+
+        fun updateMovementCommands(commands: String) = fieldUpdateHandler.updateMovementCommands(commands)
+
+        // Validation functions - delegated to handler
+        fun validatePlateauWidth() = validationHandler.validatePlateauWidth()
+
+        fun validatePlateauHeight() = validationHandler.validatePlateauHeight()
+
+        fun validateRoverStartX() = validationHandler.validateRoverStartX()
+
+        fun validateRoverStartY() = validationHandler.validateRoverStartY()
+
+        fun validateMovementCommands() = validationHandler.validateMovementCommands()
+
+        override fun onCleared() {
+            super.onCleared()
+            // Cancel any ongoing mission when ViewModel is cleared
+            missionJob?.cancel()
+        }
+    }
+
+/**
+ * Handles field updates for the New Mission screen.
+ * Manages form field state updates and clears related error messages.
+ */
+private class FieldUpdateHandler(
+    private val updateState: (NewMissionUiState) -> Unit,
+    private val getCurrentState: () -> NewMissionUiState,
+) {
+    fun updateJsonInput(json: String) {
+        updateState(
+            getCurrentState().copy(
+                jsonInput = json,
+                jsonError = null,
+                errorMessage = null
+            )
+        )
+    }
+
+    fun updatePlateauWidth(width: String) {
+        // Filter to allow only digits
+        val filteredWidth = width.filter { it.isDigit() }
+        updateState(
+            getCurrentState().copy(
+                plateauWidth = filteredWidth,
+                plateauWidthError = null,
+                errorMessage = null
+            )
+        )
+    }
+
+    fun updatePlateauHeight(height: String) {
+        // Filter to allow only digits
+        val filteredHeight = height.filter { it.isDigit() }
+        updateState(
+            getCurrentState().copy(
+                plateauHeight = filteredHeight,
+                plateauHeightError = null,
+                errorMessage = null
+            )
+        )
+    }
+
+    fun updateRoverStartX(x: String) {
+        // Filter to allow only digits (no negative sign since we don't allow negative coordinates)
+        val filteredX = x.filter { it.isDigit() }
+        updateState(
+            getCurrentState().copy(
+                roverStartX = filteredX,
+                roverStartXError = null,
+                errorMessage = null
+            )
+        )
+    }
+
+    fun updateRoverStartY(y: String) {
+        // Filter to allow only digits (no negative sign since we don't allow negative coordinates)
+        val filteredY = y.filter { it.isDigit() }
+        updateState(
+            getCurrentState().copy(
+                roverStartY = filteredY,
+                roverStartYError = null,
+                errorMessage = null
+            )
+        )
+    }
+
+    fun updateRoverStartDirection(direction: String) {
+        updateState(
+            getCurrentState().copy(
+                roverStartDirection = direction,
+                roverStartDirectionError = null,
+                errorMessage = null
+            )
+        )
+    }
+
+    fun updateMovementCommands(commands: String) {
+        updateState(
+            getCurrentState().copy(
+                movementCommands = commands,
+                movementCommandsError = null,
+                errorMessage = null
+            )
+        )
+    }
+}
+
+/**
+ * Handles field validation for the New Mission screen.
+ * Validates user input and sets appropriate resource IDs for error messages.
+ */
+private class ValidationHandler(
+    private val updateState: (NewMissionUiState) -> Unit,
+    private val getCurrentState: () -> NewMissionUiState,
+) {
+    fun validatePlateauWidth() {
+        val width = getCurrentState().plateauWidth
+        if (width.isNotBlank()) {
+            val widthValue = width.toIntOrNull()
+            when {
+                widthValue == null -> {
+                    updateState(
+                        getCurrentState().copy(
+                            plateauWidthError = R.string.feature_mission_error_valid_number
+                        )
+                    )
+                }
+
+                widthValue <= 0 -> {
+                    updateState(
+                        getCurrentState().copy(
+                            plateauWidthError = R.string.feature_mission_error_positive_number
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun validatePlateauHeight() {
+        val height = getCurrentState().plateauHeight
+        if (height.isNotBlank()) {
+            val heightValue = height.toIntOrNull()
+            when {
+                heightValue == null -> {
+                    updateState(
+                        getCurrentState().copy(
+                            plateauHeightError = R.string.feature_mission_error_valid_number
+                        )
+                    )
+                }
+
+                heightValue <= 0 -> {
+                    updateState(
+                        getCurrentState().copy(
+                            plateauHeightError = R.string.feature_mission_error_positive_number
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun validateRoverStartX() {
+        val x = getCurrentState().roverStartX
+        if (x.isNotBlank()) {
+            val xValue = x.toIntOrNull()
+            when {
+                xValue == null -> {
+                    updateState(
+                        getCurrentState().copy(
+                            roverStartXError = R.string.feature_mission_error_valid_number
+                        )
+                    )
+                }
+
+                xValue < 0 -> {
+                    updateState(
+                        getCurrentState().copy(
+                            roverStartXError = R.string.feature_mission_error_non_negative_number
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun validateRoverStartY() {
+        val y = getCurrentState().roverStartY
+        if (y.isNotBlank()) {
+            val yValue = y.toIntOrNull()
+            when {
+                yValue == null -> {
+                    updateState(
+                        getCurrentState().copy(
+                            roverStartYError = R.string.feature_mission_error_valid_number
+                        )
+                    )
+                }
+
+                yValue < 0 -> {
+                    updateState(
+                        getCurrentState().copy(
+                            roverStartYError = R.string.feature_mission_error_non_negative_number
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun validateMovementCommands() {
+        val commands = getCurrentState().movementCommands
+        if (commands.isNotBlank()) {
+            if (commands.any { it !in Constants.Validation.VALID_MOVEMENT_CHARS }) {
+                updateState(
+                    getCurrentState().copy(
+                        movementCommandsError = R.string.feature_mission_error_invalid_commands
+                    )
+                )
+            }
+        }
+    }
+}

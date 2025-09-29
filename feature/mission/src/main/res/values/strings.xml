@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mission Feature Strings - Mapped from original app module -->
+
+    <!-- Screen Titles -->
+    <string name="feature_mission_title">New Mission</string>
+
+    <!-- Input Mode Toggle -->
+    <string name="feature_mission_input_mode_selector_title">Choose input method</string>
+    <string name="feature_mission_input_mode_json_short">JSON</string>
+    <string name="feature_mission_input_mode_builder_short">Builder</string>
+
+    <!-- JSON Input Section -->
+    <string name="feature_mission_json_configuration_title">Mission JSON Configuration</string>
+    <string name="feature_mission_json_configuration_description">Enter mission parameters in JSON format or modify the example below</string>
+    <string name="feature_mission_input_json_label">Enter mission JSON</string>
+
+    <!-- Plateau Configuration -->
+    <string name="feature_mission_plateau_size">Plateau Size</string>
+    <string name="feature_mission_plateau_configuration_description">Define the exploration area dimensions</string>
+    <string name="feature_mission_plateau_width">Width</string>
+    <string name="feature_mission_plateau_height">Height</string>
+
+    <!-- Rover Position -->
+    <string name="feature_mission_rover_position">Rover Position</string>
+    <string name="feature_mission_rover_start_position_description">Set the rover\'s starting position and orientation</string>
+    <string name="feature_mission_rover_start_x">Start X</string>
+    <string name="feature_mission_rover_start_y">Start Y</string>
+
+    <!-- Direction Options -->
+    <string name="feature_mission_rover_direction">Rover Direction</string>
+    <string name="feature_mission_direction_north">North</string>
+    <string name="feature_mission_direction_south">South</string>
+    <string name="feature_mission_direction_east">East</string>
+    <string name="feature_mission_direction_west">West</string>
+
+    <!-- Movement Commands -->
+    <string name="feature_mission_rover_movements">Rover Movements</string>
+    <string name="feature_mission_movement_commands_description">Enter movement commands (L = Left, R = Right, M = Move)</string>
+    <string name="feature_mission_movement_commands_label">Movement Commands</string>
+    <string name="feature_mission_movement_commands_placeholder">LMLMLMLMM</string>
+
+    <!-- Actions -->
+    <string name="feature_mission_action_execute">Execute</string>
+    <string name="feature_mission_action_cancel">Cancel</string>
+    <string name="feature_mission_action_clear">Clear</string>
+    <string name="feature_mission_action_turn_left">Turn Left</string>
+    <string name="feature_mission_action_turn_right">Turn Right</string>
+    <string name="feature_mission_action_move_forward">Move Forward</string>
+
+    <!-- Content Descriptions -->
+    <string name="feature_mission_cd_execute_mission">Execute mission with current parameters</string>
+    <string name="feature_mission_cd_cancel_mission">Cancel and return to previous screen</string>
+    <string name="feature_mission_cd_navigate_back">Navigate back</string>
+    <string name="feature_mission_cd_add_left_turn">Add Left turn command</string>
+    <string name="feature_mission_cd_add_right_turn">Add Right turn command</string>
+    <string name="feature_mission_cd_add_move_forward">Add Move forward command</string>
+    <string name="feature_mission_cd_clear_commands">Clear all movement commands</string>
+
+    <!-- Loading and Status Messages -->
+    <string name="feature_mission_loading_rover_commands">Executing rover commands…</string>
+    <string name="feature_mission_toast_mission_failed">Mission Failed</string>
+
+    <!-- Validation Error Messages -->
+    <string name="feature_mission_error_valid_number">Must be a valid number</string>
+    <string name="feature_mission_error_positive_number">Must be a positive number</string>
+    <string name="feature_mission_error_non_negative_number">Must be a non-negative number</string>
+    <string name="feature_mission_error_invalid_commands">Must contain only L, R, M characters</string>
+    <string name="feature_mission_error_invalid_format">Invalid number format in input fields</string>
+
+    <!-- Mission Execution Messages (localized with parameters) -->
+    <string name="feature_mission_success">Mission completed! Final position: %1$s</string>
+    <string name="feature_mission_network_success">Network mission completed! Final position: %1$s</string>
+    <string name="feature_mission_error_json_parsing">JSON parsing error: %1$s</string>
+    <string name="feature_mission_error_mission_execution">Mission execution error: %1$s</string>
+    <string name="feature_mission_error_network">Network error: %1$s</string>
+    <string name="feature_mission_error_invalid_parameters">Invalid input parameters: %1$s</string>
+
+    <!-- Detailed Error Messages -->
+    <string name="feature_mission_error_invalid_json_format">Invalid JSON format: %1$s</string>
+    <string name="feature_mission_error_position_out_of_bounds">Rover initial position (%1$d, %2$d) is outside plateau bounds (0,0) to (%3$d, %4$d)</string>
+    <string name="feature_mission_error_invalid_direction">Invalid direction \'%1$s\'. Must be N, E, S, or W</string>
+    <string name="feature_mission_error_invalid_plateau_dimensions">Invalid plateau dimensions (%1$d, %2$d). Both must be non-negative and within limits</string>
+    <string name="feature_mission_error_unknown">Mission execution failed: %1$s</string>
+</resources>

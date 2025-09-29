@@ -7,12 +7,6 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.spotless) apply false
     alias(libs.plugins.detekt) apply false
-    alias(libs.plugins.ktlint) apply false
-}
-
-subprojects {
-    afterEvaluate {
-        project.apply("../config/codestyle.gradle")
-        project.apply("../config/utils.gradle.kts")
-    }
+    alias(libs.plugins.marsrover.project.utils)
+    alias(libs.plugins.marsrover.root.testing)
 }
